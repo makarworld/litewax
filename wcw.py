@@ -370,7 +370,7 @@ if __name__ == "__main__":
     client = WCW("cookie")
 
     # before that -> do import abigen; abigen.abigen().gen("res.pink")
-    from res_pink import res_pink
+    from contracts.res_pink import res_pink
     
     contract = res_pink('zknmi.wam')
 

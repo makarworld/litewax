@@ -10,17 +10,22 @@ import datetime as dt
 from typing import Tuple
 
 class {name}:
-    def __init__(self, username: str, permission: str="active", node: str="https://wax.greymass.com"):
+    def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"):
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
-        self.username = username
+        self.actor = actor
         self.permission = permission
 
+    def set_actor(self, actor: str):
+        self.actor = actor
+
     def generatePayload(self, account: str, name: str) -> dict:
+        if self.actor == "":
+            raise ValueError("actor is not set")
         return {
             "account": account,
             "name": name,
             "authorization": [{
-                "actor": self.username,
+                "actor": self.actor,
                 "permission": self.permission,
             }],
         }
