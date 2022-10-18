@@ -3,6 +3,7 @@ Simply python library for iteract with WAX blockchain
 
 # TODO
 - [ ] Create Anchor client
+- [ ] Improve abigen
 - [x] Create WCW client
 - [ ] Edit path to save contracts files
 - [ ] Create tests for WCW client

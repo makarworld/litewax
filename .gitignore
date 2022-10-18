@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# test contracts
+res_pink.py
+atomicdropsx.py

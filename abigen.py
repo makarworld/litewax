@@ -46,19 +46,15 @@ file_action = """
 
         {action}_args = {genargs}
         {action}_base = self.generatePayload("{name}", "{action}")
-        return {action}_base, {action}_args
+        return self.return_payload({action}_base, {action}_args)
 
 """
 
 file_final = """    # ACTIONS END
 
     def push_actions(self, private_key: str, *actions) -> Tuple[dict, bool]:
-        payloads = []
-        for a in actions:
-            payloads.append(self.return_payload(a[0], a[1]))
-
         trx = {
-            "actions": payloads
+            "actions": list(actions)
         }
             
         trx['expiration'] = str(

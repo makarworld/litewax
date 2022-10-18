@@ -9,49 +9,48 @@ from exceptions import CPUlimit, ExpiredTransaction, SessionExpired, SignError, 
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.37"
 
+current_node = NODE()
 
-class node_requests():
-    def __init__(self):
-        self.node = NODE()
 
-    def call(self, method: str, url: str, json: dict=None, headers: dict=None, timeout: int=30) -> dict:
-        req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-        if not 'http' in url:
-            # insert node to start of url
-            if url[0] != '/':
-                url = '/' + url
+def call(method: str, url: str, json: dict=None, headers: dict=None, timeout: int=30) -> dict:
+    current_node = NODE()
 
-            url = f'{self.node}{url}'
+    req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
+    if not 'http' in url:
+        # insert node to start of url
+        if url[0] != '/':
+            url = '/' + url
 
-        try:
-            if method.upper() == "GET":
-                info = req.get(url, json=json, headers=headers, timeout=timeout)
+        url = f'{current_node}{url}'
 
-            elif method.upper() == "POST":
-                info = req.post(url, json=json, headers=headers, timeout=timeout)
+    try:
+        if method.upper() == "GET":
+            info = req.get(url, json=json, headers=headers, timeout=timeout)
 
-            if info.status_code in [429, 502, 503, 504]:
-                print(f'{__name__}:24 | {method} | data err. try again')
+        elif method.upper() == "POST":
+            info = req.post(url, json=json, headers=headers, timeout=timeout)
 
-                self.node = NODE()
-                print(f'Change node to: {self.node}')
+        if info.status_code in [429, 502, 503, 504]:
+            print(f'{__name__}:24 | {method} | data err. try again')
 
-                time.sleep(1)
-                return self.call(method, url, json, headers, timeout)
+            current_node = NODE()
+            print(f'Change node to: {current_node}')
 
-            return info
+            time.sleep(1)
+            return call(method, url, json, headers, timeout)
 
-        except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
-            print(f'Connection({method}) error. try again in 5 sec')
-            self.node = NODE()
-            print(f'Change node to: {self.node}')
-            time.sleep(5)
-            return self.call(method, url, json, headers, timeout)
+        return info
+
+    except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
+        print(f'Connection({method}) error. try again in 5 sec')
+        current_node = NODE()
+        print(f'Change node to: {current_node}')
+        time.sleep(5)
+        return call(method, url, json, headers, timeout)
 
 def getcoin():
-    node_req = node_requests()
     try:
-        info = node_req.call("POST",
+        info = call("POST",
             f"/v1/chain/get_table_rows",
             json={
                 "json": True,
@@ -73,17 +72,16 @@ def getcoin():
     return data
 
 def getBlock() -> dict:
-    node_req = node_requests()
     data = dict()
     try:
-        info = node_req.call("GET", "/v1/chain/get_info")
+        info = call("GET", "/v1/chain/get_info")
         if info.status_code in [429, 502, 503, 504]:
             print('Get info data err. try again')
             time.sleep(1)
             return getBlock()
         data['ref_block_num'] = info.json()['head_block_num'] - 3
         # time.sleep(0.5)
-        block = node_req.call("POST",
+        block = call("POST",
             f"/v1/chain/get_block",
             json={
                 "block_num_or_id": data['ref_block_num']
@@ -107,10 +105,9 @@ def getBlock() -> dict:
 
 
 def json_to_bin(obj: dict) -> str:
-    node_req = node_requests()
     req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
     try:
-        bin = node_req.call("POST",
+        bin = call("POST",
             "/v1/chain/abi_json_to_bin",
             json=obj,
             timeout=30
@@ -132,10 +129,9 @@ def json_to_bin(obj: dict) -> str:
 
 
 def pushTx(sign: list, tx: bytearray) -> dict:
-    node_req = node_requests()
     req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
     try:
-        push_tx = node_req.call("POST",
+        push_tx = call("POST",
             "/v1/chain/push_transaction",
             json={
                 "signatures": sign,
