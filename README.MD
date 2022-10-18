@@ -1,6 +1,12 @@
 # litewax
 Simply python library for iteract with WAX blockchain
 
+# TODO
+[] Create WCW client
+[] Create Anchor client
+[] Create MultiSig client
+[] Add Contract class
+
 # future example
 ```
 >>> import litewax
