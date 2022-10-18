@@ -8,7 +8,7 @@ Simply python library for iteract with WAX blockchain
 - [ ] Edit path to save contracts files
 - [ ] Create tests for WCW client
 - [ ] Create MultiSig client
-- [ ] Add Contract class
+- [x] Add Contract function
 
 # future example
 ```
