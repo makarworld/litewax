@@ -46,7 +46,7 @@ file_action = """
 
         {action}_args = {genargs}
         {action}_base = self.generatePayload("{name}", "{action}")
-        return {action}_args, {action}_base
+        return {action}_base, {action}_args
 
 """
 
@@ -55,7 +55,7 @@ file_final = """    # ACTIONS END
     def push_actions(self, private_key: str, *actions) -> Tuple[dict, bool]:
         payloads = []
         for a in actions:
-            payloads.append(self.return_payload(a[1], a[0]))
+            payloads.append(self.return_payload(a[0], a[1]))
 
         trx = {
             "actions": payloads
@@ -216,4 +216,4 @@ class abigen():
 
 if __name__ == "__main__":
     app = abigen()
-    app.gen("atomicdropsx")
+    app.gen("res.pink")

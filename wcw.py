@@ -8,10 +8,13 @@ from node import NODE
 from exceptions import CPUlimit, ExpiredTransaction, SessionExpired, SignError, UnknownError
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.37"
-node = NODE()
 
 
-def call(method: str, url: str, json: dict=None, headers: dict=None, cookies: dict=None, timeout: int=30) -> dict:
+
+
+def call(method: str, url: str, json: dict=None, headers: dict=None, timeout: int=30) -> dict:
+    node = NODE()
+
     req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
     if not 'http' in url:
         # insert node to start of url
@@ -22,10 +25,10 @@ def call(method: str, url: str, json: dict=None, headers: dict=None, cookies: di
 
     try:
         if method.upper() == "GET":
-            info = req.get(url, json=json, headers=headers, cookies=cookies, timeout=timeout)
+            info = req.get(url, json=json, headers=headers, timeout=timeout)
 
         elif method.upper() == "POST":
-            info = req.post(url, json=json, headers=headers, cookies=cookies, timeout=timeout)
+            info = req.post(url, json=json, headers=headers, timeout=timeout)
 
         if info.status_code in [429, 502, 503, 504]:
             print(f'{__name__}:24 | {method} | data err. try again')
@@ -36,7 +39,7 @@ def call(method: str, url: str, json: dict=None, headers: dict=None, cookies: di
             time.sleep(1)
             return call(method, url, json, headers, timeout)
 
-        return info.json()
+        return info
 
     except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
         print(f'Connection({method}) error. try again in 5 sec')
@@ -175,6 +178,7 @@ def byteArrToArr(bArr)-> list:
 
 class TxConverter(object):
 
+
     def __init__(self, params):
         self.bytes_list = bytearray()
 
@@ -270,6 +274,7 @@ class TX:
     """WCW Transaction object\n
     methods:\n
     - push() - push transaction to blockchain"""
+
     def __init__(self, session_token: str, tx: bytearray):
         self.session_token = session_token
         self.tx = tx
@@ -345,19 +350,36 @@ class WCW:
 
     def Transaction(self, *actions) -> TX:
         block_data = getBlock()
+        print(list(actions))
         tx = TxConverter({
             "expiration": int(time.time() + 60),
             "ref_block_num": block_data['ref_block_num'],
             "ref_block_prefix": block_data['ref_block_prefix'],
             "max_net_usage_words": 0,
             "max_cpu_usage_ms": 0,
-            "delay_sec": 1,
+            "delay_sec": 0,
             "context_free_actions": [],
             "actions": list(actions),
             "transaction_extensions":[]
         }).bytes_list
 
         return TX(self.session_token, tx)
+
+if __name__ == "__main__":
+    # it's worked
+    client = WCW("cookie")
+
+    # before that -> do import abigen; abigen.abigen().gen("res.pink")
+    from res_pink import res_pink
+    
+    contract = res_pink('zknmi.wam')
+
+    tx = client.Transaction(
+        contract.noop()
+    )
+    print(tx.__dict__)
+    print(tx.push())
+
         
 
 """
