@@ -9,9 +9,10 @@ import pytz
 import datetime as dt
 
 class {name}:
-    def __init__(self, username: str, node: str="https://wax.greymass.com"):
+    def __init__(self, username: str, permission: str="active", node: str="https://wax.greymass.com"):
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
         self.username = username
+        self.permission = permission
 
     def generatePayload(self, account: str, name: str) -> dict:
         return {
@@ -19,7 +20,7 @@ class {name}:
             "name": name,
             "authorization": [{
                 "actor": self.username,
-                "permission": "active",
+                "permission": self.permission,
             }],
         }
 
@@ -37,9 +38,10 @@ class {name}:
 file_action = """
     def {action}(self, {args}):
         \"\"\"
-        CONTRACT: {name}
-        ACTION: {action}
-        arguments: {args}
+        ## ACTION: {name}.{action}
+        - Parametrs:
+        methods:
+            {description}
         \"\"\"
 
         {action}_args = {genargs}
@@ -85,6 +87,25 @@ if __name__ == '__main__':
 
 """
 
+TYPES = {
+    'name': 'str',
+    'asset': 'str',
+    'uint64': 'int',
+    'uint32': 'int',
+    'uint16': 'int',
+    'uint8': 'int',
+    'int64': 'int',
+    'int32': 'int',
+    'int16': 'int',
+    'int8': 'int',
+    'float64': 'float',
+    'float32': 'float',
+    'float128': 'float',
+    'bool': 'bool',
+    'string': 'str',
+    'public_key': 'str',
+    'signature': 'str'
+}
 
 def check_ban(text):
     banwords = {
@@ -101,6 +122,45 @@ class abigen():
     def __init__(self):
         pass
 
+    def gen(self, name):
+        actions = self.get_abi(name)
+        out = file_start #.replace('{name}', name.replace('.', '_'))
+        for action in actions:
+            if action['name'].isupper(): # it's a table
+                continue
+
+        for action in actions:
+            amtext = file_action
+            if action['name'].isupper(): # it's a table
+                continue
+
+            if action.get('fields', {}): # FIX THIS SHIT
+                args = ', '.join([f"{check_ban(x['name'])}: {TYPES.get(x['type'], 'str') if '[]' not in x['type'] else 'list'}" for x in action.get('fields', {})])
+                desc = '\n            '.join([f"- {x['name']}: {x['type']}" for x in action.get('fields', {})])
+            else:
+                args= ''
+                desc = ''
+            action_args = "{\n" + str(',\n'.join([f"            \"{x['name']}\": {check_ban(x['name'])}" for x in action.get('fields', {})])) + "\n        }"
+
+            for text, target in [
+                ['{action}', action['name']],
+                ['{description}', desc],
+                ['{args}', args],
+                ['{name}', name],
+                ['{genargs}', action_args]
+            ]:
+                amtext = amtext.replace(text, target)
+            
+            out += amtext
+
+        out += file_final#.replace('{name}', name.replace('.', '_'))
+
+        out = out.replace('{name}', name.replace('.', '_'))
+
+        with open(name.replace('.', '_') + '.py', "w", encoding='utf-8') as f:
+            f.write(out)
+        return out
+
     def clone_by_name(self, name):
         actions = self.get_abi(name)
         out = file_start.replace('{name}', name.replace('.', '_'))
@@ -111,10 +171,18 @@ class abigen():
                 continue
 
             amtext = amtext.replace('{action}', action['name'])
+
+
+
             if action.get('fields', {}):
-                args = ', '.join([f"{check_ban(x['name'])}: str" for x in action.get('fields', {})])
+                args = ', '.join([f"{check_ban(x['name'])}: {TYPES.get(x['type'], 'str') if '[]' not in x['type'] else 'list'}" for x in action.get('fields', {})])
+                
+                desc = '\n            '.join([f"- {x['name']}: {x['type']}" for x in action.get('fields', {})])
             else:
                 args= ''
+                desc = ''
+            
+            amtext = amtext.replace('{description}', desc)
 
             amtext = amtext.replace('{args}', args)
 
@@ -140,4 +208,4 @@ class abigen():
 
 if __name__ == "__main__":
     app = abigen()
-    app.clone_by_name("atomicmarket")
+    app.gen("atomicdropsx")

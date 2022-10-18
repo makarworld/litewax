@@ -69,7 +69,6 @@ def getcoin():
     return data
 
 def getBlock() -> dict:
-    req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
     data = dict()
     try:
         info = call("GET", "/v1/chain/get_info")
