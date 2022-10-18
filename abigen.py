@@ -1,3 +1,4 @@
+import os
 import eospy.cleos
 import eospy.keys
 import requests
@@ -160,44 +161,10 @@ class abigen():
 
         out = out.replace('{name}', name.replace('.', '_'))
 
-        with open(name.replace('.', '_') + '.py', "w", encoding='utf-8') as f:
-            f.write(out)
-        return out
+        if not os.path.exists('contracts'):
+            os.makedirs('contracts')
 
-    def clone_by_name(self, name):
-        actions = self.get_abi(name)
-        out = file_start.replace('{name}', name.replace('.', '_'))
-
-        for action in actions:
-            amtext = file_action
-            if action['name'].isupper(): # it's a table
-                continue
-
-            amtext = amtext.replace('{action}', action['name'])
-
-
-
-            if action.get('fields', {}):
-                args = ', '.join([f"{check_ban(x['name'])}: {TYPES.get(x['type'], 'str') if '[]' not in x['type'] else 'list'}" for x in action.get('fields', {})])
-                
-                desc = '\n            '.join([f"- {x['name']}: {x['type']}" for x in action.get('fields', {})])
-            else:
-                args= ''
-                desc = ''
-            
-            amtext = amtext.replace('{description}', desc)
-
-            amtext = amtext.replace('{args}', args)
-
-            amtext = amtext.replace('{name}', name)
-
-            action_args = ', '.join([f"\"{x['name']}\": {check_ban(x['name'])}" for x in action.get('fields', {})])
-            amtext = amtext.replace('{genargs}', "{" + action_args + "}")
-            
-            out += amtext
-
-        out += file_final.replace('{name}', name.replace('.', '_'))
-        with open(name.replace('.', '_') + '.py', "w", encoding='utf-8') as f:
+        with open('./contracts/' + name.replace('.', '_') + '.py', "w", encoding='utf-8') as f:
             f.write(out)
         return out
         
