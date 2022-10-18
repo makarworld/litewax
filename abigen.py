@@ -2,11 +2,11 @@ import eospy.cleos
 import eospy.keys
 import requests
 
-file_start = """
-import eospy.cleos
+file_start = """import eospy.cleos
 import eospy.keys
 import pytz
 import datetime as dt
+from typing import Tuple
 
 class {name}:
     def __init__(self, username: str, permission: str="active", node: str="https://wax.greymass.com"):
@@ -24,7 +24,7 @@ class {name}:
             }],
         }
 
-    def return_payload(self, payload, args):
+    def return_payload(self, payload, args) -> dict:
         data = self.wax.abi_json_to_bin(
             payload['account'], 
             payload['name'], 
@@ -36,7 +36,7 @@ class {name}:
     # ACTIONS"""
 
 file_action = """
-    def {action}(self, {args}):
+    def {action}(self, {args}) -> Tuple[dict, dict]:
         \"\"\"
         ## ACTION: {name}.{action}
         - Parametrs:
@@ -52,7 +52,7 @@ file_action = """
 
 file_final = """    # ACTIONS END
 
-    def push_actions(self, private_key: str, *actions):
+    def push_actions(self, private_key: str, *actions) -> Tuple[dict, bool]:
         payloads = []
         for a in actions:
             payloads.append(self.return_payload(a[1], a[0]))
@@ -67,7 +67,7 @@ file_final = """    # ACTIONS END
         resp = self.wax.push_transaction(trx, eospy.keys.EOSKey(private_key), broadcast=True)
         return resp, True
 
-    def create_trx(self, private_key: str, **actions):
+    def create_trx(self, private_key: str, **actions) -> Tuple[dict, dict]:
         ac = []
         for k, v in actions.items():
             ac.append(eval(f'self.{k}({", ".join({v})})'))
@@ -76,7 +76,7 @@ file_final = """    # ACTIONS END
 if __name__ == '__main__':
     contract = {name}(username="")
     contract.push_actions(
-        "",
+        "PRIVATE_KEY",
         contract.transfer(
             _from="",
             to="",
@@ -124,7 +124,7 @@ class abigen():
 
     def gen(self, name):
         actions = self.get_abi(name)
-        out = file_start #.replace('{name}', name.replace('.', '_'))
+        out = file_start
         for action in actions:
             if action['name'].isupper(): # it's a table
                 continue
@@ -134,12 +134,20 @@ class abigen():
             if action['name'].isupper(): # it's a table
                 continue
 
-            if action.get('fields', {}): # FIX THIS SHIT
-                args = ', '.join([f"{check_ban(x['name'])}: {TYPES.get(x['type'], 'str') if '[]' not in x['type'] else 'list'}" for x in action.get('fields', {})])
+            if action.get('fields', {}): 
+
+                formargs = []
+                for x in action.get('fields', {}):
+                    formargs.append(f"{check_ban(x['name'])}: {TYPES.get(x['type'], 'str') if '[]' not in x['type'] else 'list'}")
+
+                args = ', '.join(formargs)
+
                 desc = '\n            '.join([f"- {x['name']}: {x['type']}" for x in action.get('fields', {})])
+
             else:
                 args= ''
                 desc = ''
+
             action_args = "{\n" + str(',\n'.join([f"            \"{x['name']}\": {check_ban(x['name'])}" for x in action.get('fields', {})])) + "\n        }"
 
             for text, target in [
@@ -153,7 +161,7 @@ class abigen():
             
             out += amtext
 
-        out += file_final#.replace('{name}', name.replace('.', '_'))
+        out += file_final
 
         out = out.replace('{name}', name.replace('.', '_'))
 
