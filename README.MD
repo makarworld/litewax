@@ -2,7 +2,9 @@
 Simply python library for iteract with WAX blockchain
 
 # TODO
-- [ ] Create WCW client
+- [x] Create WCW client
+- [ ] Edit path to save contracts files
+- [ ] Create tests for WCW client
 - [ ] Create Anchor client
 - [ ] Create MultiSig client
 - [ ] Add Contract class
@@ -11,7 +13,7 @@ Simply python library for iteract with WAX blockchain
 ```
 >>> import litewax
 >>> // Create client with private key(anchor)
->>> AnchorClient = litewax.Client(private_key=litewax.PrivateKey(PVT_KEY))
+>>> AnchorClient = litewax.Client(private_key=PVT_KEY)
 >>>
 >>> // Create client with token session(wax cloud wallet)
 >>> WCWClient = litewax.Client(cookie=TOKEN_SESSION)
