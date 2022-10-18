@@ -40,7 +40,6 @@ file_action = """
         \"\"\"
         ## ACTION: {name}.{action}
         - Parametrs:
-        methods:
             {description}
         \"\"\"
 

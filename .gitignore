@@ -129,5 +129,4 @@ dmypy.json
 .pyre/
 
 # test contracts
-res_pink.py
-atomicdropsx.py
+/contracts
