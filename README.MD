@@ -2,13 +2,15 @@
 Simply python library for iteract with WAX blockchain
 
 # TODO
-- [ ] Create Anchor client
+- [x] Create Anchor client
 - [x] Improve abigen
 - [x] Create WCW client
-- [ ] Edit path to save contracts files
-- [ ] Create tests for WCW client
-- [ ] Create MultiSig client
+- [x] Edit path to save contracts files
 - [x] Add Contract function
+- [ ] Create tests for WCW client
+- [ ] Create tests for Anchor client
+- [ ] Create MultiSig client
+- [ ] Create tests for MultiSig client
 
 # future example
 ```

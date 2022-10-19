@@ -11,7 +11,6 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 
 current_node = NODE()
 
-
 def call(method: str, url: str, json: dict=None, headers: dict=None, timeout: int=30) -> dict:
     current_node = NODE()
 
@@ -346,11 +345,19 @@ class WCW:
     - Transaction(*actions) - create transaction object\n"""
 
     def __init__(self, session_token: str):
+        self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
         self.session_token = session_token
+        self.name = self.GetName()
+    
+    def GetName(self):
+        return self.session.get(
+            "https://api-idm.wax.io/v1/accounts/auto-accept/login",
+            headers={"origin":"https://wallet.wax.io"}, 
+            cookies={'session_token': self.session_token}).json()["userAccount"]
 
     def Transaction(self, *actions) -> TX:
         block_data = getBlock()
-        print(list(actions))
+
         tx = TxConverter({
             "expiration": int(time.time() + 60),
             "ref_block_num": block_data['ref_block_num'],
@@ -367,18 +374,17 @@ class WCW:
 
 if __name__ == "__main__":
     # it's worked
-    client = WCW("cookie")
-
+    client = WCW("hY0u8DUYNXjucimdWDajkuX9cLGjNlNjukaV60JZ")
     # before that -> do import abigen; abigen.abigen().gen("res.pink")
-    from contracts.res_pink import res_pink
-    
-    contract = res_pink('zknmi.wam')
+    #from contracts.res_pink import res_pink
+    #
+    #contract = res_pink('zknmi.wam')
 
-    tx = client.Transaction(
-        contract.noop()
-    )
-    print(tx.__dict__)
-    print(tx.push())
+    #tx = client.Transaction(
+    #    contract.noop()
+    #)
+    #print(tx.__dict__)
+    #print(tx.push())
 
         
 
