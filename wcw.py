@@ -4,175 +4,162 @@ from requests.exceptions import Timeout, ConnectionError, ChunkedEncodingError
 import time
 from json.decoder import JSONDecodeError
 
-from node import NODE
-from exceptions import CPUlimit, ExpiredTransaction, SessionExpired, SignError, UnknownError
+from contract import Contract
+from exceptions import CPUlimit, CookiesExpired, ExpiredTransaction, SessionExpired, SignError, UnknownError
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.37"
 
-current_node = NODE()
+class utils:
+    def __init__(self, node='https://wax.greymass.com', req=None):
+        self.node = node
+        if req:
+            self.req = req
+        else:
+            self.req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
 
-def call(method: str, url: str, json: dict=None, headers: dict=None, timeout: int=30) -> dict:
-    current_node = NODE()
 
-    req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-    if not 'http' in url:
-        # insert node to start of url
-        if url[0] != '/':
-            url = '/' + url
+    def call(self, method: str, url: str, json: dict=None, headers: dict=None, timeout: int=30) -> dict:
+        if not 'http' in url:
+            # insert node to start of url
+            if url[0] != '/':
+                url = '/' + url
 
-        url = f'{current_node}{url}'
+            url = f'{self.node}{url}'
 
-    try:
         if method.upper() == "GET":
-            info = req.get(url, json=json, headers=headers, timeout=timeout)
+            info = self.req.get(url, json=json, headers=headers, timeout=timeout)
 
         elif method.upper() == "POST":
-            info = req.post(url, json=json, headers=headers, timeout=timeout)
-
-        if info.status_code in [429, 502, 503, 504]:
-            print(f'{__name__}:24 | {method} | data err. try again')
-
-            current_node = NODE()
-            print(f'Change node to: {current_node}')
-
-            time.sleep(1)
-            return call(method, url, json, headers, timeout)
+            info = self.req.post(url, json=json, headers=headers, timeout=timeout)
 
         return info
 
-    except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
-        print(f'Connection({method}) error. try again in 5 sec')
-        current_node = NODE()
-        print(f'Change node to: {current_node}')
-        time.sleep(5)
-        return call(method, url, json, headers, timeout)
 
-def getcoin():
-    try:
-        info = call("POST",
-            f"/v1/chain/get_table_rows",
-            json={
-                "json": True,
-                "limit": 1,
-                "code": "delphioracle",
-                "scope": "waxpusd",
-                "table": "datapoints",
-                "index_position": 3,
-                "key_type": "i64",
-                "reverse": True,
-                "upper_bound": ""
-            },
-            timeout=30
-        )
-    except Exception as e:
-        time.sleep(5)
-        return getcoin()
-    data = info.json()["rows"][0]
-    return data
-
-def getBlock() -> dict:
-    data = dict()
-    try:
-        info = call("GET", "/v1/chain/get_info")
-        if info.status_code in [429, 502, 503, 504]:
-            print('Get info data err. try again')
-            time.sleep(1)
-            return getBlock()
-        data['ref_block_num'] = info.json()['head_block_num'] - 3
-        # time.sleep(0.5)
-        block = call("POST",
-            f"/v1/chain/get_block",
-            json={
-                "block_num_or_id": data['ref_block_num']
-            },
-            timeout=120
-        )
-        if block.status_code in [429, 502, 503, 504]:
-            print('Get block data err. try again')
-            time.sleep(1)
-            return getBlock()
+    def getcoin(self):
         try:
-            data['ref_block_prefix'] = block.json()['ref_block_prefix']
-        except:
+            info = self.call("POST",
+                f"/v1/chain/get_table_rows",
+                json={
+                    "json": True,
+                    "limit": 1,
+                    "code": "delphioracle",
+                    "scope": "waxpusd",
+                    "table": "datapoints",
+                    "index_position": 3,
+                    "key_type": "i64",
+                    "reverse": True,
+                    "upper_bound": ""
+                },
+                timeout=30
+            )
+        except Exception as e:
             time.sleep(5)
-            return getBlock()
-    except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
-        print('Connection(getblock) error. try again in 5 sec')
-        time.sleep(5)
-        return getBlock()
-    return data
+            return self.getcoin()
 
+        data = info.json()["rows"][0]
+        return data
 
-def json_to_bin(obj: dict) -> str:
-    req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-    try:
-        bin = call("POST",
-            "/v1/chain/abi_json_to_bin",
-            json=obj,
-            timeout=30
-        )
-        if bin.status_code not in [202, 200]:
-            print('json_to_bin err. try again')
-            print(f'code >>>>>>>>>>>>>>>>>>>{bin.status_code}')
-            url = bin.url.split(".")
-            print(
-                f'endpoint >>>>>>>>>>>>>>>>>>>{url[1] if len(url) == 3 else url[2]}')
-            print(f'res >>>>>>>>>>>>>>>>>>>{bin.text}')
-            time.sleep(3)
-            return json_to_bin(obj)
-        return bin.json()['binargs']
-    except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
-        print('Connection(json_to_bin) error. try again in 5 sec')
-        time.sleep(5)
-        return json_to_bin(obj)
-
-
-def pushTx(sign: list, tx: bytearray) -> dict:
-    req = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-    try:
-        push_tx = call("POST",
-            "/v1/chain/push_transaction",
-            json={
-                "signatures": sign,
-                "compression": 0,
-                "packed_context_free_data": "",
-                "packed_trx": tx.hex()
-            },
-            timeout=30
-        )
-        if push_tx.status_code not in [202, 200]:
-            if push_tx.status_code in [429, 502, 503, 504]:
-                print('Push Tx err. try again')
-                print(f'code >>>>>>>>>>>>>>>>>>>{push_tx.status_code}')
-                url = push_tx.url.split(".")
-                print(
-                    f'endpoint >>>>>>>>>>>>>>>>>>>{url[1] if len(url) == 3 else url[2]}')
-                print(f'res >>>>>>>>>>>>>>>>>>>{push_tx.text}')
-                return pushTx(sign, tx)
+    def getBlock(self) -> dict:
+        data = dict()
+        try:
+            info = self.call("GET", "/v1/chain/get_info")
+            if info.status_code in [429, 502, 503, 504]:
+                print('Get info data err. try again')
+                time.sleep(1)
+                return self.getBlock()
+            data['ref_block_num'] = info.json()['head_block_num'] - 3
+            # time.sleep(0.5)
+            block = self.call("POST",
+                f"/v1/chain/get_block",
+                json={
+                    "block_num_or_id": data['ref_block_num']
+                },
+                timeout=120
+            )
+            if block.status_code in [429, 502, 503, 504]:
+                print('Get block data err. try again')
+                time.sleep(1)
+                return self.getBlock()
             try:
-                err = push_tx.json()["error"]  # ["what"]
-                print(f'url {push_tx.url}')
-                return {
-                    'error': err,
-                    'transaction_id': ''
-                }
+                data['ref_block_prefix'] = block.json()['ref_block_prefix']
             except:
-                print('push err')
-                print(f'code >>>>>>>>>>>>>>>>>>>{push_tx.status_code}')
-                url = push_tx.url.split(".")
+                time.sleep(5)
+                return self.getBlock()
+        except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
+            print('Connection(getblock) error. try again in 5 sec')
+            time.sleep(5)
+            return self.getBlock()
+        return data
+
+
+    def json_to_bin(self, obj: dict) -> str:
+        try:
+            bin = self.call("POST",
+                "/v1/chain/abi_json_to_bin",
+                json=obj,
+                timeout=30
+            )
+            if bin.status_code not in [202, 200]:
+                print('json_to_bin err. try again')
+                print(f'code >>>>>>>>>>>>>>>>>>>{bin.status_code}')
+                url = bin.url.split(".")
                 print(
                     f'endpoint >>>>>>>>>>>>>>>>>>>{url[1] if len(url) == 3 else url[2]}')
-                print(f'res >>>>>>>>>>>>>>>>>>>{push_tx.text}')
-                return pushTx(sign, tx)
-        return push_tx.json()
-    except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
-        print('Connection(pushTx) error. try again in 5 sec')
-        time.sleep(5)
-        return pushTx(sign, tx)
+                print(f'res >>>>>>>>>>>>>>>>>>>{bin.text}')
+                time.sleep(3)
+                return self.json_to_bin(obj)
+            return bin.json()['binargs']
+        except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
+            print('Connection(json_to_bin) error. try again in 5 sec')
+            time.sleep(5)
+            return self.json_to_bin(obj)
 
 
-def byteArrToArr(bArr)-> list:
-    return [x for x in bArr]
+    def pushTx(self, sign: list, tx: bytearray) -> dict:
+        try:
+            push_tx = self.call("POST",
+                "/v1/chain/push_transaction",
+                json={
+                    "signatures": sign,
+                    "compression": 0,
+                    "packed_context_free_data": "",
+                    "packed_trx": tx.hex()
+                },
+                timeout=30
+            )
+            if push_tx.status_code not in [202, 200]:
+                if push_tx.status_code in [429, 502, 503, 504]:
+                    print('Push Tx err. try again')
+                    print(f'code >>>>>>>>>>>>>>>>>>>{push_tx.status_code}')
+                    url = push_tx.url.split(".")
+                    print(
+                        f'endpoint >>>>>>>>>>>>>>>>>>>{url[1] if len(url) == 3 else url[2]}')
+                    print(f'res >>>>>>>>>>>>>>>>>>>{push_tx.text}')
+                    return self.pushTx(sign, tx)
+                try:
+                    err = push_tx.json()["error"]  # ["what"]
+                    print(f'url {push_tx.url}')
+                    return {
+                        'error': err,
+                        'transaction_id': ''
+                    }
+                except:
+                    print('push err')
+                    print(f'code >>>>>>>>>>>>>>>>>>>{push_tx.status_code}')
+                    url = push_tx.url.split(".")
+                    print(
+                        f'endpoint >>>>>>>>>>>>>>>>>>>{url[1] if len(url) == 3 else url[2]}')
+                    print(f'res >>>>>>>>>>>>>>>>>>>{push_tx.text}')
+                    return self.pushTx(sign, tx)
+            return push_tx.json()
+        except (ConnectionError, Timeout, JSONDecodeError, ChunkedEncodingError, IndexError):
+            print('Connection(pushTx) error. try again in 5 sec')
+            time.sleep(5)
+            return self.pushTx(sign, tx)
+
+
+    def byteArrToArr(self, bArr)-> list:
+        return [x for x in bArr]
 
 
 class TxConverter(object):
@@ -269,18 +256,75 @@ class TxConverter(object):
     def push_transaction_extensions(self, val_list):
         self.push_variableUInt(len(val_list))
 
-class TX:
-    """WCW Transaction object\n
+
+class WCW:
+    """WCW Client object\n
     methods:\n
-    - push() - push transaction to blockchain"""
+    - Transaction(*actions) - create transaction object\n"""
 
-    def __init__(self, session_token: str, tx: bytearray):
-        self.session_token = session_token
-        self.tx = tx
-
+    def __init__(self, session_token: str, node='https://wax.greymass.com'):
         self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
+        self.utils = utils(node=node, req=self.session)
+        self.session_token = session_token
+        self.name = self.GetName()
+
+        self.Contract = Contract
     
-    def push(self):
+    def SetNode(self, node):
+        self.utils.node = node
+
+    def GetName(self):
+        try:
+            return self.session.get(
+                "https://api-idm.wax.io/v1/accounts/auto-accept/login",
+                headers={"origin":"https://wallet.wax.io"}, 
+                cookies={'session_token': self.session_token}).json()["userAccount"]
+        except KeyError:
+            raise CookiesExpired("Session token is expired")
+
+    def Transaction(self, *actions):
+        """
+        ## Create transaction object\n
+        ### Example:\n
+        ```python
+        from litewax import Client, Contract
+        client = Client(cookie="")
+
+        contract = Contract(name="eosio.token")
+        contract.set_actor(client.name)
+
+        trx = client.Transaction(
+            contract.transfer(
+                _from = "wallet1",
+                _to = "wallet2",
+                amount = "1.0000 WAX",
+                memo = "memo"
+            )
+        )
+
+        trx.push() # -> hash
+        ```
+
+        - Returns
+          - `TX` Object
+        """
+        block_data = self.utils.getBlock()
+
+        tx = TxConverter({
+            "expiration": int(time.time() + 60),
+            "ref_block_num": block_data['ref_block_num'],
+            "ref_block_prefix": block_data['ref_block_prefix'],
+            "max_net_usage_words": 0,
+            "max_cpu_usage_ms": 0,
+            "delay_sec": 0,
+            "context_free_actions": [],
+            "actions": list(actions),
+            "transaction_extensions":[]
+        }).bytes_list
+
+        return TX(self, tx)
+
+    def sign(self, trx: bytearray):
         self.session.options(
             "https://public-wax-on.wax.io/wam/sign", 
             headers={"origin":"https://all-access.wax.io"}, 
@@ -295,7 +339,7 @@ class TX:
                 'content-type': 'application/json;charset=UTF-8',
             },
             json={
-                "serializedTransaction": byteArrToArr(self.tx),
+                "serializedTransaction": self.utils.byteArrToArr(trx),
                 "website": "wallet.wax.io",
                 "description": "jwt is insecure",
                 "freeBandwidth": True
@@ -325,8 +369,25 @@ class TX:
                     f'res >>>>>>>>>>>>>>>>>>>{signed.text}')
 
         signatures = signed.json()["signatures"]
+        return signatures
+
+class TX:
+    """WCW Transaction object\n
+    methods:\n
+    - push() - push transaction to blockchain"""
+
+    def __init__(self, client: WCW, tx: bytearray):
+        self.utils = client.utils
+        self.session_token = client.session_token
+        self.tx = tx
+        self.sign = client.sign
+
+        self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
+
+    def push(self):
+        signatures = self.sign(self.tx)
         
-        push_create_offer = pushTx(signatures, self.tx)
+        push_create_offer = self.utils.pushTx(signatures, self.tx)
         if push_create_offer['transaction_id'] == '':
             if push_create_offer['error']["what"] == 'Transaction exceeded the current CPU usage limit imposed on the transaction':
                 raise CPUlimit('Error: CPU usage limit!!')
@@ -337,40 +398,6 @@ class TX:
                 raise UnknownError(
                     f'Error: {push_create_offer["error"]["details"][0]["message"]}')
         return push_create_offer["transaction_id"]
-
-
-class WCW:
-    """WCW Client object\n
-    methods:\n
-    - Transaction(*actions) - create transaction object\n"""
-
-    def __init__(self, session_token: str):
-        self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-        self.session_token = session_token
-        self.name = self.GetName()
-    
-    def GetName(self):
-        return self.session.get(
-            "https://api-idm.wax.io/v1/accounts/auto-accept/login",
-            headers={"origin":"https://wallet.wax.io"}, 
-            cookies={'session_token': self.session_token}).json()["userAccount"]
-
-    def Transaction(self, *actions) -> TX:
-        block_data = getBlock()
-
-        tx = TxConverter({
-            "expiration": int(time.time() + 60),
-            "ref_block_num": block_data['ref_block_num'],
-            "ref_block_prefix": block_data['ref_block_prefix'],
-            "max_net_usage_words": 0,
-            "max_cpu_usage_ms": 0,
-            "delay_sec": 0,
-            "context_free_actions": [],
-            "actions": list(actions),
-            "transaction_extensions":[]
-        }).bytes_list
-
-        return TX(self.session_token, tx)
 
 if __name__ == "__main__":
     # it's worked

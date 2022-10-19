@@ -39,19 +39,37 @@ class {name}:
         payload['data'] = data['binargs']
         return payload
 
-    # ACTIONS"""
+    # ACTIONS
+    def call(self, action: str, args: dict) -> dict:
+        \"\"\"
+        ## CALL ANY ACTION
+        - Parametrs:
+            - action: str
+            - args: dict
+
+        - Returns:
+            - dict
+        \"\"\"
+
+        base = self.generatePayload("{normal_name}", action)
+
+        return self.return_payload(base, args)
+
+"""
 
 file_action = """
-    def {action}(self, {args}) -> Tuple[dict, dict]:
+    def {action}(self, {args}) -> dict:
         \"\"\"
         ## ACTION: {name}.{action}
         - Parametrs:
             {description}
+
+        - Returns:
+            - dict
         \"\"\"
 
         {action}_args = {genargs}
-        {action}_base = self.generatePayload("{name}", "{action}")
-        return self.return_payload({action}_base, {action}_args)
+        return self.call("{action}", {action}_args)
 
 """
 
@@ -75,7 +93,7 @@ file_final = """    # ACTIONS END
         return self.push_actions(private_key, ac)
 
 if __name__ == '__main__':
-    contract = {name}(username="")
+    contract = {name}(actor="")
     contract.push_actions(
         "PRIVATE_KEY",
         contract.transfer(
@@ -164,6 +182,7 @@ class abigen():
 
         out += file_final
 
+        out = out.replace('{normal_name}', name)
         out = out.replace('{name}', name.replace('.', '_'))
 
         if not os.path.exists('contracts'):

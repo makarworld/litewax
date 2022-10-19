@@ -16,3 +16,9 @@ class CPUlimit(Exception):
 
 class ExpiredTransaction(Exception):
     pass
+
+class NotImplementedError(Exception):
+    pass
+
+class CookiesExpired(Exception):
+    pass
