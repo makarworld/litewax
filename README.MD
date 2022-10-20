@@ -1,6 +1,6 @@
 [![Github last commit date](https://img.shields.io/github/last-commit/makarworld/litewax.svg?label=Updated&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/commits)
 [![Total downloads](https://img.shields.io/github/downloads/makarworld/litewax/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/releases)
-[![License](https://img.shields.io/github/license/makarworld/litewax.svg?label=License&logo=apache&cacheSeconds=2592000)](https://github.com/makarworld/litewax/blob/main/LICENSE.txt)
+[![License](https://img.shields.io/github/license/makarworld/litewax.svg?label=License&logo=apache&cacheSeconds=2592000)](https://github.com/makarworld/litewax/blob/main/LICENSE)
 
 [WAX donate](https://wax.atomichub.io/trading/token-transfer?partner=abuztradewax)
 
@@ -9,11 +9,12 @@ Simply python library for interact with WAX blockchain
 
 # TODO
 - [x] Create Anchor client
-- [x] Improve abigen
 - [x] Create WCW client
-- [x] Edit path to save contracts files
-- [x] Add Contract function
 - [x] Create MultiSig client
+- [x] Add Contract function
+- [x] Improve abigen
+- [x] Edit path to save contracts files
+- [x] Create tests for Client
 - [ ] Create tests for WCW client
 - [ ] Create tests for Anchor client
 - [ ] Create tests for MultiSig client
