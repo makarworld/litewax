@@ -104,71 +104,71 @@ trx.push() # -> hash
 # Examples
 ## (Anchor) Client example 
 ```
->>> import litewax
->>>
->>> # Create client with private key(anchor)
->>> client = litewax.Client(private_key=PVT_KEY)
->>>
->>> # Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
->>> contract = litewax.Contract("res.pink", client)
->>> # or
->>> # contract = client.Contract("res.pink")
->>> # or
->>> # contract = litewax.Contract("res.pink")
->>> # contract.set_actor(client.name) 
->>>
->>> # easy make transaction
->>> trx = client.Transaction(
+import litewax
+
+# Create client with private key(anchor)
+client = litewax.Client(private_key=PVT_KEY)
+
+# Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
+contract = litewax.Contract("res.pink", client)
+# or
+# contract = client.Contract("res.pink")
+# or
+# contract = litewax.Contract("res.pink")
+# contract.set_actor(client.name) 
+
+# easy make transaction
+trx = client.Transaction(
         contract.noop()
     )
->>> 
->>> # easy push transaction
->>> trx.push()
->>> 0xabcd0123...
+
+# easy push transaction
+trx.push()
+0xabcd0123...
 ```
 ## (Wax Cloud Wallet) Client example 
 ```
->>> import litewax
->>>
->>> # Create client with token session (wax cloud wallet)
->>> client = litewax.Client(cookie=TOKEN_SESSION)
->>> 
->>> # Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
->>> contract = litewax.Contract("res.pink", client)
->>> # or
->>> # contract = client.Contract("res.pink")
->>> # or
->>> # contract = litewax.Contract("res.pink")
->>> # contract.set_actor(client.name) 
->>>
->>> # easy make transaction
->>> trx = AnchorClient.Transaction(
+import litewax
+
+# Create client with token session (wax cloud wallet)
+client = litewax.Client(cookie=TOKEN_SESSION)
+
+# Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
+contract = litewax.Contract("res.pink", client)
+# or
+# contract = client.Contract("res.pink")
+# or
+# contract = litewax.Contract("res.pink")
+# contract.set_actor(client.name) 
+
+# easy make transaction
+trx = AnchorClient.Transaction(
         contract.noop()
     )
->>> 
->>> # easy push transaction
->>> trx.push()
->>> 0xabcd0123...
+
+# easy push transaction
+trx.push()
+0xabcd0123...
 ```
 ## (Anchor) MultiSigClient example 
 ```
->>> import litewax
->>> 
->>> # Create multisig client (may accept wax cloud wallet and anchor)
->>> multiclient = litewax.MultiSigClient(
+import litewax
+
+# Create multisig client (may accept wax cloud wallet and anchor)
+multiclient = litewax.MultiSigClient(
         private_keys=[PVT_KEY1, PVT_KEY2, ...]
     )
->>>
->>> # Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
->>> contract = litewax.Contract("res.pink", client)
->>> # or
->>> # contract = client[i].Contract("res.pink")
->>> # or
->>> # contract = litewax.Contract("res.pink")
->>> # contract.set_actor(client[i].name) 
->>>
->>> # easy make transaction
->>> trx = multiclient.Transaction(
+
+# Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
+contract = litewax.Contract("res.pink", client)
+# or
+# contract = client[i].Contract("res.pink")
+# or
+# contract = litewax.Contract("res.pink")
+# contract.set_actor(client[i].name) 
+
+# easy make transaction
+trx = multiclient.Transaction(
         contract.transfer(
             _from=client[0].name,
             _to=client[1].name,
@@ -177,30 +177,30 @@ trx.push() # -> hash
         ),
         client[1].Contract("res.pink").noop() # for pay CPU
     )
->>> 
->>> # easy push transaction (if client is MultiSig, last signed action will pay for all cpu)
->>> trx.push()
->>> 0xabcd0123...
+
+# easy push transaction (if client is MultiSig, last signed action will pay for all cpu)
+trx.push()
+0xabcd0123...
 ```
 ## (Wax Cloud Wallet) MultiSigClient example 
 ```
->>> import litewax
->>> 
->>> # Create multisig client (may accept wax cloud wallet and anchor)
->>> multiclient = litewax.MultiSigClient(
+import litewax
+
+# Create multisig client (may accept wax cloud wallet and anchor)
+multiclient = litewax.MultiSigClient(
         cookies=[cookie1, cookie2, ...]
     )
->>>
->>> # Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
->>> contract = litewax.Contract("res.pink", client)
->>> # or
->>> # contract = client[i].Contract("res.pink")
->>> # or
->>> # contract = litewax.Contract("res.pink")
->>> # contract.set_actor(client[i].name) 
->>>
->>> # easy make transaction
->>> trx = multiclient.Transaction(
+
+# Create a contract object for iteract (file will be created in ./contracts/contract_file.py)
+contract = litewax.Contract("res.pink", client)
+# or
+# contract = client[i].Contract("res.pink")
+# or
+# contract = litewax.Contract("res.pink")
+# contract.set_actor(client[i].name) 
+
+# easy make transaction
+trx = multiclient.Transaction(
         contract.transfer(
             _from=client[0].name,
             _to=client[1].name,
@@ -209,40 +209,40 @@ trx.push() # -> hash
         ),
         client[1].Contract("res.pink").noop() # for pay CPU
     )
->>> 
->>> # easy push transaction (if client is MultiSig, last signed action will pay for all cpu)
->>> trx.push()
->>> 0xabcd0123...
+
+# easy push transaction (if client is MultiSig, last signed action will pay for all cpu)
+trx.push()
+0xabcd0123...
 ```
 ## Contract obj example 
 ```
->>> from litewax import Contract
->>>
->>> contract = Contract("res.pink")
->>> # contract = Contract("res.pink", actor="abuztradewax")
->>> # contract = Contract("res.pink", actor="abuztradewax", force_recreate=True)
->>> #
->>> # After create contract once, abigen create folder "contracts" and you can import directly
->>>
->>> from contracts.res_pink import res_pink 
->>> # in contract name "." replace to "_"
->>>
->>> contract = res_pink(actor="abuztradewax")
->>> # contract = res_pink()
->>> # contract.set_actor("abuztradewax")
->>>
->>> # you can push transaction without initialize any clients (push work only for anchor accounts)
->>> contract.push_actions(
+from litewax import Contract
+
+contract = Contract("res.pink")
+# contract = Contract("res.pink", actor="abuztradewax")
+# contract = Contract("res.pink", actor="abuztradewax", force_recreate=True)
+#
+# After create contract once, abigen create folder "contracts" and you can import directly
+
+from contracts.res_pink import res_pink 
+# in contract name "." replace to "_"
+
+contract = res_pink(actor="abuztradewax")
+# contract = res_pink()
+# contract.set_actor("abuztradewax")
+
+# you can push transaction without initialize any clients (push work only for anchor accounts)
+contract.push_actions(
         "PRIVATE_KEY",
         contract.noop()
     )
->>> 0x123abc...
->>> 
->>> # also you can send multiply signed trx
->>> contract1 = Contract("eosio.token", actor="wallet1")
->>> contract2 = Contract("res.pink", actor="wallet2")
->>> 
->>> contract1.push_actions(
+0x123abc...
+
+# also you can send multiply signed trx
+contract1 = Contract("eosio.token", actor="wallet1")
+contract2 = Contract("res.pink", actor="wallet2")
+
+contract1.push_actions(
         ["PRIVATE_KEY1", "PRICATE_KEY2"],
         contract1.transfer(
             _from=contract1.actor,
@@ -251,5 +251,5 @@ trx.push() # -> hash
             memo="send 1 WAX without any client (only Contract instance)"
         ),
         contract2.noop() # this action will pay for CPU
->>> 0x123abc...
+0x123abc...
 ```
