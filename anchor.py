@@ -52,8 +52,9 @@ class Anchor:
 
         self.name = self.GetName()
 
-        self.Contract = Contract
-    
+    def Contract(self, name: str):
+        return Contract(name, self)
+
     def SetNode(self, node: str):
         self.node = node
 

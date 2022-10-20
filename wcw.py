@@ -268,8 +268,9 @@ class WCW:
         self.session_token = session_token
         self.name = self.GetName()
 
-        self.Contract = Contract
-    
+    def Contract(self, name: str):
+        return Contract(name, self)
+        
     def SetNode(self, node):
         self.utils.node = node
 

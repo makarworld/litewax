@@ -7,7 +7,7 @@ file_start = """import eospy.cleos
 import eospy.keys
 import pytz
 import datetime as dt
-from typing import Tuple
+from typing import Tuple, Any
 
 class {name}:
     def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"):
@@ -75,7 +75,7 @@ file_action = """
 
 file_final = """    # ACTIONS END
 
-    def push_actions(self, private_key: str, *actions) -> Tuple[dict, bool]:
+    def push_actions(self, private_keys: Any[list, str], *actions) -> Tuple[dict, bool]:
         trx = {
             "actions": list(actions)
         }
@@ -83,7 +83,13 @@ file_final = """    # ACTIONS END
         trx['expiration'] = str(
             (dt.datetime.utcnow() + dt.timedelta(seconds=60)).replace(tzinfo=pytz.UTC))
 
-        resp = self.wax.push_transaction(trx, eospy.keys.EOSKey(private_key), broadcast=True)
+        if isinstance(private_keys, str):
+            private_keys = eospy.keys.EOSKey(private_keys)
+
+        elif isinstance(private_keys, list):
+            private_keys = [eospy.keys.EOSKey(i) for i in private_keys]
+
+        resp = self.wax.push_transaction(trx, private_keys, broadcast=True)
         return resp, True
 
     def create_trx(self, private_key: str, **actions) -> Tuple[dict, dict]:
@@ -138,8 +144,8 @@ def check_ban(text):
         return banwords.get(text)
 
 class abigen():
-    def __init__(self):
-        pass
+    def __init__(self, node: str="https://wax.greymass.com"):
+        self.node = node
 
     def gen(self, name):
         actions = self.get_abi(name)
@@ -193,11 +199,11 @@ class abigen():
         return out
         
     def get_abi(self, account_name: str):
-        r = requests.post("https://wax.eosn.io/v1/chain/get_abi", json={"account_name": account_name}).json()
+        r = requests.post(f"{self.node}/v1/chain/get_abi", json={"account_name": account_name}).json()
         return r['abi']['structs']
 
     def get_tx_info(self, tx: str):
-        return requests.post("https://wax.greymass.com/v1/history/get_transaction",
+        return requests.post(f"{self.node}/v1/history/get_transaction",
                    json={"id": tx, "block_num_hint": 0}).json()
 
 if __name__ == "__main__":

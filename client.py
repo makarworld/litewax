@@ -1,7 +1,3 @@
-import cloudscraper
-import eospy.cleos
-import eospy.keys
-
 from wcw import WCW
 from anchor import Anchor
 from exceptions import AuthNotFound, NotImplementedError
