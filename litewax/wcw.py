@@ -398,7 +398,7 @@ class TX:
             else:
                 raise UnknownError(
                     f'Error: {push_create_offer["error"]["details"][0]["message"]}')
-        return push_create_offer["transaction_id"]
+        return push_create_offer
 
 if __name__ == "__main__":
     client = WCW("hY0u8DUYNXjucimdWDajkuX9cLGjNlNjukaV60JZ")
