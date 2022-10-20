@@ -15,8 +15,8 @@ Simply python library for interact with WAX blockchain
 - [x] Improve abigen
 - [x] Edit path to save contracts files
 - [x] Create tests for Client
-- [ ] Create tests for WCW client
-- [ ] Create tests for Anchor client
+- [x] Create tests for WCW client
+- [x] Create tests for Anchor client
 - [ ] Create tests for MultiSig client
  
 ---
