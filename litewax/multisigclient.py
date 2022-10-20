@@ -4,17 +4,14 @@ import eospy.cleos
 import eospy.keys
 from eospy.types import EOSEncoder, Transaction
 from eospy.utils import sig_digest
-
 import pytz
 import datetime as dt
-from anchor import Anchor
 
-
-from client import Client
-
-from contract import Contract
-from exceptions import *
-from wcw import WCW, TxConverter
+from .anchor import Anchor
+from .client import Client
+from .contract import Contract
+from .exceptions import *
+from .wcw import WCW, TxConverter
 
 class MultiSigClient():
     """

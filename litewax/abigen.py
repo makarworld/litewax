@@ -1,6 +1,4 @@
 import os
-import eospy.cleos
-import eospy.keys
 import requests
 
 file_start = """import eospy.cleos
@@ -31,6 +29,11 @@ class {name}:
         }
 
     def return_payload(self, payload, args) -> dict:
+        # if args is empty, return payload
+        if not args:
+            payload['data'] = ''
+            return payload
+            
         data = self.wax.abi_json_to_bin(
             payload['account'], 
             payload['name'], 
@@ -75,7 +78,7 @@ file_action = """
 
 file_final = """    # ACTIONS END
 
-    def push_actions(self, private_keys: Any[list, str], *actions) -> Tuple[dict, bool]:
+    def push_actions(self, private_keys: Any, *actions) -> Tuple[dict, bool]:
         trx = {
             "actions": list(actions)
         }

@@ -14,7 +14,7 @@ import cloudscraper
 import pytz
 import datetime as dt
 
-from contract import Contract
+from .contract import Contract
 
 class Anchor:
     """

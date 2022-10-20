@@ -1,6 +1,6 @@
-from wcw import WCW
-from anchor import Anchor
-from exceptions import AuthNotFound, NotImplementedError
+from .wcw import WCW
+from .anchor import Anchor
+from .exceptions import AuthNotFound, NotImplementedError
 
 class Client():
     """

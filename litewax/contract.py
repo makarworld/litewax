@@ -1,5 +1,5 @@
 import os
-from abigen import abigen
+from .abigen import abigen
 
 def Contract(name: str, client=None, actor=None, force_recreate=False):
     if not os.path.exists(f'contracts/{name.replace(".", "_")}.py') or force_recreate:
