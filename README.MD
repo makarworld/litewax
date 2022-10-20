@@ -1,3 +1,9 @@
+[![Github last commit date](https://img.shields.io/github/last-commit/makarworld/litewax.svg?label=Updated&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/commits)
+[![Total downloads](https://img.shields.io/github/downloads/makarworld/litewax/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/releases)
+[![License](https://img.shields.io/github/license/makarworld/litewax.svg?label=License&logo=apache&cacheSeconds=2592000)](https://github.com/makarworld/litewax/blob/main/LICENSE.txt)
+
+[WAX donate](https://wax.atomichub.io/trading/token-transfer?partner=abuztradewax)
+
 # litewax
 Simply python library for iteract with WAX blockchain
 
@@ -11,11 +17,16 @@ Simply python library for iteract with WAX blockchain
 - [ ] Create tests for WCW client
 - [ ] Create tests for Anchor client
 - [ ] Create tests for MultiSig client
+ 
+---
 
-## Installation 
+# Installation 
 ```
 pip install litewax
 ```
+
+---
+
 # Clients examples
 ## Import
 ```
@@ -41,6 +52,9 @@ Wax Cloud Wallet MultiSigClient
 ```
 client = MultiSigClient(cookies=["TOKEN_SESSION1", "TOKEN_SESSION2", ...])
 ```
+
+---
+
 # Contract examples
 ## Contract initialize
 Default
@@ -65,6 +79,9 @@ from contracts.res_pink import res_pink
 
 contract = res_pink("actor")
 ```
+
+---
+
 # Transactions
 ## Make transaction
 ```
@@ -81,6 +98,9 @@ trx = client.Transaction(
 trx.push() # -> hash
 # 0x0123abc...
 ```
+
+---
+
 # Examples
 ## (Anchor) Client example 
 ```
