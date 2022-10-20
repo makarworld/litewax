@@ -12,6 +12,75 @@ Simply python library for iteract with WAX blockchain
 - [ ] Create tests for Anchor client
 - [ ] Create tests for MultiSig client
 
+# Installation 
+```
+pip install litewax
+```
+## Clients examples
+# Import
+```
+from litewax import Client, MultiSigClient, Contract
+```
+# Client setup
+Anchor
+```
+client = Client(private_key="PVT_KEY")
+```
+
+Wax Cloud Wallet
+```
+client = Client(cookie="TOKEN_SESSION")
+```
+
+Anchor MultiSigClient
+```
+client = MultiSigClient(private_keys=["PVT_KEY1", "PVT_KEY2", ...])
+```
+
+Wax Cloud Wallet MultiSigClient
+```
+client = MultiSigClient(cookies=["TOKEN_SESSION1", "TOKEN_SESSION2", ...])
+```
+# Contract initialize
+Default
+```
+contract = Contract("name", actor="wallet")
+```
+
+With client
+```
+contract = client.Contract("name")
+
+# In MultiSigClient:
+# contract = client.Contract("name", client[0])
+# contract = client[0].Contract("name")
+# contract = client.Contract("name", actor=client[0].name)
+```
+
+After once init you can import contract directly
+```
+# Contract("res.pink")
+from contracts.res_pink import res_pink
+
+contract = res_pink("actor")
+```
+
+# Make transaction
+```
+contract = client.Contract("res.pink")
+
+trx = client.Transaction(
+    contract.noop(),
+    # or
+    contract.call('noop', {})
+)
+```
+# Push transaction
+```
+trx.push() # -> hash
+# 0x0123abc...
+```
+
 # (Anchor) Client example 
 ```
 >>> import litewax
