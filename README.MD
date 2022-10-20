@@ -5,7 +5,7 @@
 [WAX donate](https://wax.atomichub.io/trading/token-transfer?partner=abuztradewax)
 
 # litewax
-Simply python library for iteract with WAX blockchain
+Simply python library for interact with WAX blockchain
 
 # TODO
 - [x] Create Anchor client

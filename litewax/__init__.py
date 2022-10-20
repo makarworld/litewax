@@ -14,3 +14,7 @@ __all__ = [
     'WCW',
     'abigen'
 ]
+
+__author__ = 'abuztrade'
+__version__ = '0.0.1'
+__email__ = 'abuztrade.work@gmail.com'

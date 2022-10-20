@@ -1,0 +1,3 @@
+libeospy==2.1.0
+cloudscraper==1.2.58
+requests
