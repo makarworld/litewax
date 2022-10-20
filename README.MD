@@ -12,16 +12,16 @@ Simply python library for iteract with WAX blockchain
 - [ ] Create tests for Anchor client
 - [ ] Create tests for MultiSig client
 
-# Installation 
+## Installation 
 ```
 pip install litewax
 ```
-## Clients examples
-# Import
+# Clients examples
+## Import
 ```
 from litewax import Client, MultiSigClient, Contract
 ```
-# Client setup
+## Client setup
 Anchor
 ```
 client = Client(private_key="PVT_KEY")
@@ -41,7 +41,8 @@ Wax Cloud Wallet MultiSigClient
 ```
 client = MultiSigClient(cookies=["TOKEN_SESSION1", "TOKEN_SESSION2", ...])
 ```
-# Contract initialize
+# Contract examples
+## Contract initialize
 Default
 ```
 contract = Contract("name", actor="wallet")
@@ -64,8 +65,8 @@ from contracts.res_pink import res_pink
 
 contract = res_pink("actor")
 ```
-
-# Make transaction
+# Transactions
+## Make transaction
 ```
 contract = client.Contract("res.pink")
 
@@ -75,13 +76,13 @@ trx = client.Transaction(
     contract.call('noop', {})
 )
 ```
-# Push transaction
+## Push transaction
 ```
 trx.push() # -> hash
 # 0x0123abc...
 ```
-
-# (Anchor) Client example 
+# Examples
+## (Anchor) Client example 
 ```
 >>> import litewax
 >>>
@@ -105,7 +106,7 @@ trx.push() # -> hash
 >>> trx.push()
 >>> 0xabcd0123...
 ```
-# (Wax Cloud Wallet) Client example 
+## (Wax Cloud Wallet) Client example 
 ```
 >>> import litewax
 >>>
@@ -129,7 +130,7 @@ trx.push() # -> hash
 >>> trx.push()
 >>> 0xabcd0123...
 ```
-# (Anchor) MultiSigClient example 
+## (Anchor) MultiSigClient example 
 ```
 >>> import litewax
 >>> 
@@ -161,7 +162,7 @@ trx.push() # -> hash
 >>> trx.push()
 >>> 0xabcd0123...
 ```
-# (Wax Cloud Wallet) MultiSigClient example 
+## (Wax Cloud Wallet) MultiSigClient example 
 ```
 >>> import litewax
 >>> 
@@ -193,7 +194,7 @@ trx.push() # -> hash
 >>> trx.push()
 >>> 0xabcd0123...
 ```
-# Contract obj example 
+## Contract obj example 
 ```
 >>> from litewax import Contract
 >>>
