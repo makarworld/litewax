@@ -48,6 +48,9 @@ class Client():
         self.Transaction = self.waxclient.Transaction
         self.GetName = self.waxclient.GetName
         self.name = self.waxclient.name
+
+        self.Contract = self.waxclient.Contract
+
     
     def SetNode(self, node: str):
         self.waxclient.SetNode(node)

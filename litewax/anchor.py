@@ -7,15 +7,23 @@ class Anchor:
 class TX:
     method push -> hash
 """
+import json
+import time
 from typing import Tuple
+
 import eospy.cleos
 import eospy.keys
+from eospy.types import Transaction
+from eospy.utils import sig_digest
+from eospy.signer import Signer
+from eospy.exceptions import EOSKeyError
+
 import cloudscraper
 import pytz
 import datetime as dt
 
 from .contract import Contract
-
+from .wcw import TxConverter
 class Anchor:
     """
         ## Create Anchor wallet object\n
@@ -109,19 +117,51 @@ class Anchor:
 class TX:
     def __init__(self, anchor: Anchor, *actions, node: str="https://wax.greymass.com"):
         self.anchor = anchor
-        self.actions = actions
+        self.actions = list(actions)
+        self.actions.reverse()
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
-        self.sign = anchor.sign
 
-    def push(self) -> Tuple[dict, bool]:
+    def get_trx_extra(self):
+        tx = json.loads(self.sign())
+        sigs = tx['signatures']
+
+        tx = tx['transaction']
+        tx['expiration'] = int(time.time() + 60)
+        tx['max_net_usage_words'] = 0
+        tx['max_cpu_usage_ms'] = 0
+
+        return sigs, TxConverter(tx).bytes_list
+    
+    def get_trx_extend_info(self):
+        """
+        ## Returns transaction extend info\n
+        (tx, packed_trx, serealized_trx, signatures)
+        """
+        sigs, TxByte = self.get_trx_extra()
+        return {
+            "signatures": sigs,
+            "packed": TxByte.hex(),
+            "serealized": [x for x in TxByte],
+        }
+
+    def get_packed_trx(self):
+        return self.get_trx_extra().hex()
+    
+    def get_serealized_trx(self):
+        return [x for x in self.get_trx_extra()]
+
+    def sign(self):
+        return self.push(broadcast=False)
+
+    def push(self, broadcast=True) -> Tuple[dict, bool]:
         trx = {
-            "actions": list(self.actions)
+            "actions": self.actions
         }
             
         trx['expiration'] = str(
             (dt.datetime.utcnow() + dt.timedelta(seconds=60)).replace(tzinfo=pytz.UTC))
 
-        resp = self.wax.push_transaction(trx, eospy.keys.EOSKey(self.anchor.private_key), broadcast=True)
+        resp = self.wax.push_transaction(trx, eospy.keys.EOSKey(self.anchor.private_key), broadcast=broadcast)
         return resp
 
 if __name__ == "__main__":
@@ -133,9 +173,5 @@ if __name__ == "__main__":
     tx = a.Transaction(
         contract.noop()
     )
-    #tx = contract.push_actions(
-    #    a.private_key,
-    #    contract.noop()
-    #)
     print(tx)
     print(tx.push())

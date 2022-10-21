@@ -1,4 +1,5 @@
 # thanks for code https://github.com/lotusntp/Wax-Nefty
+import json
 import cloudscraper
 from requests.exceptions import Timeout, ConnectionError, ChunkedEncodingError
 import time
@@ -384,9 +385,29 @@ class TX:
         self.sign = client.sign
 
         self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
+    
+    def get_trx_extend_info(self):
+        """
+        ## Returns transaction extend info\n
+        (signatures, packed, serealized)
+        """
+        return {
+            "signatures": self.sign(),
+            "packed": self.tx.hex(),
+            "serealized": [x for x in self.tx],
+        }
+
+    def get_packed_trx(self):
+        return self.tx.hex()
+    
+    def get_serealized_trx(self):
+        return [x for x in self.tx]
+
+    def sign(self):
+        return self.client.sign(self.tx)
 
     def push(self):
-        signatures = self.sign(self.tx)
+        signatures = self.sign()
         
         push_create_offer = self.utils.pushTx(signatures, self.tx)
         if push_create_offer['transaction_id'] == '':
