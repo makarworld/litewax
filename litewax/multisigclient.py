@@ -114,11 +114,8 @@ class TX():
         self.node = node
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
 
-    def pay_with(self, payer: str):
-        if payer.upper() not in Payers():
-            raise ValueError(f"payer must be in {Payers()}")
-
-        return PayWith(self, self.client, payer)
+    def pay_with(self, payer: str, network='mainnet'):
+        return PayWith(self, payer, network)
 
     def get_trx_extend_info(self):
         trx_wallets = []

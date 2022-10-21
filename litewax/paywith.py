@@ -54,14 +54,9 @@ class Payers:
     AtomicHub = "ATOMICHUB"
     Atomic_Hub = "ATOMICHUB"
 
-    def __call__(self):
-        return [x for x in self.__dict__.values() if x.isupper()]
-
-
 class Nefty:
-    def __init__(self, trx, client, network="mainnet"):
+    def __init__(self, trx, network="mainnet"):
         self.trx = trx
-        self.client = client
 
         self.scraper = cloudscraper.create_scraper(browser={'custom': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
         self.scraper.headers.update({
@@ -108,15 +103,16 @@ class Nefty:
             "packed_context_free_data": "",
             "packed_trx": signed['packed']
         })
-        return push
+        return push.json()
 
 
 class PayWith:
-    def __init__(self, trx, client, pay_with="Nefty", network="mainnet"):
+    def __init__(self, trx, pay_with="nefty", network="mainnet"):
         self.trx = trx
-        self.client = client
         if pay_with.lower() == "nefty":
-            self.pay_with = Nefty(trx, client, network=network)
+            self.pay_with = Nefty(trx, network=network)
+        else:
+            raise ValueError("Unknown payer. Must be 'Nefty' or 'AtomicHub'")
     
     def push(self):
         return self.pay_with.push()

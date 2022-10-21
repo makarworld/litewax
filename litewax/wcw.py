@@ -271,8 +271,8 @@ class WCW:
         self.name = self.GetName()
         self.node = node
 
-    def Contract(self, name: str):
-        return Contract(name, self)
+    def Contract(self, name: str, actor: str=None, force_recreate: bool=False, node: str=None):
+        return Contract(name, self, actor=actor, force_recreate=force_recreate, node=node)
         
     def SetNode(self, node):
         self.utils.node = node
@@ -382,6 +382,7 @@ class TX:
     - push() - push transaction to blockchain"""
 
     def __init__(self, client: WCW, tx: bytearray):
+        self.client = client
         self.utils = client.utils
         self.session_token = client.session_token
         self.tx = tx
@@ -389,11 +390,8 @@ class TX:
 
         self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
     
-    def pay_with(self, payer: str):
-        if payer.upper() not in Payers():
-            raise ValueError(f"payer must be in {Payers()}")
-
-        return PayWith(self, self.client, payer)
+    def pay_with(self, payer: str, network='mainnet'):
+        return PayWith(self, payer, network)
 
     def get_trx_extend_info(self):
         """

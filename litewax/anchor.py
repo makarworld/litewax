@@ -61,8 +61,8 @@ class Anchor:
 
         self.name = self.GetName()
 
-    def Contract(self, name: str):
-        return Contract(name, self)
+    def Contract(self, name: str, actor: str=None, force_recreate: bool=False, node: str=None):
+        return Contract(name, self, actor=actor, force_recreate=force_recreate, node=node)
 
     def SetNode(self, node: str):
         self.node = node
@@ -122,11 +122,8 @@ class TX:
         self.actions.reverse()
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
 
-    def pay_with(self, payer: str):
-        if payer.upper() not in Payers():
-            raise ValueError(f"payer must be in {Payers()}")
-
-        return PayWith(self, self.client, payer)
+    def pay_with(self, payer: str, network='mainnet'):
+        return PayWith(self, payer, network)
 
     def get_trx_extra(self):
         tx = json.loads(self.sign())
