@@ -120,7 +120,3 @@ class PayWith:
     
     def push(self):
         return self.pay_with.push()
-
-
-
-print('nefty' in Payers())
