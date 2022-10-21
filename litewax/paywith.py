@@ -46,7 +46,13 @@ import cloudscraper
 
 class Payers:
     NEFTY = "NEFTY"
+    NEFTYBLOCKS = "NEFTY"
+    NeftyBlocks = "NEFTY"
+
     ATOMICHUB = "ATOMICHUB"
+    ATOMIC_HUB = "ATOMICHUB"
+    AtomicHub = "ATOMICHUB"
+    Atomic_Hub = "ATOMICHUB"
 
     def __call__(self):
         return [x for x in self.__dict__.values() if x.isupper()]
