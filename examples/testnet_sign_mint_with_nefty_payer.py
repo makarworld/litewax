@@ -1,4 +1,4 @@
-from litewax import Client, Contract, Payers
+from litewax import Client, Payers
 from dotenv import dotenv_values
 
 ENV = dotenv_values(".env")

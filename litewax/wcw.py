@@ -1,11 +1,10 @@
 # thanks for code https://github.com/lotusntp/Wax-Nefty
-import json
 import cloudscraper
 from requests.exceptions import Timeout, ConnectionError, ChunkedEncodingError
 import time
 from json.decoder import JSONDecodeError
 
-from .paywith import Payers, PayWith
+from .paywith import PayWith
 from .contract import Contract
 from .exceptions import CPUlimit, CookiesExpired, ExpiredTransaction, SessionExpired, SignError, UnknownError
 

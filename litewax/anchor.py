@@ -13,16 +13,12 @@ from typing import Tuple
 
 import eospy.cleos
 import eospy.keys
-from eospy.types import Transaction
-from eospy.utils import sig_digest
-from eospy.signer import Signer
-from eospy.exceptions import EOSKeyError
 
 import cloudscraper
 import pytz
 import datetime as dt
 
-from .paywith import Payers, PayWith
+from .paywith import PayWith
 from .contract import Contract
 from .wcw import TxConverter
 class Anchor:

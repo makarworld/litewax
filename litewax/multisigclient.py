@@ -12,7 +12,7 @@ from .client import Client
 from .contract import Contract
 from .exceptions import *
 from .wcw import WCW
-from .paywith import Payers, PayWith
+from .paywith import PayWith
 class MultiSigClient():
     """
     ### IN WORKIND
