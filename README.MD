@@ -96,8 +96,8 @@ trx = client.Transaction(
 ```
 ## Push transaction
 ```
-trx.push() # -> hash
-# 0x0123abc...
+trx.push() # -> dict
+# {"transaction_id": "0x0123abc...", ...}
 ```
 
 ---
@@ -125,7 +125,7 @@ trx = client.Transaction(
 
 # easy push transaction
 trx.push()
-0xabcd0123...
+# {"transaction_id": "0x0123abc...", ...}
 ```
 ## (Wax Cloud Wallet) Client example 
 ```
@@ -149,7 +149,7 @@ trx = AnchorClient.Transaction(
 
 # easy push transaction
 trx.push()
-0xabcd0123...
+# {"transaction_id": "0x0123abc...", ...}
 ```
 ## (Anchor) MultiSigClient example 
 ```
@@ -181,7 +181,7 @@ trx = multiclient.Transaction(
 
 # easy push transaction (if client is MultiSig, last signed action will pay for all cpu)
 trx.push()
-0xabcd0123...
+# {"transaction_id": "0x0123abc...", ...}
 ```
 ## (Wax Cloud Wallet) MultiSigClient example 
 ```
@@ -213,7 +213,7 @@ trx = multiclient.Transaction(
 
 # easy push transaction (if client is MultiSig, last signed action will pay for all cpu)
 trx.push()
-0xabcd0123...
+# {"transaction_id": "0x0123abc...", ...}
 ```
 ## Contract obj example 
 ```
@@ -237,7 +237,7 @@ contract.push_actions(
         "PRIVATE_KEY",
         contract.noop()
     )
-0x123abc...
+# {"transaction_id": "0x0123abc...", ...}
 
 # also you can send multiply signed trx
 contract1 = Contract("eosio.token", actor="wallet1")
@@ -252,5 +252,6 @@ contract1.push_actions(
             memo="send 1 WAX without any client (only Contract instance)"
         ),
         contract2.noop() # this action will pay for CPU
-0x123abc...
+        
+# {"transaction_id": "0x0123abc...", ...}
 ```
