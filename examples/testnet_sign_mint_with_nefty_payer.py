@@ -66,7 +66,7 @@ json={
 
 
 """
-from litewax import Client
+from litewax import Client, Payers
 import cloudscraper
 from dotenv import dotenv_values
 
@@ -74,19 +74,9 @@ ENV = dotenv_values(".env")
 
 # try to get free cpu from neftyblocks
 client = Client(private_key=ENV["PVT_KEY_TESTNET"], node=ENV["NODE"])
-client2 = Client(private_key=ENV["PVT_KEY_TESTNET2"], node=ENV["NODE"])
-
-client.Contract("neftyblocksd")
-client.Contract("neftybrespay")
-
-from contracts.neftyblocksd import neftyblocksd as neftyblocksd_contract
-from contracts.neftybrespay import neftybrespay as neftybrespay_contract
-
-neftyblocksd = neftyblocksd_contract(client.name)
-neftybrespay = neftybrespay_contract(actor="neftybrespay", permission="active")
 
 trx = client.Transaction(
-    neftyblocksd.claimdrop(
+    client.Contract("neftyblocksd").claimdrop(
         claimer=client.name,
         drop_id=2020,
         amount=1,
@@ -95,49 +85,12 @@ trx = client.Transaction(
         country="GB",
         currency="0,NULL"
     ),
-    neftyblocksd.assertprice(
+    client.Contract("neftyblocksd").assertprice(
         drop_id=2020,
         listing_price="0 NULL",
         settlement_symbol="0,NULL"
     ),
-    neftybrespay.paycpu()
+    client.Contract("neftybrespay").paycpu()
 )
 
-signed = trx.get_trx_extend_info()
-
-print(signed)
-
-signatures = signed['signatures']
-
-import cloudscraper
-scraper = cloudscraper.create_scraper(browser={'custom': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-scraper.headers.update({
-    'accept': '*/*',
-    'accept-encoding': 'gzip, deflate, br',
-    'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-    'access-control-request-headers': 'content-type',
-    'access-control-request-method': 'POST',
-    'cache-control': 'no-cache',
-    'origin': 'https://test.neftyblocks.com',
-    'pragma': 'no-cache',
-    'referer': 'https://test.neftyblocks.com/',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-site'
-})
-# sign with neftyblocks
-scraper.options("https://cpu-test.neftyblocks.com/")
-r = scraper.post("https://cpu-test.neftyblocks.com/",
-             json={"tx": signed['packed']})
-print("r1", r.text)
-
-signatures.append(r.json()['signatures'][0])
-
-scraper.options("https://wax-testnet.neftyblocks.com/v1/chain/send_transaction")
-r1 = scraper.post("https://wax-testnet.neftyblocks.com/v1/chain/send_transaction", json={
-    "signatures": signatures,
-    "compression": 0,
-    "packed_context_free_data": "",
-    "packed_trx": signed['packed']
-})
-print("r2", r1.text)
+trx.pay_with(Payers.NEFTY).push()
