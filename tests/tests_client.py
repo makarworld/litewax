@@ -25,7 +25,7 @@ def test_create_wcw_good():
     assert isinstance(client, Client) 
 
     assert client.name == "zknmi.wam"
-    assert client.waxclient.utils.node == "https://wax.greymass.com"
+    assert client.waxclient.node == "https://wax.greymass.com"
     assert client.type == "cookie"
     assert isinstance(client.waxclient, WCW)
 
