@@ -5,6 +5,7 @@ from requests.exceptions import Timeout, ConnectionError, ChunkedEncodingError
 import time
 from json.decoder import JSONDecodeError
 
+from .paywith import Payers, PayWith
 from .contract import Contract
 from .exceptions import CPUlimit, CookiesExpired, ExpiredTransaction, SessionExpired, SignError, UnknownError
 
@@ -268,12 +269,14 @@ class WCW:
         self.utils = utils(node=node, req=self.session)
         self.session_token = session_token
         self.name = self.GetName()
+        self.node = node
 
     def Contract(self, name: str):
         return Contract(name, self)
         
     def SetNode(self, node):
         self.utils.node = node
+        self.node = node
 
     def GetName(self):
         try:
@@ -386,6 +389,12 @@ class TX:
 
         self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
     
+    def pay_with(self, payer: str):
+        if payer.upper() not in Payers():
+            raise ValueError(f"payer must be in {Payers()}")
+
+        return PayWith(self, self.client, payer)
+
     def get_trx_extend_info(self):
         """
         ## Returns transaction extend info\n

@@ -8,17 +8,16 @@
 Simply python library for interact with WAX blockchain
 
 # TODO
-- [x] Create Anchor client
-- [x] Create WCW client
-- [x] Create MultiSig client
-- [x] Add Contract function
-- [x] Improve abigen
-- [x] Edit path to save contracts files
 - [x] Create tests for Client
 - [x] Create tests for WCW client
 - [x] Create tests for Anchor client
 - [x] Create tests for MultiSig client
- 
+- [x] Add supply private_keys and wcw both to MultiSigClient
+- [x] Add PayWith for Nefty
+- [ ] Add PayWith for Atomic
+- [ ] Add PayWith for WCW token transfer
+- [ ] Create tests for PayWith
+- [ ] Refactor code, optimize WCW client
 ---
 
 # Installation 

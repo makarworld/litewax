@@ -22,6 +22,7 @@ import cloudscraper
 import pytz
 import datetime as dt
 
+from .paywith import Payers, PayWith
 from .contract import Contract
 from .wcw import TxConverter
 class Anchor:
@@ -120,6 +121,12 @@ class TX:
         self.actions = list(actions)
         self.actions.reverse()
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
+
+    def pay_with(self, payer: str):
+        if payer.upper() not in Payers():
+            raise ValueError(f"payer must be in {Payers()}")
+
+        return PayWith(self, self.client, payer)
 
     def get_trx_extra(self):
         tx = json.loads(self.sign())
