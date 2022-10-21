@@ -17,7 +17,7 @@ Simply python library for interact with WAX blockchain
 - [x] Create tests for Client
 - [x] Create tests for WCW client
 - [x] Create tests for Anchor client
-- [ ] Create tests for MultiSig client
+- [x] Create tests for MultiSig client
  
 ---
 

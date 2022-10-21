@@ -43,10 +43,9 @@ def test_transaction_fail():
 
     assert isinstance(trx, TX)
 
-    try:
+    with pytest.raises(HTTPError):
         trx.push()
-    except Exception as e:
-        assert isinstance(e, HTTPError)
+
 
 def test_transaction_good():
     anchor = Anchor(private_key=PVT_KEY)

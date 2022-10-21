@@ -30,21 +30,16 @@ def test_create_wcw_good():
     assert isinstance(client.waxclient, WCW)
 
 def test_create_fail():
-    try:
+    with pytest.raises(AuthNotFound):
         Client()
-    except Exception as e:
-        assert isinstance(e, AuthNotFound)
 
 def test_bad_keys():
-    try:
+    with pytest.raises(ValueError):
         Client(private_key="bad")
-    except Exception as e:
-        assert isinstance(e, ValueError)
-    
-    try:
+
+    with pytest.raises(CookiesExpired):
         Client(cookie="badcookie")
-    except Exception as e:
-        assert isinstance(e, CookiesExpired)
+
     
 
     

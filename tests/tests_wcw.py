@@ -43,10 +43,9 @@ def test_transaction_fail():
 
     assert isinstance(trx, TX)
 
-    try:
+    with pytest.raises(ConnectionError):
         trx.push()
-    except Exception as e:
-        assert isinstance(e, ConnectionError)
+
 
 def test_transaction_good():
     wcw = WCW(session_token=COOKIE)
