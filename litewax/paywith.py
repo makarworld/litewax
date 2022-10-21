@@ -43,6 +43,7 @@ trx.push(paywith="Nefty")
 
 """
 import cloudscraper
+from .contract import Contract
 
 class Payers:
     NEFTY = "NEFTY"
@@ -57,6 +58,14 @@ class Payers:
 class Nefty:
     def __init__(self, trx, network="mainnet"):
         self.trx = trx
+
+        if self.trx.actions[0]["account"] != "neftyblocksd" or\
+           self.trx.actions[0]["name"] != "paycpu" or\
+           self.trx.actions[0]["authorization"][0]["actor"] != "neftybrespay" or\
+           self.trx.actions[0]["authorization"][0]["permission"] != "active":
+            
+            self.trx.actions = [Contract("neftybrespay", actor="neftybrespay").paycpu()] + self.trx.actions
+
 
         self.scraper = cloudscraper.create_scraper(browser={'custom': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
         self.scraper.headers.update({

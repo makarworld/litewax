@@ -7,7 +7,6 @@ ENV = dotenv_values(".env")
 client = Client(private_key=ENV["PVT_KEY_TESTNET"], node=ENV["NODE"])
 
 neftyblocksd = client.Contract("neftyblocksd")
-neftybrespay = Contract("neftybrespay", actor="neftybrespay") # ! impotant ! actor for this contract - neftybrespay
 
 trx = client.Transaction(
     neftyblocksd.claimdrop(
@@ -23,8 +22,7 @@ trx = client.Transaction(
         drop_id=2020,
         listing_price="0 NULL",
         settlement_symbol="0,NULL"
-    ),
-    neftybrespay.paycpu() # ! impotant ! actor for this contract - neftybrespay
+    )
 )
 
 print(trx.pay_with(Payers.NEFTY, network='testnet').push())
