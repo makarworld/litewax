@@ -13,6 +13,10 @@ from typing import Tuple
 
 import eospy.cleos
 import eospy.keys
+from eospy.types import Transaction, EOSEncoder
+from eospy.utils import sig_digest
+from eospy.exceptions import EOSKeyError
+from eospy.signer import Signer
 
 import cloudscraper
 import pytz
@@ -20,7 +24,7 @@ import datetime as dt
 
 from .paywith import PayWith
 from .contract import Contract
-from .wcw import TxConverter
+
 class Anchor:
     """
         ## Create Anchor wallet object\n
@@ -54,6 +58,7 @@ class Anchor:
         self.public_key = eospy.keys.EOSKey(private_key).to_public()
         self.node = node
         self.req = cloudscraper.create_scraper()
+        self.wax = eospy.cleos.Cleos(url=node)
 
         self.name = self.GetName()
 
@@ -106,63 +111,61 @@ class Anchor:
           - `TX` Object
         """
 
-        return TX(self, *actions, node=self.node)
+        return TX(self, *actions)
 
     def sign(self, trx: bytearray):
         return eospy.keys.EOSKey(self.private_key).sign(trx)
 
 class TX:
-    def __init__(self, anchor: Anchor, *actions, node: str="https://wax.greymass.com"):
-        self.anchor = anchor
+    def __init__(self, client: Anchor, *actions):
+        self.client = client
         self.actions = list(actions)
         self.actions.reverse()
-        self.wax = eospy.cleos.Cleos(url=node, version='v1')
+        self.wax = client.wax
+        self.sign = client.sign
 
     def pay_with(self, payer: str, network='mainnet'):
         return PayWith(self, payer, network)
 
-    def get_trx_extra(self):
-        tx = json.loads(self.sign())
-        sigs = tx['signatures']
-
-        tx = tx['transaction']
-        tx['expiration'] = int(time.time() + 60)
-        tx['max_net_usage_words'] = 0
-        tx['max_cpu_usage_ms'] = 0
-
-        return sigs, TxConverter(tx).bytes_list
-    
     def get_trx_extend_info(self):
         """
         ## Returns transaction extend info\n
         (tx, packed_trx, serealized_trx, signatures)
         """
-        sigs, TxByte = self.get_trx_extra()
-        return {
-            "signatures": sigs,
-            "packed": TxByte.hex(),
-            "serealized": [x for x in TxByte],
-        }
-
-    def get_packed_trx(self):
-        return self.get_trx_extra().hex()
-    
-    def get_serealized_trx(self):
-        return [x for x in self.get_trx_extra()]
-
-    def sign(self):
-        return self.push(broadcast=False)
-
-    def push(self, broadcast=True) -> Tuple[dict, bool]:
-        trx = {
+        transaction = {
             "actions": self.actions
         }
             
-        trx['expiration'] = str(
+        transaction['expiration'] = str(
             (dt.datetime.utcnow() + dt.timedelta(seconds=60)).replace(tzinfo=pytz.UTC))
 
-        resp = self.wax.push_transaction(trx, eospy.keys.EOSKey(self.anchor.private_key), broadcast=broadcast)
-        return resp
+        chain_info, lib_info = self.wax.get_chain_lib_info()
+        trx = Transaction(transaction, chain_info, lib_info)
+
+        digest = sig_digest(trx.encode(), chain_info['chain_id'])
+        # sign the transaction
+        signatures = [self.sign(digest)]
+
+        # build final trx
+        final_trx = {
+            'compression': 'none',
+            'transaction': trx.__dict__,
+            'signatures': signatures
+        }
+        data = json.dumps(final_trx, cls=EOSEncoder)
+
+        return {
+            "signatures": signatures,
+            "packed": trx.encode().hex(),
+            "serealized": [x for x in trx.encode()],
+            "data": data
+        }
+
+    def push(self) -> Tuple[dict, bool]:
+        info = self.get_trx_extend_info()
+        data = info['data']
+
+        return self.wax.post('chain.push_transaction', params=None, data=data, timeout=120)
 
 if __name__ == "__main__":
     a = Anchor("5JJYyiPpopRaQs1o7wQE6X7X1V5mc1pcE6iXGLKCQ8YpdVfv7hL")

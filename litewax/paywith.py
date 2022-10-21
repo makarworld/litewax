@@ -28,23 +28,11 @@ trx = client.Transaction(
     neftybrespay.paycpu()
 )
 
-trx.push(paywith=Payers.Nefty)
-
-trx.push(paywith="Nefty")
-#  or
-# trx.push(paywith="Nefty")
-#  or
-# trx.paywith.Nefty.push()
-#  or
-# trx.pay_with(Payers.NEFTY)
-#  or
-# trx.push(paywith="Nefty")
-
-
+trx.pay_with(Payers.NEFTY).push()
 """
 import cloudscraper
 from .contract import Contract
-
+from .exceptions import PayWithPushError
 class Payers:
     NEFTY = "NEFTY"
     NEFTYBLOCKS = "NEFTY"
@@ -100,8 +88,10 @@ class Nefty:
 
         # sign with neftyblocks
         self.scraper.options(self.sign_link)
-        sign_packed = self.scraper.post(self.sign_link, json={"tx": signed['packed']})
+        sign_packed = self.scraper.post(self.sign_link, json={"tx": signed['packed']}).json()
 
+        if sign_packed.get('error'):
+            raise PayWithPushError(sign_packed['error'])
         signatures += sign_packed.json()['signatures']
 
         # push transaction
