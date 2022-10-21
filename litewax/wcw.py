@@ -26,14 +26,15 @@ class WCW:
     """
 
     def __init__(self, session_token: str, node='https://wax.greymass.com'):
-        self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-        self.wax = eospy.cleos.Cleos(url=node)
         self.session_token = session_token
-        self.name = self.GetName()
         self.node = node
 
-    def Contract(self, name: str):
-        return Contract(name, self)
+        self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
+        self.wax = eospy.cleos.Cleos(url=node)
+        self.name = self.GetName()
+
+    def Contract(self, name: str, actor: str=None, force_recreate: bool=False, node: str=None):
+        return Contract(name, self, actor=actor, force_recreate=force_recreate, node=node)
         
     def SetNode(self, node):
         self.wax = eospy.cleos.Cleos(url=node)
@@ -87,13 +88,12 @@ class TX:
     def __init__(self, client: WCW, *actions):
         self.wax = client.wax
         self.session_token = client.session_token
+        self.session = client.session
+        self.sign = client.sign
+
         if not actions:
             raise ValueError("Transaction must have at least one action")
         self.actions = list(actions)
-
-        self.session = cloudscraper.create_scraper(browser={'custom': USER_AGENT})
-
-        self.sign = client.sign
     
     def pay_with(self, payer: str, network='mainnet'):
         return PayWith(self, payer, network)
@@ -122,7 +122,7 @@ class TX:
         signatures = info['signatures']
         packed = info['packed']
 
-        push_tx = self.session.post(f"{self.wax._prod_url}/v1/chain/push_transaction",
+        push_create_offer = self.wax.post("chain.push_transaction",
             json={
                 "signatures": signatures,
                 "compression": 0,
@@ -131,8 +131,7 @@ class TX:
             },
             timeout=30
         )
-
-        push_create_offer = push_tx.json()
+        
         if push_create_offer['transaction_id'] == '':
             if push_create_offer['error']["what"] == 'Transaction exceeded the current CPU usage limit imposed on the transaction':
                 raise CPUlimit('Error: CPU usage limit!!')

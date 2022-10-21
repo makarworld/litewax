@@ -14,10 +14,8 @@ Simply python library for interact with WAX blockchain
 - [x] Create tests for MultiSig client
 - [x] Add supply private_keys and wcw both to MultiSigClient
 - [x] Add PayWith for Nefty
-- [ ] Add PayWith for Atomic
-- [ ] Add PayWith for WCW token transfer
+- [x] Refactor code, optimize WCW client
 - [ ] Create tests for PayWith
-- [ ] Refactor code, optimize WCW client
 ---
 
 # Installation 

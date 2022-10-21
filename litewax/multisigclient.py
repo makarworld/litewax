@@ -38,7 +38,7 @@ class MultiSigClient():
         Contract("res.pink", client[1]).noop() # for pay transaction
     )
     
-    trx.push() # -> hash
+    trx.push() # -> dict
 
     ```
     """
@@ -48,28 +48,28 @@ class MultiSigClient():
             *clients: Client,
             node: str='https://wax.greymass.com'):
 
-        self.anchor = False
-        self.wcw = False
-
-        if clients:
-            for c in clients:
-                self.clients.append(c.waxclient)
-                if c.type == 'private_key':
-                    self.anchor = True
-                else:
-                    self.wcw = True
-
-        else:
-            self.clients = []
-
-        self.anchors = []
-        self.wcws = []
+        self.node = node
 
         if not cookies and not private_keys and not clients:
             raise AuthNotFound("You must provide a private key, a cookie or a clients")
 
-        #if cookies and private_keys:
-        #    raise NotImplementedError("You can't use both private keys and cookies :(")
+
+        self.anchor = False
+        self.wcw = False
+        self.anchors = []
+        self.wcws = []
+
+        if clients:
+            for c in clients:
+                if c.type == 'private_key':
+                    self.anchors.append(c.waxclient)
+                    self.anchor = True
+                else:
+                    self.wcws.append(c.waxclient)
+                    self.wcw = True
+
+        else:
+            self.clients = []
 
         if private_keys:
             for private_key in private_keys:
@@ -82,8 +82,6 @@ class MultiSigClient():
                 self.wcw = True
         
         self.clients += self.anchors + self.wcws
-
-        self.node = node
 
         self.Contract = Contract
 
@@ -152,8 +150,7 @@ class TX():
             "signatures": signatures,
             "packed": trx.encode().hex(),
             "serealized": [x for x in trx.encode()],
-            "trx": trx,
-            "diggest_wcw": trx.encode()
+            "trx": trx
         }
 
     def signs(self):
@@ -162,12 +159,21 @@ class TX():
     def push(self):
         info = self.get_trx_extend_info()
         trx = info['trx']
-        diggest_wcw = info['diggest_wcw']
+        packed = info['packed']
         signatures = info['signatures']
 
 
         if self.client.wcw:
-            push_create_offer = self.client.wcws[0].utils.pushTx(signatures, diggest_wcw)
+            push_create_offer = self.wax.post("chain.push_transaction",
+                json={
+                    "signatures": signatures,
+                    "compression": 0,
+                    "packed_context_free_data": "",
+                    "packed_trx": packed
+                },
+                timeout=30
+            )
+
             if push_create_offer['transaction_id'] == '':
                 if push_create_offer['error']["what"] == 'Transaction exceeded the current CPU usage limit imposed on the transaction':
                     raise CPUlimit('Error: CPU usage limit!!')
