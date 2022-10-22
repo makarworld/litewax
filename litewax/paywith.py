@@ -38,11 +38,6 @@ class Payers:
     NEFTYBLOCKS = "NEFTY"
     NeftyBlocks = "NEFTY"
 
-    ATOMICHUB = "ATOMICHUB"
-    ATOMIC_HUB = "ATOMICHUB"
-    AtomicHub = "ATOMICHUB"
-    Atomic_Hub = "ATOMICHUB"
-
 class Nefty:
     def __init__(self, trx, network="mainnet"):
         self.trx = trx
@@ -111,7 +106,7 @@ class PayWith:
         if pay_with.lower() == "nefty":
             self.pay_with = Nefty(trx, network=network)
         else:
-            raise ValueError("Unknown payer. Must be 'Nefty' or 'AtomicHub'")
+            raise ValueError("Unknown payer. Must be 'Nefty'")
     
     def push(self):
         return self.pay_with.push()

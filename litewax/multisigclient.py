@@ -1,8 +1,4 @@
-import json
-import time
-import eospy.cleos
-import eospy.keys
-from eospy.types import EOSEncoder, Transaction
+from eospy.types import Transaction
 from eospy.utils import sig_digest
 import pytz
 import datetime as dt
@@ -14,6 +10,12 @@ from .paywith import PayWith
 
 
 class MultiSigClient():
+    """
+    ### Methods:
+    - SetNode
+    - Transaction
+    - Contract
+    """
     def __init__(self, 
             private_keys: list=[], 
             cookies: list=[],  
@@ -56,6 +58,12 @@ class MultiSigClient():
         return next(self.clients)
 
 class TX():
+    """
+    ### Methods:
+    - pay_with
+    - get_trx_extend_info
+    - push
+    """
     def __init__(self, client: MultiSigClient, *actions, node: str='https://wax.greymass.com'):
         self.client = client
         self.node = node
