@@ -1,46 +1,20 @@
-import json
-import time
-import eospy.cleos
-import eospy.keys
-from eospy.types import EOSEncoder, Transaction
+from eospy.types import Transaction
 from eospy.utils import sig_digest
 import pytz
 import datetime as dt
 
-from .anchor import Anchor
 from .client import Client
 from .contract import Contract
 from .exceptions import *
-from .wcw import WCW
 from .paywith import PayWith
+
+
 class MultiSigClient():
     """
-    ### IN WORKIND
-    ## MultiSigClient
-    With this class you can write transactions with many signs.
-    This class works with list of private keys or list of cookies.
-    WCW and Achor cannot be mixed. :(
-
-    ### Example
-    ```python
-    from waxlite import MultiSigClient, Contract
-
-    client = MultiSigClient(private_keys=["1", "2"])
-
-    # Last signed action will pay for all CPU
-    trx = client.Transaction(
-        Contract("eosio.token", client[0]).transfer(
-            _from = client[0].name,
-            _to = client[1].name,
-            amount = "1.0000 WAX",
-            memo = "Send 1 WAX with MultiSigClient"
-        ),
-        Contract("res.pink", client[1]).noop() # for pay transaction
-    )
-    
-    trx.push() # -> hash
-
-    ```
+    ### Methods:
+    - SetNode
+    - Transaction
+    - Contract
     """
     def __init__(self, 
             private_keys: list=[], 
@@ -48,42 +22,18 @@ class MultiSigClient():
             *clients: Client,
             node: str='https://wax.greymass.com'):
 
-        self.anchor = False
-        self.wcw = False
-
-        if clients:
-            for c in clients:
-                self.clients.append(c.waxclient)
-                if c.type == 'private_key':
-                    self.anchor = True
-                else:
-                    self.wcw = True
-
-        else:
-            self.clients = []
-
-        self.anchors = []
-        self.wcws = []
+        self.node = node
 
         if not cookies and not private_keys and not clients:
             raise AuthNotFound("You must provide a private key, a cookie or a clients")
 
-        #if cookies and private_keys:
-        #    raise NotImplementedError("You can't use both private keys and cookies :(")
+        self.clients = list(clients)
 
-        if private_keys:
-            for private_key in private_keys:
-                self.anchors.append(Anchor(private_key=private_key, node=node))
-                self.anchor = True
+        for private_key in private_keys:
+            self.clients.append(Client(private_key=private_key, node=node))
 
-        if cookies:
-            for cookie in cookies:
-                self.wcws.append(WCW(session_token=cookie, node=node))
-                self.wcw = True
-        
-        self.clients += self.anchors + self.wcws
-
-        self.node = node
+        for cookie in cookies:
+            self.clients.append(Client(cookie=cookie, node=node))
 
         self.Contract = Contract
 
@@ -108,11 +58,18 @@ class MultiSigClient():
         return next(self.clients)
 
 class TX():
+    """
+    ### Methods:
+    - pay_with
+    - get_trx_extend_info
+    - push
+    """
     def __init__(self, client: MultiSigClient, *actions, node: str='https://wax.greymass.com'):
-        self.actions = actions
         self.client = client
         self.node = node
-        self.wax = eospy.cleos.Cleos(url=node, version='v1')
+        self.wax = self.client[0].wax
+
+        self.actions = list(actions)
 
     def pay_with(self, payer: str, network='mainnet'):
         return PayWith(self, payer, network)
@@ -122,16 +79,14 @@ class TX():
         for action in list(self.actions):
             trx_wallets.append(action['authorization'][0]['actor'])
 
-        chain_info, lib_info = self.wax.get_chain_lib_info()
-
-        # anchor part
         transaction = {
-            "actions": list(self.actions)
+            "actions": self.actions
         }
             
         transaction['expiration'] = str(
             (dt.datetime.utcnow() + dt.timedelta(seconds=60)).replace(tzinfo=pytz.UTC))
 
+        chain_info, lib_info = self.wax.get_chain_lib_info()
         trx = Transaction(transaction, chain_info, lib_info)
 
         digest_anchor = sig_digest(trx.encode(), chain_info['chain_id'])
@@ -142,52 +97,45 @@ class TX():
             if cl.name not in trx_wallets:
                 continue
 
-            if isinstance(cl, Anchor):
+            if cl.type == 'private_key':
                 signatures.append(cl.sign(digest_anchor))
 
-            if isinstance(cl, WCW):
+            if cl.type == 'cookie':
                 signatures += cl.sign(trx.encode())
 
         return {
             "signatures": signatures,
             "packed": trx.encode().hex(),
-            "serealized": [x for x in trx.encode()],
-            "trx": trx,
-            "diggest_wcw": trx.encode()
+            "serealized": [x for x in trx.encode()]
         }
-
-    def signs(self):
-        return self.get_trx_extend_info()['signatures']
 
     def push(self):
         info = self.get_trx_extend_info()
-        trx = info['trx']
-        diggest_wcw = info['diggest_wcw']
         signatures = info['signatures']
+        packed = info['packed']
 
+        push_create_offer = self.wax.post("chain.push_transaction",
+            json={
+                "signatures": signatures,
+                "compression": 0,
+                "packed_context_free_data": "",
+                "packed_trx": packed
+            },
+            timeout=30
+        )
+        
+        if push_create_offer['transaction_id'] == '':
+            if push_create_offer['error']["what"] == 'Transaction exceeded the current CPU usage limit imposed on the transaction':
+                raise CPUlimit('Error: CPU usage limit!!')
 
-        if self.client.wcw:
-            push_create_offer = self.client.wcws[0].utils.pushTx(signatures, diggest_wcw)
-            if push_create_offer['transaction_id'] == '':
-                if push_create_offer['error']["what"] == 'Transaction exceeded the current CPU usage limit imposed on the transaction':
-                    raise CPUlimit('Error: CPU usage limit!!')
-                elif push_create_offer['error']["what"] == 'Expired Transaction':
-                    raise ExpiredTransaction('Error: Expired Transaction!!')
-                else:
-                    raise UnknownError(
-                        f'Error: {push_create_offer["error"]["details"][0]["message"]}')
-            return push_create_offer
+            elif push_create_offer['error']["what"] == 'Expired Transaction':
+                raise ExpiredTransaction('Error: Expired Transaction!!')
+            else:
+                raise UnknownError(
+                    f'Error: {push_create_offer["error"]["details"][0]["message"]}')
 
-        elif self.client.anchor:
-            final_trx = {
-                'compression': 0,
-                'transaction': trx.__dict__,
-                'signatures': signatures
-            }
+        return push_create_offer
 
-            data = json.dumps(final_trx, cls=EOSEncoder)
-
-            return self.wax.post('chain.push_transaction', params=None, data=data, timeout=30)
 
 if __name__ == "__main__":
     client = MultiSigClient(

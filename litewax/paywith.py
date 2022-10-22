@@ -28,32 +28,15 @@ trx = client.Transaction(
     neftybrespay.paycpu()
 )
 
-trx.push(paywith=Payers.Nefty)
-
-trx.push(paywith="Nefty")
-#  or
-# trx.push(paywith="Nefty")
-#  or
-# trx.paywith.Nefty.push()
-#  or
-# trx.pay_with(Payers.NEFTY)
-#  or
-# trx.push(paywith="Nefty")
-
-
+trx.pay_with(Payers.NEFTY).push()
 """
 import cloudscraper
 from .contract import Contract
-
+from .exceptions import PayWithPushError
 class Payers:
     NEFTY = "NEFTY"
     NEFTYBLOCKS = "NEFTY"
     NeftyBlocks = "NEFTY"
-
-    ATOMICHUB = "ATOMICHUB"
-    ATOMIC_HUB = "ATOMICHUB"
-    AtomicHub = "ATOMICHUB"
-    Atomic_Hub = "ATOMICHUB"
 
 class Nefty:
     def __init__(self, trx, network="mainnet"):
@@ -100,8 +83,10 @@ class Nefty:
 
         # sign with neftyblocks
         self.scraper.options(self.sign_link)
-        sign_packed = self.scraper.post(self.sign_link, json={"tx": signed['packed']})
+        sign_packed = self.scraper.post(self.sign_link, json={"tx": signed['packed']}).json()
 
+        if sign_packed.get('error'):
+            raise PayWithPushError(sign_packed['error'])
         signatures += sign_packed.json()['signatures']
 
         # push transaction
@@ -121,7 +106,7 @@ class PayWith:
         if pay_with.lower() == "nefty":
             self.pay_with = Nefty(trx, network=network)
         else:
-            raise ValueError("Unknown payer. Must be 'Nefty' or 'AtomicHub'")
+            raise ValueError("Unknown payer. Must be 'Nefty'")
     
     def push(self):
         return self.pay_with.push()

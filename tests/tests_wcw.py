@@ -23,11 +23,11 @@ def test_contract():
 def test_set_node():
     wcw = WCW(session_token=COOKIE)
 
-    assert wcw.utils.node == "https://wax.greymass.com"
+    assert wcw.node == "https://wax.greymass.com"
 
     wcw.SetNode('http://wax.pink.gg')
 
-    assert wcw.utils.node == "http://wax.pink.gg"
+    assert wcw.node == "http://wax.pink.gg"
 
 def test_get_name():
     wcw = WCW(session_token=COOKIE)
@@ -37,14 +37,9 @@ def test_get_name():
 def test_transaction_fail():
     wcw = WCW(session_token=COOKIE)
 
-    from litewax.wcw import TX
+    with pytest.raises(ValueError):
+        trx = wcw.Transaction()
 
-    trx = wcw.Transaction()
-
-    assert isinstance(trx, TX)
-
-    with pytest.raises(ConnectionError):
-        trx.push()
 
 
 def test_transaction_good():
