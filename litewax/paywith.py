@@ -1,35 +1,3 @@
-"""
-A class for pay for CPU transactions by other accounts such as AtomicHub, Nefty, etc.
-
-future example:
-from litewax import Client, Contract, Payers
-from litewax import Contract
-
-client = Client(private_key="")
-
-neftyblocksd = client.Contract("neftyblocksd")
-neftybrespay = client.Contract("neftybrespay")
-
-trx = client.Transaction(
-    neftyblocksd.claimdrop(
-        claimer=client.name,
-        drop_id=2020,
-        amount=1,
-        intended_delphi_median=0,
-        referrer="NeftyBlocks",
-        country="GB",
-        currency="0,NULL"
-    ),
-    neftyblocksd.assertprice(
-        drop_id=2020,
-        listing_price="0 NULL",
-        settlement_symbol="0,NULL"
-    ),
-    neftybrespay.paycpu()
-)
-
-trx.pay_with(Payers.NEFTY).push()
-"""
 import cloudscraper
 from .contract import Contract
 from .exceptions import PayWithPushError

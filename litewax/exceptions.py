@@ -1,7 +1,3 @@
-
-from calendar import c
-
-
 class AuthNotFound(Exception):
     pass
 
