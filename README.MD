@@ -1,6 +1,7 @@
-[![Github last commit date](https://img.shields.io/github/last-commit/makarworld/litewax.svg?label=Updated&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/commits)
-[![Total downloads](https://img.shields.io/github/downloads/makarworld/litewax/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/releases)
+[![PyPI version](https://badge.fury.io/py/litewax.svg)](https://badge.fury.io/py/litewax)
 [![License](https://img.shields.io/github/license/makarworld/litewax.svg?label=License&logo=apache&cacheSeconds=2592000)](https://github.com/makarworld/litewax/blob/main/LICENSE)
+[![image](https://img.shields.io/pypi/pyversions/litewax.svg)](https://pypi.org/project/litewax/)
+[![Github last commit date](https://img.shields.io/github/last-commit/makarworld/litewax.svg?label=Updated&logo=github&cacheSeconds=600)](https://github.com/makarworld/litewax/commits)
 
 [WAX donate](https://wax.atomichub.io/trading/token-transfer?partner=abuztradewax)
 
@@ -13,7 +14,8 @@ Simply python library for interact with WAX blockchain
 - [x] Create tests for Anchor client
 - [x] Create tests for MultiSig client
 - [x] Add supply private_keys and wcw both to MultiSigClient
-- [x] Add PayWith for Nefty
+- [x] Add PayWith for NeftyBlocks
+- [x] Add PayWith for AtomicHub
 - [x] Refactor code, optimize WCW client
 - [ ] Create tests for PayWith
 ---

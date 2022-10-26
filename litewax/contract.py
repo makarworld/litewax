@@ -1,7 +1,7 @@
 import os
 from .abigen import abigen
 
-def Contract(name: str, client=None, actor=None, force_recreate=False, node=None):
+def Contract(name: str, client=None, actor=None, permission="active", force_recreate=False, node=None):
     if not node and client:
         node = client.node
     else:
@@ -14,11 +14,11 @@ def Contract(name: str, client=None, actor=None, force_recreate=False, node=None
     mod = __import__(f"contracts.{name.replace('.', '_')}", fromlist=[name.replace('.', '_')])
     klass = getattr(mod, name.replace('.', '_'))
     if client:
-        return klass(actor=client.name, node=node)
+        return klass(actor=client.name, node=node, permission=permission)
     elif actor:
-        return klass(actor=actor, node=node)
+        return klass(actor=actor, node=node, permission=permission)
 
-    return klass(node=node)
+    return klass(node=node, permission=permission)
 
 if __name__ == "__main__":
     c = Contract("res.pink")
