@@ -1,3 +1,4 @@
+import json
 import cloudscraper
 import eospy.cleos
 import eospy.keys
@@ -13,6 +14,8 @@ from .exceptions import (
     CPUlimit, CookiesExpired, 
     ExpiredTransaction, UnknownError
 )
+
+
 class Client:
     """
     ### Methods:
@@ -43,6 +46,10 @@ class Client:
 
 
         self.name = self.GetName()
+
+
+    def __str__(self):
+        return f"Client(name={self.name}, type={self.type}, node={self.node})"
 
     def __GetNameAnchor(self, permission="active") -> str:
         """
@@ -140,6 +147,17 @@ class TX:
 
         self.actions = list(actions)
         self.actions.reverse()
+
+    def __str__(self):
+        actions = ",\n\n        ".join([f"Action(account={x['account']}, name={x['name']}, authorization={x['authorization']}, data={x['data']})" for x in self.actions])
+        return f"""litewax.Transaction(
+    node={self.client.node},
+    sender={self.client.name},
+    actions=[
+        {actions}
+    ]
+)"""
+
 
     def pay_with(self, payer: str, network='mainnet') -> PayWith:
         """Create a paywith object"""

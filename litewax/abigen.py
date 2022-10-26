@@ -13,6 +13,9 @@ class {name}:
         self.actor = actor
         self.permission = permission
 
+    def __str__(self):
+        return f"{name}(actor={self.actor}, permission={self.permission}, node={self.wax.url})"
+
     def set_actor(self, actor: str):
         self.actor = actor
 
