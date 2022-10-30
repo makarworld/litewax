@@ -1,8 +1,8 @@
 import cloudscraper
 from .contract import Contract
 from .exceptions import PayWithPushError
+from eospy.utils import sig_digest
 from .types import Payers
-
 class AtomicHub:
     """
     Allowed actions:
@@ -123,9 +123,46 @@ class Nefty:
         })
         return push
 
+class CustomPayer:
+    def __init__(self, trx, payer_client, permission="active"):
+        self.trx = trx
+        self.wax = self.trx.wax
+        self.payer_client = payer_client
+
+
+        if self.trx.actions[0]["account"] != "res.pink" or\
+           self.trx.actions[0]["name"] != "noop" or\
+           self.trx.actions[0]["authorization"][0]["actor"] != payer_client.name or\
+           self.trx.actions[0]["authorization"][0]["permission"] != permission:
+            
+            self.trx.actions = [
+                Contract("res.pink", actor=payer_client.name, permission=permission).noop()
+            ] + self.trx.actions
+
+    def push(self) -> dict:
+        signed = self.trx.get_trx_extend_info()
+        signatures = signed['signatures']
+
+        if self.payer_client.type == 'private_key':
+            chain_info = self.trx.wax.get('chain.get_info')
+            
+            digest = sig_digest(bytearray(signed['serealized']), chain_info['chain_id'])
+
+            signatures.append(self.payer_client.sign(digest))
+        else:
+            signatures += self.payer_client.sign(bytearray(signed['serealized']))
+
+        # push transaction
+        push = self.wax.post('chain.push_transaction', json={
+            "signatures": signatures,
+            "compression": 0,
+            "packed_context_free_data": "",
+            "packed_trx": signed['packed']
+        })
+        return push
 
 class PayWith:
-    def __init__(self, trx, pay_with="nefty", network="mainnet"):
+    def __init__(self, trx, pay_with="nefty", custom_payer_client=None, network="mainnet"):
         self.trx = trx
         if pay_with.lower() == "nefty":
             self.pay_with = Nefty(trx, network=network)
@@ -133,8 +170,13 @@ class PayWith:
         elif pay_with.lower() == "atomichub":
             self.pay_with = AtomicHub(trx, network=network)
 
+        elif pay_with.lower() == "custom":
+            if not custom_payer_client:
+                raise ValueError("You must specify custom_payer_client")
+            self.pay_with = CustomPayer(trx, custom_payer_client)
+
         else:
-            raise ValueError("Unknown payer. Must be 'Nefty' or 'AtomicHub'")
+            raise ValueError("Unknown payer. Must be 'Nefty', 'AtomicHub' or 'Custom'")
 
     def __str__(self):
         actions = ",\n\n        ".join([f"Action(account={x['account']}, name={x['name']}, authorization={x['authorization']}, data={x['data']})" for x in self.pay_with.trx.actions])

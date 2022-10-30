@@ -159,9 +159,9 @@ class TX:
 )"""
 
 
-    def pay_with(self, payer: str, network='mainnet') -> PayWith:
+    def pay_with(self, payer: str, custom_payer_client: Client=None, network='mainnet') -> PayWith:
         """Create a paywith object"""
-        return PayWith(self, payer, network)
+        return PayWith(self, payer, custom_payer_client, network)
 
     def get_trx_extend_info(self):
         """

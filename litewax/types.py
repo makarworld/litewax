@@ -11,3 +11,8 @@ class Payers:
     AtomicHub = "atomichub"
     atomichub = "atomichub"
 
+    CUSTOM = "custom"
+    Custom = "custom"
+    custom = "custom"
+    
+
