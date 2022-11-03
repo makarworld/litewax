@@ -80,7 +80,7 @@ class TX():
             trx_wallets.append(action['authorization'][0]['actor'])
 
         transaction = {
-            "actions": self.actions
+            "actions": [a.result for a in self.actions]
         }
             
         transaction['expiration'] = str(

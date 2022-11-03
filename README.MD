@@ -17,6 +17,7 @@ Simply python library for interact with WAX blockchain
 - [x] Add PayWith for NeftyBlocks
 - [x] Add PayWith for AtomicHub
 - [x] Refactor code, optimize WCW client
+- [x] Wrap Actions to class (for pretty print)
 - [ ] Create tests for PayWith
 ---
 

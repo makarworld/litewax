@@ -14,10 +14,10 @@ class AtomicHub:
         self.trx = trx
         self.wax = trx.client.wax
 
-        if self.trx.actions[0]["account"] != "res.pink" or\
-           self.trx.actions[0]["name"] != "noop" or\
-           self.trx.actions[0]["authorization"][0]["actor"] != "res.pink" or\
-           self.trx.actions[0]["authorization"][0]["permission"] != "paybw":
+        if self.trx.actions[0].result["account"] != "res.pink" or\
+           self.trx.actions[0].result["name"] != "noop" or\
+           self.trx.actions[0].result["authorization"][0]["actor"] != "res.pink" or\
+           self.trx.actions[0].result["authorization"][0]["permission"] != "paybw":
             
             self.trx.actions = [
                 Contract("res.pink", actor="res.pink", permission="paybw").noop()
@@ -67,10 +67,10 @@ class Nefty:
         self.trx = trx
         self.wax = self.trx.wax
 
-        if self.trx.actions[0]["account"] != "neftyblocksd" or\
-           self.trx.actions[0]["name"] != "paycpu" or\
-           self.trx.actions[0]["authorization"][0]["actor"] != "neftybrespay" or\
-           self.trx.actions[0]["authorization"][0]["permission"] != "active":
+        if self.trx.actions[0].result["account"] != "neftyblocksd" or\
+           self.trx.actions[0].result["name"] != "paycpu" or\
+           self.trx.actions[0].result["authorization"][0]["actor"] != "neftybrespay" or\
+           self.trx.actions[0].result["authorization"][0]["permission"] != "active":
             
             self.trx.actions = [
                 Contract("neftybrespay", actor="neftybrespay").paycpu()
@@ -130,10 +130,10 @@ class CustomPayer:
         self.payer_client = payer_client
 
 
-        if self.trx.actions[0]["account"] != "res.pink" or\
-           self.trx.actions[0]["name"] != "noop" or\
-           self.trx.actions[0]["authorization"][0]["actor"] != payer_client.name or\
-           self.trx.actions[0]["authorization"][0]["permission"] != permission:
+        if self.trx.actions[0].result["account"] != "res.pink" or\
+           self.trx.actions[0].result["name"] != "noop" or\
+           self.trx.actions[0].result["authorization"][0]["actor"] != payer_client.name or\
+           self.trx.actions[0].result["authorization"][0]["permission"] != permission:
             
             self.trx.actions = [
                 Contract("res.pink", actor=payer_client.name, permission=permission).noop()

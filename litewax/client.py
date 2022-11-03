@@ -1,4 +1,3 @@
-import json
 import cloudscraper
 import eospy.cleos
 import eospy.keys
@@ -149,7 +148,7 @@ class TX:
         self.actions.reverse()
 
     def __str__(self):
-        actions = ",\n\n        ".join([f"Action(account={x['account']}, name={x['name']}, authorization={x['authorization']}, data={x['data']})" for x in self.actions])
+        actions = ',\n        '.join([str(x) for x in self.actions])
         return f"""litewax.Transaction(
     node={self.client.node},
     sender={self.client.name},
@@ -172,7 +171,7 @@ class TX:
         - `serealized`: List[int]
         """
         transaction = {
-            "actions": self.actions
+            "actions": [a.result for a in self.actions]
         }
             
         transaction['expiration'] = str(

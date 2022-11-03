@@ -1,11 +1,29 @@
 import os
 import requests
 
-file_start = """import eospy.cleos
+file_start = """from __future__ import annotations
+import eospy.cleos
 import eospy.keys
 import pytz
 import datetime as dt
 from typing import Tuple, Any
+
+class Action:
+    def __init__(self, contract: {name}, action: str, args: dict):
+        self.contract = contract
+        self.action = action
+        self.args = args
+
+        self.result = self()
+    
+    def __str__(self):
+        return f"{name}::{self.action}({self.args})"
+    
+    def __repr__(self):
+        return self.__str__()
+
+    def __call__(self):
+        return self.contract.call(self.action, self.args)
 
 class {name}:
     def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"):
@@ -75,7 +93,7 @@ file_action = """
         \"\"\"
 
         {action}_args = {genargs}
-        return self.call("{action}", {action}_args)
+        return Action(self, "{action}", {action}_args)
 
 """
 
@@ -83,7 +101,7 @@ file_final = """    # ACTIONS END
 
     def push_actions(self, private_keys: Any, *actions) -> Tuple[dict, bool]:
         trx = {
-            "actions": list(actions)
+            "actions": [a.result for a in list(actions)]
         }
             
         trx['expiration'] = str(
