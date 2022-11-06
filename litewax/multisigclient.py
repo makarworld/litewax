@@ -1,3 +1,4 @@
+from typing import List
 from eospy.types import Transaction
 from eospy.utils import sig_digest
 import pytz
@@ -17,9 +18,9 @@ class MultiSigClient():
     - Contract
     """
     def __init__(self, 
-            private_keys: list=[], 
-            cookies: list=[],  
-            *clients: Client,
+            private_keys: list = [], 
+            cookies: list = [],  
+            clients: List[Client] = [],
             node: str='https://wax.greymass.com'):
 
         self.node = node
@@ -77,7 +78,7 @@ class TX():
     def get_trx_extend_info(self):
         trx_wallets = []
         for action in list(self.actions):
-            trx_wallets.append(action['authorization'][0]['actor'])
+            trx_wallets.append(action.result['authorization'][0]['actor'])
 
         transaction = {
             "actions": [a.result for a in self.actions]
