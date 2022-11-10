@@ -163,6 +163,7 @@ class CustomPayer:
 
 class PayWith:
     def __init__(self, trx, pay_with="nefty", custom_payer_client=None, network="mainnet"):
+        self.client = trx.client
         self.trx = trx
         if pay_with.lower() == "nefty":
             self.pay_with = Nefty(trx, network=network)
