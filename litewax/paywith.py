@@ -180,10 +180,10 @@ class PayWith:
             raise ValueError("Unknown payer. Must be 'Nefty', 'AtomicHub' or 'Custom'")
 
     def __str__(self):
-        actions = ",\n\n        ".join([f"Action(account={x['account']}, name={x['name']}, authorization={x['authorization']}, data={x['data']})" for x in self.pay_with.trx.actions])
+        actions = ',\n        '.join([str(x) for x in self.pay_with.trx.actions])
         return f"""litewax.Transaction(
-    node={self.pay_with.trx.client.node},
-    sender={self.pay_with.trx.client.name},
+    node={self.client.node},
+    sender={self.client.name},
     actions=[
         {actions}
     ]

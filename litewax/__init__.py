@@ -13,5 +13,5 @@ __all__ = [
 ]
 
 __author__ = 'abuztrade'
-__version__ = '0.1.6'
+__version__ = '0.1.7'
 __email__ = 'abuztrade.work@gmail.com'
