@@ -17,7 +17,7 @@ class Action:
         self.result = self()
     
     def __str__(self):
-        return f"{name}::{self.action}({self.args})"
+        return f"[{self.contract.permission}] {self.contract.actor} > {name}::{self.action}({self.args})"
     
     def __repr__(self):
         return self.__str__()

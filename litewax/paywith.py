@@ -130,13 +130,13 @@ class CustomPayer:
         self.payer_client = payer_client
 
 
-        if self.trx.actions[0].result["account"] != "abuztradewax" or\
+        if self.trx.actions[0].result["account"] != "litewaxpayer" or\
            self.trx.actions[0].result["name"] != "noop" or\
            self.trx.actions[0].result["authorization"][0]["actor"] != payer_client.name or\
            self.trx.actions[0].result["authorization"][0]["permission"] != permission:
             
             self.trx.actions = [
-                Contract("abuztradewax", actor=payer_client.name, permission=permission).noop()
+                Contract("litewaxpayer", actor=payer_client.name, permission=permission).noop()
             ] + self.trx.actions
 
     def push(self) -> dict:

@@ -19,7 +19,19 @@ Simply python library for interact with WAX blockchain
 - [x] Refactor code, optimize WCW client
 - [x] Wrap Actions to class (for pretty print)
 - [ ] Create tests for PayWith
+- [ ] Create docs
 ---
+
+# Minds
+refactor full code. 
+structure:
+
+- BaseClient [__init__]
+- WCWClient(BaseClient) [get_name, sign]
+- AnchorClient(BaseClient) [get_name, sign]
+- Client(WCWClient, AnchorClient) [set_node, Contract, Transaction]
+
+- TX.payer() -> TX (just extend TX class, instead create new)
 
 # Installation 
 ```

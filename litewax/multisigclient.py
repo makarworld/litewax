@@ -38,6 +38,9 @@ class MultiSigClient():
 
         self.Contract = Contract
 
+    def __str__(self):
+        return f"MultiSigClient(names={', '.join([x.name for x in self.clients])}, types={', '.join([x.type for x in self.clients])}, node={self.node})"
+
     def SetNode(self, node: str):
         self.node = node
         for client in self.clients:
@@ -71,13 +74,24 @@ class TX():
         self.wax = self.client[0].wax
 
         self.actions = list(actions)
+        self.actions.reverse()
+
+    def __str__(self):
+        actions = ',\n        '.join([str(x) for x in self.actions])
+        return f"""litewax.MultiSigClient.Transaction(
+    node={self.client.node},
+    accounts=[{', '.join([x.name for x in self.client])}],
+    actions=[
+        {actions}
+    ]
+)"""
 
     def pay_with(self, payer: str, network='mainnet'):
         return PayWith(self, payer, network)
 
     def get_trx_extend_info(self):
         trx_wallets = []
-        for action in list(self.actions):
+        for action in self.actions:
             trx_wallets.append(action.result['authorization'][0]['actor'])
 
         transaction = {
