@@ -197,7 +197,9 @@ class Transaction:
 
             return self.client.Transaction(*self.actions)
         else:
-            ... # Not implemented yet
+            # Not implemented yet
+            raise NotImplementedError("Not implemented yet. Follow the repo for updates.")
+
 
     def prepare_trx(self) -> TransactionInfo:
         """
@@ -307,6 +309,9 @@ class MultiClient:
     
     def __next__(self):
         return next(self.clients)
+    
+    def append(self, client: Client):
+        self.clients.append(client)
 
     def sign(self, 
                 trx: bytearray, 
@@ -396,6 +401,25 @@ class MultiTransaction:
         {actions}
     ]
 )"""
+
+    def payer(self, payer: Any[WAXPayer, Client, str]):
+        """
+        ## Set payer
+
+        ### Args:
+            - payer (str): payer account name
+
+        ### Returns:
+            - Transaction: `litewax.MultiClient.MultiTransaction` object
+        """
+        if isinstance(payer, Client):
+            self.client.append(payer)
+            self.actions.append(self.client[-1].Contract("litewaxpayer").noop())
+
+            return self
+        else:
+            raise NotImplementedError("Not implemented yet. Follow the repo for updates.")
+
 
     def prepare_trx(self) -> TransactionInfo:
         transaction = {
