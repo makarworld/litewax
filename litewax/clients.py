@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 import eospy.keys
 import eospy.dynamic_url
 from eospy.types import Transaction as EosTransaction
@@ -7,7 +7,7 @@ import datetime as dt
 import pytz
 
 from .baseclients import AnchorClient, WCWClient
-from .types import TransactionInfo
+from .types import TransactionInfo, WAXPayer
 from .paywith import PayWith
 from .contract import Contract
 from .exceptions import (
@@ -171,6 +171,34 @@ class Transaction:
     ]
 )"""
 
+    def payer(self, payer: Any[WAXPayer, Client, str], permission: str = "active"):
+        """
+        ## Set payer for all actions
+
+        ### Args:
+            - payer (str | Client): payer name or `litewax.Client` object
+
+        ### Returns:
+            - Transaction: `litewax.Client.Transaction` object
+        """
+        if isinstance(payer, Client):
+            # Client transform to MultiClient
+            self.client = MultiClient(clients=[self.client, payer])
+
+            self.actions.reverse()
+            self.actions.append(
+                Contract(
+                    name       = "litewaxpayer", 
+                    client     = payer, 
+                    permission = permission,
+                    node       = payer.node
+                ).noop()
+            )
+
+            return self.client.Transaction(*self.actions)
+        else:
+            ... # Not implemented yet
+
     def prepare_trx(self) -> TransactionInfo:
         """
         ## Sign transaction with client
@@ -198,7 +226,7 @@ class Transaction:
 
         return TransactionInfo(
             signatures = signatures, 
-            packed = trx.encode().hex(), 
+            packed     = trx.encode().hex(), 
             serealized = [x for x in trx.encode()]
         )
 
@@ -369,7 +397,7 @@ class MultiTransaction:
     ]
 )"""
 
-    def prepare_trx(self):
+    def prepare_trx(self) -> TransactionInfo:
         transaction = {
             "actions": [a.result for a in self.actions]
         }
