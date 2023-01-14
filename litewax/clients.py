@@ -51,15 +51,17 @@ class Client:
     ```
     
     """
-    __slots__ = ("node", "wax", "name", "client")
+    __slots__ = ("root", "node", "wax", "name", "change_node", "sign")
 
     def __init__(self, private_key: str = "", cookie: str = "", node: str = "https://wax.greymass.com") -> None:
         """Init a client for interacting with the blockchain"""
         if private_key:
             self.root = AnchorClient(private_key, node)
+            self.root.change_node
 
         elif cookie:
             self.root = WCWClient(cookie, node)
+            self.root.change_node
 
         # set methods
         self.__setattr__("change_node", self.root.change_node)
@@ -171,7 +173,7 @@ class Transaction:
     ]
 )"""
 
-    def payer(self, payer: Any[WAXPayer, Client, str], permission: str = "active"):
+    def payer(self, payer: Any, permission: str = "active"):
         """
         ## Set payer for all actions
 
@@ -185,7 +187,8 @@ class Transaction:
 
         if isinstance(payer, Client):
             # Client transform to MultiClient
-            self.client.append(payer)
+            if payer.name != self.client[0].name:
+                self.client.append(payer)
 
             self.actions.reverse()
             self.actions.append(
@@ -346,9 +349,9 @@ class MultiClient:
             if client.name not in whitelist: continue
 
             if isinstance(client.root, AnchorClient):
-                signatures += self.client.sign(digest)
+                signatures += client.sign(digest)
             else:
-                signatures += self.client.sign(trx)
+                signatures += client.sign(trx)
 
         return signatures
 
@@ -410,7 +413,7 @@ class MultiTransaction:
     ]
 )"""
 
-    def payer(self, payer: Any[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS], permission: str = "active"):
+    def payer(self, payer: Any, permission: str = "active"):
         """
         ## Set payer
 
@@ -421,7 +424,9 @@ class MultiTransaction:
             - Transaction: `litewax.MultiClient.MultiTransaction` object
         """
         if isinstance(payer, Client):
-            self.client.append(payer)
+            if payer.name not in [x.name for x in self.client]:
+                self.client.append(payer)
+
             self.actions.append(
                 Contract(
                     name       = "litewaxpayer", 
@@ -456,7 +461,7 @@ class MultiTransaction:
 
         whitelist = [action.result['authorization'][0]['actor'] for action in self.actions]
 
-        signatures = client.sign(trx, whitelist, chain_info['chain_id'])
+        signatures = self.client.sign(trx.encode(), whitelist, chain_info['chain_id'])
 
         return TransactionInfo(
             signatures = signatures, 

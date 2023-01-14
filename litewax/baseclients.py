@@ -40,7 +40,7 @@ class AnchorClient(BaseClient):
         Returns:
             - str: wallet name
         """
-        return self.wax.get('chain.get_accounts_by_authorizers', {"keys": [self.public_key], "accounts": []})['accounts'][0]['account_name']
+        return self.wax.post('chain.get_accounts_by_authorizers', json={"keys": [self.public_key], "accounts": []})['accounts'][0]['account_name']
 
     def sign(self, trx: bytearray) -> list:
         """
