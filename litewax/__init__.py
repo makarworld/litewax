@@ -1,13 +1,12 @@
 from .contract import Contract
 from .abigen import abigen
-from .client import Client
-from .multisigclient import MultiSigClient
+from .clients import Client, MultiClient
 from .paywith import Payers
 
 __all__ = [
     'Contract', 
     'Client',
-    'MultiSigClient',
+    'MultiClient',
     'Payers',
     'abigen'
 ]
