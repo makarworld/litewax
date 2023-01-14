@@ -9,29 +9,19 @@
 Simply python library for interact with WAX blockchain
 
 # TODO
-- [x] Create tests for Client
-- [x] Create tests for WCW client
-- [x] Create tests for Anchor client
-- [x] Create tests for MultiSig client
-- [x] Add supply private_keys and wcw both to MultiSigClient
-- [x] Add PayWith for NeftyBlocks
-- [x] Add PayWith for AtomicHub
-- [x] Refactor code, optimize WCW client
-- [x] Wrap Actions to class (for pretty print)
-- [ ] Create tests for PayWith
+- [ ] Implement BaseClient
+- [ ] Implement WCWClient and AnchorClient
+- [ ] Implement Client
+- [ ] Implement MultiClient
+- [ ] Implement .payer() for Transaction
+- [ ] Add Nodes class for search best nodes for current ip; .best_node()
+- [ ] Add docstrings for new classes and methods
+- [ ] Create tests for Client and MultiClient
+- [ ] Create examples for Client and MultiClient
 - [ ] Create docs
 ---
 
 # Minds
-refactor full code. 
-structure:
-
-- BaseClient [__init__]
-- WCWClient(BaseClient) [get_name, sign]
-- AnchorClient(BaseClient) [get_name, sign]
-- Client(WCWClient, AnchorClient) [set_node, Contract, Transaction]
-
-- TX.payer() -> TX (just extend TX class, instead create new)
 
 - Nodes.best() -> search best nodes for current ip
 
