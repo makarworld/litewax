@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+
 class Payers:
     NEFTY = "nefty"
     NEFTYBLOCKS = "nefty"
@@ -16,3 +19,8 @@ class Payers:
     custom = "custom"
     
 
+@dataclass
+class TransactionInfo:
+    signatures: list
+    packed: str
+    serealized: list

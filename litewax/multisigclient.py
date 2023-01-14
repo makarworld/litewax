@@ -1,34 +1,33 @@
 from typing import List
 from eospy.types import Transaction
 from eospy.utils import sig_digest
+import eospy.cleos
+import eospy.dynamic_url
 import pytz
 import datetime as dt
 
-from .client import Client
+from .types import TransactionInfo
+from .client import Client, AnchorClient
 from .contract import Contract
 from .exceptions import *
 from .paywith import PayWith
 
 
-class MultiSigClient():
-    """
-    ### Methods:
-    - SetNode
-    - Transaction
-    - Contract
-    """
+class MultiClient:
+    __slots__ = ("clients")
+
     def __init__(self, 
             private_keys: list = [], 
             cookies: list = [],  
-            clients: List[Client] = [],
+            clients: List[Client] = [], 
             node: str='https://wax.greymass.com'):
 
-        self.node = node
+        self.clients = clients
+        if clients:
+            self.change_node(node)
 
         if not cookies and not private_keys and not clients:
             raise AuthNotFound("You must provide a private key, a cookie or a clients")
-
-        self.clients = list(clients)
 
         for private_key in private_keys:
             self.clients.append(Client(private_key=private_key, node=node))
@@ -36,18 +35,12 @@ class MultiSigClient():
         for cookie in cookies:
             self.clients.append(Client(cookie=cookie, node=node))
 
-        self.Contract = Contract
+    def __str__(self) -> str:
+        return f"MultiClient(clients={self.clients})"
 
-    def __str__(self):
-        return f"MultiSigClient(names={', '.join([x.name for x in self.clients])}, types={', '.join([x.type for x in self.clients])}, node={self.node})"
-
-    def SetNode(self, node: str):
-        self.node = node
+    def change_node(self, node: str):
         for client in self.clients:
-            client.SetNode(node)
-
-    def Transaction(self, *actions):
-        return TX(self, *actions, node=self.node)
+            client.change_node(node)
 
     def __getitem__(self, index):
         return self.clients[index]
@@ -61,17 +54,81 @@ class MultiSigClient():
     def __next__(self):
         return next(self.clients)
 
-class TX():
-    """
-    ### Methods:
-    - pay_with
-    - get_trx_extend_info
-    - push
-    """
-    def __init__(self, client: MultiSigClient, *actions, node: str='https://wax.greymass.com'):
+    def sign(self, 
+                trx: bytearray, 
+                whitelist: List[str] = [], 
+                chain_id: str = "") -> Transaction:
+        """
+        ## Sign a transaction with all clients
+        
+        ### Args:
+        - trx (bytearray): bytearray of transaction
+        - chain_id (str): chain id of the network (optional)
+
+        ### Returns:
+        - signatures (list): list of signatures
+        """
+        if not chain_id:
+            chain_id = self.clients[0].wax.get_info()['chain_id']
+
+        digest = sig_digest(trx, chain_id)
+
+        signatures = []
+
+        for client in self.clients:
+            if client.name not in whitelist: continue
+
+            if isinstance(client.root, AnchorClient):
+                signatures += self.client.sign(digest)
+            else:
+                signatures += self.client.sign(trx)
+
+        return signatures
+
+    def Transaction(self, *actions):
+        """
+        ## Create a `litewax.MultiClient.Transaction` object
+
+        ### Args:
+            - actions (list): list of actions
+
+        ### Returns:
+            - Transaction: `litewax.MultiClient.Transaction` object
+
+        ---
+
+        ## Examples:
+
+        ```python
+        from litewax import Client, MultiClient
+
+        # init client with private key
+        client1 = Client(private_key=private_key1)
+        client2 = Client(private_key=private_key2)
+
+        multi_client = MultiClient(clients=[client1, client2])
+
+        # create transaction object
+        trx = multi_client.Transaction(
+            multi_client[1].Contract("eosio.token").transfer(
+                "from", "to", "1.00000000 WAX", "memo"
+            ),
+            multi_client[0].Contract("litewaxpayer").noop()
+        )
+
+        # push transaction
+        trx.push()
+
+        ```
+        
+        """
+        return Transaction(self, *actions)
+
+class Transaction:
+    __slots__ = ("client", "actions")
+
+    def __init__(self, client: MultiClient, *actions):
         self.client = client
-        self.node = node
-        self.wax = self.client[0].wax
 
         self.actions = list(actions)
         self.actions.reverse()
@@ -79,21 +136,14 @@ class TX():
     def __str__(self):
         actions = ',\n        '.join([str(x) for x in self.actions])
         return f"""litewax.MultiSigClient.Transaction(
-    node={self.client.node},
+    node={self.client[0].node},
     accounts=[{', '.join([x.name for x in self.client])}],
     actions=[
         {actions}
     ]
 )"""
 
-    def pay_with(self, payer: str, network='mainnet'):
-        return PayWith(self, payer, network)
-
-    def get_trx_extend_info(self):
-        trx_wallets = []
-        for action in self.actions:
-            trx_wallets.append(action.result['authorization'][0]['actor'])
-
+    def prepare_trx(self):
         transaction = {
             "actions": [a.result for a in self.actions]
         }
@@ -104,37 +154,33 @@ class TX():
         chain_info, lib_info = self.wax.get_chain_lib_info()
         trx = Transaction(transaction, chain_info, lib_info)
 
-        digest_anchor = sig_digest(trx.encode(), chain_info['chain_id'])
+        whitelist = [action.result['authorization'][0]['actor'] for action in self.actions]
 
-        signatures = []
+        signatures = client.sign(trx, whitelist, chain_info['chain_id'])
 
-        for cl in self.client:
-            if cl.name not in trx_wallets:
-                continue
+        return TransactionInfo(
+            signatures = signatures, 
+            packed = trx.encode().hex(), 
+            serealized = [x for x in trx.encode()]
+        )
 
-            if cl.type == 'private_key':
-                signatures.append(cl.sign(digest_anchor))
+    def push(self) -> dict:
+        """
+        ## Push transaction
+        Push transaction to blockchain
 
-            if cl.type == 'cookie':
-                signatures += cl.sign(trx.encode())
+        ### Returns:
+        - dict: transaction info
+        """
+        data = self.prepare_trx()
 
-        return {
-            "signatures": signatures,
-            "packed": trx.encode().hex(),
-            "serealized": [x for x in trx.encode()]
-        }
-
-    def push(self):
-        info = self.get_trx_extend_info()
-        signatures = info['signatures']
-        packed = info['packed']
-
-        push_create_offer = self.wax.post("chain.push_transaction",
+        push_create_offer = self.client.wax.post(
+            "chain.push_transaction",
             json={
-                "signatures": signatures,
+                "signatures": data.signatures,
                 "compression": 0,
                 "packed_context_free_data": "",
-                "packed_trx": packed
+                "packed_trx": data.packed
             },
             timeout=30
         )
@@ -151,9 +197,8 @@ class TX():
 
         return push_create_offer
 
-
 if __name__ == "__main__":
-    client = MultiSigClient(
+    client = MultiClient(
         private_keys=["5JJYyiPpopRaQs1o7wQE6X7X1V5mc1pcE6iXGLKCQ8YpdVfv7hL"],
         #cookies=["hY0u8DUYNXjucimdWDajkuX9cLGjNlNjukaV60JZ"]
     )
