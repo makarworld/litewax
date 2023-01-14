@@ -8,7 +8,7 @@ import pytz
 
 from .baseclients import AnchorClient, WCWClient
 from .types import TransactionInfo, WAXPayer
-from .paywith import PayWith
+from .payers import AtomicHub, NeftyBlocks
 from .contract import Contract
 from .exceptions import (
     CPUlimit, AuthNotFound,
@@ -181,9 +181,11 @@ class Transaction:
         ### Returns:
             - Transaction: `litewax.Client.Transaction` object
         """
+        self.client = MultiClient(clients=[self.client], node=self.client.node)
+
         if isinstance(payer, Client):
             # Client transform to MultiClient
-            self.client = MultiClient(clients=[self.client, payer])
+            self.client.append(payer)
 
             self.actions.reverse()
             self.actions.append(
@@ -191,14 +193,20 @@ class Transaction:
                     name       = "litewaxpayer", 
                     client     = payer, 
                     permission = permission,
-                    node       = payer.node
+                    node       = self.client[0].node
                 ).noop()
             )
 
             return self.client.Transaction(*self.actions)
+
+        elif payer.lower() == WAXPayer.ATOMICHUB:
+            return AtomicHub(self.client, self)
+        
+        elif payer.lower() == WAXPayer.NEFTYBLOCKS:
+            return NeftyBlocks(self.client, self)
+
         else:
-            # Not implemented yet
-            raise NotImplementedError("Not implemented yet. Follow the repo for updates.")
+            raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
     def prepare_trx(self) -> TransactionInfo:
@@ -402,7 +410,7 @@ class MultiTransaction:
     ]
 )"""
 
-    def payer(self, payer: Any[WAXPayer, Client, str]):
+    def payer(self, payer: Any[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS], permission: str = "active"):
         """
         ## Set payer
 
@@ -414,11 +422,25 @@ class MultiTransaction:
         """
         if isinstance(payer, Client):
             self.client.append(payer)
-            self.actions.append(self.client[-1].Contract("litewaxpayer").noop())
+            self.actions.append(
+                Contract(
+                    name       = "litewaxpayer", 
+                    client     = payer, 
+                    actor      = payer.name, 
+                    permission = permission, 
+                    node       = self.client[0].node
+            ).noop())
 
             return self
+
+        elif payer.lower() == WAXPayer.ATOMICHUB:
+            return AtomicHub(self.client, self)
+        
+        elif payer.lower() == WAXPayer.NEFTYBLOCKS:
+            return NeftyBlocks(self.client, self)
+
         else:
-            raise NotImplementedError("Not implemented yet. Follow the repo for updates.")
+            raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
     def prepare_trx(self) -> TransactionInfo:

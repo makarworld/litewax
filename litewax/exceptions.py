@@ -22,5 +22,8 @@ class NotImplementedError(Exception):
 class CookiesExpired(Exception):
     pass
 
-class PayWithPushError(Exception):
+class AtomicHubPushError(Exception):
+    pass
+
+class NeftyBlocksPushError(Exception):
     pass

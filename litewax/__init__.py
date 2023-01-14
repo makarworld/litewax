@@ -1,13 +1,16 @@
 from .contract import Contract
 from .abigen import abigen
 from .clients import Client, MultiClient
-from .paywith import Payers
+from .payers import AtomicHub, NeftyBlocks
+from .types import WAXPayer
 
 __all__ = [
     'Contract', 
     'Client',
     'MultiClient',
-    'Payers',
+    'WAXPayer',
+    'AtomicHub',
+    'NeftyBlocks',
     'abigen'
 ]
 
