@@ -1,4 +1,4 @@
-from litewax import Client, Payers
+from litewax import Client, WAXPayer
 from dotenv import dotenv_values
 
 ENV = dotenv_values(".env")
@@ -24,5 +24,11 @@ trx = client.Transaction(
         settlement_symbol="0,NULL"
     )
 )
+# add neftyblocks as payer
+trx = trx.payer(WAXPayer.NEFTYBLOCKS, network="testnet")
 
-print(trx.pay_with(Payers.NEFTY, network='testnet').push())
+# push transaction
+push_resp = trx.push()
+
+print(push_resp)
+# {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}

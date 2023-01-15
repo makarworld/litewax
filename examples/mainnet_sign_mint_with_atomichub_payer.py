@@ -1,4 +1,5 @@
 from litewax.client import Client
+from litewax import WAXPayer
 
 from dotenv import dotenv_values
 
@@ -34,6 +35,6 @@ trx = client.Transaction(
 )
 
 
-trx = trx.pay_with(payer="AtomicHub") # atomichub pay your trx cpu only if you haven't enough wax staked in cpu
+trx = trx.payer(WAXPayer.ATOMICHUB) # atomichub pay your trx cpu only if you haven't enough wax staked in cpu
 print(trx)
 print(trx.push())
