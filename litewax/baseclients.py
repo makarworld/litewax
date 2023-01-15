@@ -18,6 +18,7 @@ class BaseClient:
         self.wax = eospy.cleos.Cleos(url=node)
     
     def change_node(self, node: str) -> None:
+        """Change node for client by redeffining dynamic_url in `Cleos` instance"""
         self.node = node
         self.wax._prod_url = node
         self.wax._dynurl = eospy.dynamic_url.DynamicUrl(url=self.wax._prod_url, version=self.wax._version)

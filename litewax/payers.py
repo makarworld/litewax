@@ -1,7 +1,6 @@
 import cloudscraper
 from .contract import Contract
 from .exceptions import AtomicHubPushError, NeftyBlocksPushError
-from eospy.utils import sig_digest
 from .types import CUSTOM_BROWSER
 
 # same interface as Transaction
@@ -69,6 +68,8 @@ class AtomicHub:
 
 
 class NeftyBlocks:
+    """
+    """
     # client - MultiClient instance
     # trx - MulltiTransaction instance
     def __init__(self, client, trx, network="mainnet"):

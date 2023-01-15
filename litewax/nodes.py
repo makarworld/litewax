@@ -1,10 +1,10 @@
 import requests
-from threading import Thread
 
 class Nodes:
-
+    """Get nodes from antelope and ping them"""
     @staticmethod
     def get_nodes(network = "mainnet") -> list:
+        """Get producers nodes from antelope"""
         if network == "testnet":
             url = "https://graphql-wax-testnet.antelope.tools/v1/graphql"
         else:
@@ -44,6 +44,7 @@ class Nodes:
 
     @staticmethod
     def ping_nodes(network = "mainnet") -> dict:
+        """Ping nodes and return dict. key - URL, value - ping (ms)"""
         nodes = Nodes.get_nodes(network=network)
 
         result = {}
@@ -62,7 +63,7 @@ class Nodes:
 
     @staticmethod
     def best_nodes(network = "mainnet") -> dict:
-        """Returns dict. key - URL, value - ping (ms). It may take a 20-50 sec. to get the result."""
+        """Returns sorted dict. key - URL, value - ping (ms). It may take a 20-50 sec. to get the result."""
         nodes = Nodes.ping_nodes(network=network)
 
         return dict(sorted(nodes.items(), key=lambda item: item[1]))

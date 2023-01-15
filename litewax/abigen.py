@@ -168,6 +168,9 @@ def check_ban(text):
         return banwords.get(text)
 
 class abigen():
+    """
+    ## abigen class for generating python classes from abi to interact with contracts
+    """
     def __init__(self, node: str="https://wax.greymass.com"):
         self.node = node
 

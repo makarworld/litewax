@@ -1,6 +1,4 @@
 from typing import List, Any
-import eospy.keys
-import eospy.dynamic_url
 from eospy.types import Transaction as EosTransaction
 from eospy.utils import sig_digest
 import datetime as dt
@@ -21,8 +19,8 @@ class Client:
 
     ### Methods:
         - __init__( private_key: str, cookie: str, node: str )
-        - sign( trx: bytearray )
-        - change_node( node: str )
+        - sign( trx: bytearray ) -> list
+        - change_node( node: str ) -> None
 
     ### Variables:
         - node (str): node url
@@ -117,7 +115,7 @@ class Client:
         ## Create a `litewax.Client.Transaction` object
 
         ### Args:
-            - actions (list): list of actions
+            - actions (Action): actions
 
         ### Returns:
             - Transaction: `litewax.Client.Transaction` object
@@ -149,11 +147,71 @@ class Client:
 
 class Transaction:
     """
+    ## Transaction object
+    Create a transaction object for pushing to the blockchain
+
     ### Methods:
-    - pay_with
-    - get_trx_extend_info
-    - push
+    - payer( payer: str | Client, permission: str = "active" ) -> `litewax.MultiClient.MultiTransaction`
+    - prepare_trx() -> `litewax.types.TransactionInfo`
+    - push() -> `dict`
+
+    ### Variables:
+    - client (Client): `litewax.Client` object
+    - actions (list): list of actions
+
+    ---
+
+    ## Examples:
+    ```python
+    from litewax import Client
+
+    # init client with private key
+    client = Client(private_key=private_key)
+
+    # create transaction object
+    trx = client.Transaction(
+        client.Contract("eosio.token").transfer(
+            "account1", "account2", "1.00000000 WAX", "memo"
+        )
+    )
+
+    print(trx)
+    # litewax.Client.Transaction(
+    #     node=https://wax.greymass.com,
+    #     sender=account1,
+    #     actions=[
+    #         [active] account1 > eosio.token::transfer({"from": "account1", "to": "account2", "quantity": "1.00000000 WAX", "memo": "memo"})
+    #     ]
+    # )
+
+    # Add payer for CPU
+
+    # init payer client with private key
+    payer = Client(private_key=private_key2)
+
+    # add payer to transaction
+    trx = trx.payer(payer)
+
+    print(trx)
+    # litewax.MultiClient.MultiTransaction(
+    #     node=ttps://wax.greymass.com,
+    #     accounts=[account1, account2],
+    #     actions=[
+    #         [active] account1 > eosio.token::transfer({"from": "account1", "to": "account2", "quantity": "1.00000000 WAX", "memo": "memo"}),
+    #         [active] account2 > litewaxpayer::noop({})
+    #     ]
+    # )
+
+
+    # push transaction
+    push_resp = trx.push()
+
+    print(push_resp)
+    # {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
+
     """
+    __slots__ = ("client", "actions")
+
     def __init__(self, client: Client, *actions):
         self.client = client
 
@@ -219,7 +277,7 @@ class Transaction:
         Sign transaction with client and return signatures, packed and serialized transaction
 
         ### Returns:
-            - TransactionInfo: `litewax.Client.TransactionInfo` object
+            - TransactionInfo: `litewax.types.TransactionInfo` object
         """
         transaction = {
             "actions": [a.result for a in self.actions]
@@ -281,6 +339,52 @@ class Transaction:
 
 
 class MultiClient:
+    """
+    ## MultiClient class for interacting with blockchain using many clients
+
+    ### Methods:
+        - __init__(private_keys: list, cookies: list, clients: list, node: str)
+        - change_node(node: str) -> None
+        - append(client: Client) -> None
+        - sign(trx: bytearray, whitelist: list, chain_id: str) -> list
+        - Transaction(*actions) -> MultiTransaction
+
+    ### Variables:
+        - clients (list): list of `litewax.Client` objects
+
+    ### Example:
+    ```python
+    from litewax import MultiClient
+
+    client = MultiClient(
+        private_keys = [
+            "EOS7...1",
+            "EOS7...2",
+            "EOS7...3"
+        ],
+        node = "https://wax.greymass.com"
+    )
+
+    # Change node
+    client.change_node("https://wax.eosn.io")
+
+    # Append client
+    client.append(Client(private_key="EOS7...4"))
+
+    # Create transaction
+    trx = client.Transaction(
+        Contract("eosio.token").transfer(
+            "account1", "account2", "1.0000 WAX", "memo"
+        )
+    )
+
+    # Add payer
+    trx = trx.payer(client[2])
+
+    # Push transaction
+    trx.push()
+    ```
+    """
     __slots__ = ("clients")
 
     def __init__(self, 
@@ -322,6 +426,15 @@ class MultiClient:
         return next(self.clients)
     
     def append(self, client: Client):
+        """
+        ## Append client to clients list
+        
+        ### Args:
+        - client (Client): `litewax.Client` object
+
+        ### Returns:
+        - None
+        """
         self.clients.append(client)
 
     def sign(self, 
@@ -333,6 +446,7 @@ class MultiClient:
         
         ### Args:
         - trx (bytearray): bytearray of transaction
+        - whitelist (list): list of clients to sign with (optional)
         - chain_id (str): chain id of the network (optional)
 
         ### Returns:
@@ -395,6 +509,47 @@ class MultiClient:
         return MultiTransaction(self, *actions)
 
 class MultiTransaction:
+    """
+    ## MultiTransaction class for creating and pushing transactions using many signatures
+    
+    ### Methods:
+        - __init__(client: MultiClient, *actions)
+        - payer(payer: str, permission: str = "active") -> MultiTransaction
+        - prepare_trx() -> TransactionInfo
+        - push() -> dict
+    
+    ### Variables:
+        - client (MultiClient): `litewax.MultiClient` object
+        - actions (list): list of actions
+
+    ### Example:
+    ```python
+    from litewax import MultiClient
+
+    # init client with private keys
+    client = MultiClient(
+        private_keys = [
+            "EOS7...1",
+            "EOS7...2"
+        ],
+        node = "https://wax.greymass.com"
+    )
+
+    # create transaction object
+    trx = client.Transaction(
+        client[0].Contract("eosio.token").transfer(
+            "from", "to", "1.00000000 WAX", "memo"
+        )
+    )
+
+    # add payer
+    trx = trx.payer(client[1])
+
+    # push transaction
+    trx.push()
+    ```
+
+    """
     __slots__ = ("client", "actions")
 
     def __init__(self, client: MultiClient, *actions):
@@ -427,14 +582,15 @@ class MultiTransaction:
             if payer.name not in [x.name for x in self.client]:
                 self.client.append(payer)
 
-            self.actions.append(
+            # append payer action to first position
+            self.actions = [
                 Contract(
                     name       = "litewaxpayer", 
                     client     = payer, 
                     actor      = payer.name, 
                     permission = permission, 
                     node       = self.client[0].node
-            ).noop())
+            ).noop()] + self.actions
 
             return self
 

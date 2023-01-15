@@ -2,6 +2,21 @@ import os
 from .abigen import abigen
 
 def Contract(name: str, client=None, actor=None, permission="active", force_recreate=False, node=None):
+    """
+    ## Function for creating a contract object using wax abigen. 
+    Contract objects will be saved in the contracts folder. 
+
+    ### Parameters
+    - `name`: The name of the contract (ex: res.pink)
+    - `client`: A Client object (if actor is not provided)
+    - `actor`: The actor name (if client is not provided)
+    - `permission`: The permission to use (default: active)
+    - `force_recreate`: Force the contract to be recreated (default: False)
+    - `node`: The node to use (default: https://wax.greymass.com)
+
+    ### Returns
+    - `Contract`: A contract object
+    """
     if not node and client:
         node = client.node
     else:
