@@ -9,13 +9,13 @@
 Simply python library for interact with WAX blockchain
 
 # TODO
-- [ ] Implement BaseClient
-- [ ] Implement WCWClient and AnchorClient
-- [ ] Implement Client
-- [ ] Implement MultiClient
-- [ ] Implement .payer() for Transaction
-- [ ] Add Nodes class for search best nodes for current ip; .best_node()
-- [ ] Add docstrings for new classes and methods
+- [x] Implement BaseClient
+- [x] Implement WCWClient and AnchorClient
+- [x] Implement Client
+- [x] Implement MultiClient
+- [x] Implement .payer() for Transaction
+- [x] Add Nodes class for search best nodes for current ip; .best_node()
+- [x] Add docstrings for new classes and methods
 - [ ] Create tests for Client and MultiClient
 - [ ] Create examples for Client and MultiClient
 - [ ] Create docs

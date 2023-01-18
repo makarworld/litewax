@@ -60,6 +60,9 @@ class Client:
         elif cookie:
             self.root = WCWClient(cookie, node)
             self.root.change_node
+            
+        else:
+            raise ValueError("You must provide a private key or a WCW session token")
 
         # set methods
         self.__setattr__("change_node", self.root.change_node)
