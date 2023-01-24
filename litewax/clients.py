@@ -55,11 +55,9 @@ class Client:
         """Init a client for interacting with the blockchain"""
         if private_key:
             self.root = AnchorClient(private_key, node)
-            self.root.change_node
 
         elif cookie:
             self.root = WCWClient(cookie, node)
-            self.root.change_node
             
         else:
             raise ValueError("You must provide a private key or a WCW session token")
@@ -487,13 +485,13 @@ class MultiClient:
 
     def Transaction(self, *actions):
         """
-        ## Create a `litewax.MultiClient.Transaction` object
+        ## Create a `litewax.MultiClient.MultiTransaction` object
 
         ### Args:
             - actions (list): list of actions
 
         ### Returns:
-            - Transaction: `litewax.MultiClient.Transaction` object
+            - MultiTransaction: `litewax.MultiClient.MultiTransaction` object
 
         ---
 
