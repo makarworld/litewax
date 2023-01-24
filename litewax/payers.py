@@ -34,8 +34,9 @@ class AtomicHub:
         self.sign_link = "https://wax-mainnet-signer.api.atomichub.io/v1/sign"
         self.push_link = "chain.push_transaction"
 
-    def push(self) -> dict:
-        signed = self.trx.prepare_trx()
+    def push(self, signed = {}, expiration = 180) -> dict:
+        if not signed:
+            signed = self.trx.prepare_trx(expiration = expiration)
         signatures = signed.signatures
 
         # sign with atomichub
@@ -109,8 +110,9 @@ class NeftyBlocks:
         else:
             raise ValueError("Unknown network. Must be 'testnet' or 'mainnet'")
 
-    def push(self) -> dict:
-        signed = self.trx.prepare_trx()
+    def push(self, signed = {}, expiration = 180) -> dict:
+        if not signed:
+            signed = self.trx.prepare_trx(expiration = expiration)
         signatures = signed.signatures
 
         # sign with neftyblocks

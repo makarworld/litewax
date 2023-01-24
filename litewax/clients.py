@@ -273,11 +273,16 @@ class Transaction:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
-    def prepare_trx(self) -> TransactionInfo:
+    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration = 180) -> TransactionInfo:
         """
         ## Sign transaction with client
 
         Sign transaction with client and return signatures, packed and serialized transaction
+
+        ### Args:
+            - chain_info (dict): chain info. Provide it if you not want to get it from blockchain (optional)
+            - lib_info (dict): lib info. Provide it if you not want to get it from blockchain (optional)
+            - expiration (int): transaction expiration time in seconds (optional): default 180
 
         ### Returns:
             - TransactionInfo: `litewax.types.TransactionInfo` object
@@ -287,9 +292,12 @@ class Transaction:
         }
             
         transaction['expiration'] = str(
-            (dt.datetime.utcnow() + dt.timedelta(seconds=60)).replace(tzinfo=pytz.UTC))
+            (dt.datetime.utcnow() + dt.timedelta(seconds = expiration)).replace(tzinfo=pytz.UTC))
 
-        chain_info, lib_info = self.client.wax.get_chain_lib_info()
+        # Provide it if you not want to get it from blockchain
+        if not chain_info or not lib_info:
+            chain_info, lib_info = self.client.wax.get_chain_lib_info()
+
         trx = EosTransaction(transaction, chain_info, lib_info)
 
         if isinstance(self.client.root, AnchorClient):
@@ -304,15 +312,20 @@ class Transaction:
             serealized = [x for x in trx.encode()]
         )
 
-    def push(self) -> dict:
+    def push(self, data: TransactionInfo = {}, expiration = 180) -> dict:
         """
         ## Push transaction
         Push transaction to blockchain
 
+        ### Args:
+            - data (TransactionInfo): `litewax.types.TransactionInfo` object
+            - expiration (int): transaction expiration time in seconds
+
         ### Returns:
         - dict: transaction info
         """
-        data = self.prepare_trx()
+        if not data or not isinstance(data, TransactionInfo):
+            data = self.prepare_trx(expiration = expiration)
 
         push_create_offer = self.client.wax.post(
             "chain.push_transaction",
@@ -607,15 +620,29 @@ class MultiTransaction:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
-    def prepare_trx(self) -> TransactionInfo:
+    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration = 180) -> TransactionInfo:
+        """
+        ## Sign transaction with all used clients
+
+        Sign transaction with clients and return signatures, packed and serialized transaction
+
+        ### Args:
+            - chain_info (dict): chain info. Provide it if you not want to get it from blockchain (optional)
+            - lib_info (dict): lib info. Provide it if you not want to get it from blockchain (optional)
+            - expiration (int): transaction expiration time in seconds (optional): default 180
+
+        ### Returns:
+            - TransactionInfo: `litewax.types.TransactionInfo` object
+        """
         transaction = {
             "actions": [a.result for a in self.actions]
         }
             
         transaction['expiration'] = str(
-            (dt.datetime.utcnow() + dt.timedelta(seconds=60)).replace(tzinfo=pytz.UTC))
-
-        chain_info, lib_info = self.client[0].wax.get_chain_lib_info()
+            (dt.datetime.utcnow() + dt.timedelta(seconds=expiration)).replace(tzinfo=pytz.UTC))
+        
+        if not chain_info or not lib_info:
+            chain_info, lib_info = self.client[0].wax.get_chain_lib_info()
         trx = EosTransaction(transaction, chain_info, lib_info)
 
         whitelist = [action.result['authorization'][0]['actor'] for action in self.actions]
@@ -628,15 +655,20 @@ class MultiTransaction:
             serealized = [x for x in trx.encode()]
         )
 
-    def push(self) -> dict:
+    def push(self, data: TransactionInfo = {}, expiration: int = 180) -> dict:
         """
         ## Push transaction
         Push transaction to blockchain
 
+        ### Args:
+            - data (TransactionInfo): `litewax.MultiClient.TransactionInfo` object (optional)
+            - expiration (int): transaction expiration time in seconds (optional), default is 180 seconds
+
         ### Returns:
         - dict: transaction info
         """
-        data = self.prepare_trx()
+        if not data or not isinstance(data, TransactionInfo):
+            data = self.prepare_trx(expiration = expiration)
 
         push_create_offer = self.client[0].wax.post(
             "chain.push_transaction",
