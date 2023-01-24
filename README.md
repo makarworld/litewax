@@ -8,6 +8,8 @@
 # litewax
 Simply python library for interact with WAX blockchain
 
+See wiki for more info: [RU (under development)](https://github.com/makarworld/litewax/wiki) | EN (soon)
+
 # TODO
 - [x] Implement BaseClient
 - [x] Implement WCWClient and AnchorClient
@@ -16,14 +18,14 @@ Simply python library for interact with WAX blockchain
 - [x] Implement .payer() for Transaction
 - [x] Add Nodes class for search best nodes for current ip; .best_node()
 - [x] Add docstrings for new classes and methods
+- [x] Update README.md
+- [ ] Create RU wiki
+- [ ] Create EN wiki
+- [ ] Write docs on readthedocs.io
 - [ ] Create tests for Client and MultiClient
 - [ ] Create examples for Client and MultiClient
 - [ ] Create docs
 ---
-
-# Minds
-
-- Nodes.best() -> search best nodes for current ip
 
 # Installation 
 ```
@@ -35,7 +37,7 @@ pip install litewax
 # Clients examples
 ## Import
 ```
-from litewax import Client, MultiSigClient, Contract
+from litewax import Client, MultiClient, Contract
 ```
 ## Client setup
 Anchor
@@ -48,14 +50,14 @@ Wax Cloud Wallet
 client = Client(cookie="TOKEN_SESSION")
 ```
 
-Anchor MultiSigClient
+Anchor MultiClient
 ```
-client = MultiSigClient(private_keys=["PVT_KEY1", "PVT_KEY2", ...])
+client = MultiClient(private_keys=["PVT_KEY1", "PVT_KEY2", ...])
 ```
 
-Wax Cloud Wallet MultiSigClient
+Wax Cloud Wallet MultiClient
 ```
-client = MultiSigClient(cookies=["TOKEN_SESSION1", "TOKEN_SESSION2", ...])
+client = MultiClient(cookies=["TOKEN_SESSION1", "TOKEN_SESSION2", ...])
 ```
 
 ---
@@ -71,7 +73,7 @@ With client
 ```
 contract = client.Contract("name")
 
-# In MultiSigClient:
+# In MultiClient:
 # contract = client.Contract("name", client[0])
 # contract = client[0].Contract("name")
 # contract = client.Contract("name", actor=client[0].name)
@@ -155,12 +157,12 @@ trx = AnchorClient.Transaction(
 trx.push()
 # {"transaction_id": "0x0123abc...", ...}
 ```
-## (Anchor) MultiSigClient example 
+## (Anchor) MultiClient example 
 ```
 import litewax
 
-# Create multisig client (may accept wax cloud wallet and anchor)
-multiclient = litewax.MultiSigClient(
+# Create multi-client (may accept wax cloud wallet and anchor)
+multiclient = litewax.MultiClient(
         private_keys=[PVT_KEY1, PVT_KEY2, ...]
     )
 
@@ -187,12 +189,12 @@ trx = multiclient.Transaction(
 trx.push()
 # {"transaction_id": "0x0123abc...", ...}
 ```
-## (Wax Cloud Wallet) MultiSigClient example 
+## (Wax Cloud Wallet) MultiClient example 
 ```
 import litewax
 
-# Create multisig client (may accept wax cloud wallet and anchor)
-multiclient = litewax.MultiSigClient(
+# Create multi-client (may accept wax cloud wallet and anchor)
+multiclient = litewax.MultiClient(
         cookies=[cookie1, cookie2, ...]
     )
 
