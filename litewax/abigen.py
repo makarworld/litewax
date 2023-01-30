@@ -183,8 +183,10 @@ class abigen():
         Generate python class from abi
 
         :param name: contract name
+        :type name: str
 
         :return: content of generated file
+        :rtype: str
         """
         actions = self.get_abi(name)
         out = file_start
@@ -241,8 +243,10 @@ class abigen():
         Get contract abi from node
 
         :param account_name: contract name
+        :type account_name: str
 
         :return: abi
+        :rtype: dict
         """
         r = requests.post(f"{self.node}/v1/chain/get_abi", json={"account_name": account_name}).json()
         return r['abi']['structs']
@@ -253,8 +257,10 @@ class abigen():
         Get transaction info from node
         
         :param tx: transaction id
+        :type tx: str
         
         :return: transaction info
+        :rtype: dict
         """
         return requests.post(f"{self.node}/v1/history/get_transaction",
                    json={"id": tx, "block_num_hint": 0}).json()

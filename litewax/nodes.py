@@ -2,14 +2,17 @@ import requests
 
 class Nodes:
     """Get nodes from antelope and ping them"""
+    
     @staticmethod
     def get_nodes(network = "mainnet") -> list:
         """
         Get producers nodes from antelope
         
         :param network: mainnet or testnet
+        :type network: str
         
         :return: list of nodes
+        :rtype: list
         """
         if network == "testnet":
             url = "https://graphql-wax-testnet.antelope.tools/v1/graphql"
@@ -54,8 +57,11 @@ class Nodes:
         Ping nodes and return dict. key - URL, value - ping (ms)
         
         :param network: mainnet or testnet
+        :type network: str
         
-        :return: dict. key - URL, value - ping (ms)"""
+        :return: dict. key - URL, value - ping (ms)
+        :rtype: dict
+        """
         nodes = Nodes.get_nodes(network=network)
 
         result = {}
@@ -78,8 +84,10 @@ class Nodes:
         Search best nodes for you. It may take a 20-50 sec. to get the result.
         
         :param network: mainnet or testnet
+        :type network: str
         
         :return: sorted dict. key - URL, value - ping (ms)
+        :rtype: dict
         """
         nodes = Nodes.ping_nodes(network=network)
 
@@ -92,8 +100,10 @@ class Nodes:
         Returns the best node with the lowest ping. It may take a 20-50 sec. to get the result.
         
         :param network: mainnet or testnet
+        :type network: str
         
         :return: URL
+        :rtype: str
         """
         nodes = Nodes.best_nodes(network=network)
 

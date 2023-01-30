@@ -10,17 +10,17 @@ from .exceptions import (
 )
 
 class BaseClient:
-    """BaseClient is a base client for interacting with the blockchain"""
+    """
+    BaseClient is a base client for interacting with the blockchain
+    
+    :param node: Node URL
+    :type node: str
+    
+    :return:
+    """
     __slots__ = ("node", "wax")
 
     def __init__(self, node: str) -> None:
-        """
-        Init a base client for interacting with the blockchain
-        
-        :param node: Node URL
-
-        :return:
-        """
         self.node = node
         self.wax = eospy.cleos.Cleos(url=node)
     
@@ -29,6 +29,7 @@ class BaseClient:
         Change node for client by redeffining dynamic_url in `Cleos` instance
         
         :param node: Node URL
+        :type node: str
 
         :return:
         """
@@ -37,19 +38,19 @@ class BaseClient:
         self.wax._dynurl = eospy.dynamic_url.DynamicUrl(url=self.wax._prod_url, version=self.wax._version)
 
 class AnchorClient(BaseClient):
-    """AnchorClient is a client for interacting with the blockchain using a private key"""
+    """
+    AnchorClient is a client for interacting with the blockchain using a private key
+    
+    :param private_key: Private key string
+    :type private_key: str
+    :param node: Node URL
+    :type node: str
+    
+    :return:
+    """
     __slots__ = ("private_key", "public_key", "name")
 
     def __init__(self, private_key: str, node: str) -> None:
-        """
-        Init a client for interacting with the blockchain using a private key
-
-        :param private_key: Private key string
-
-        :param node: Node URL
-
-        :return:
-        """
         super().__init__(node)
         self.private_key = eospy.keys.EOSKey(private_key)
         self.public_key = self.private_key.to_public()
@@ -62,6 +63,7 @@ class AnchorClient(BaseClient):
         :raises: `KeyError` if account not found
 
         :return: wallet name
+        :rtype: str
         """
         return self.wax.post('chain.get_accounts_by_authorizers', json={"keys": [self.public_key], "accounts": []})['accounts'][0]['account_name']
 
@@ -72,22 +74,24 @@ class AnchorClient(BaseClient):
         :param trx: transaction to sign
 
         :return: signatures (length: 1)
+        :rtype: list
         """
         return [self.private_key.sign(trx)]
     
 class WCWClient(BaseClient):
-    """WCWClient is a client for interacting with the blockchain using a WCW session token"""
+    """
+    WCWClient is a client for interacting with the blockchain using a WCW session token
+    
+    :param cookie: WCW session token
+    :type cookie: str
+    :param node: Node URL
+    :type node: str
+    
+    :return:
+    """
     __slots__ = ("cookie", "session", "name")
 
     def __init__(self, cookie: str, node: str) -> None:
-        """
-        Init a client for interacting with the blockchain using a WCW session token
-        
-        :param cookie: WCW session token
-        :param node: Node URL
-        
-        :return:
-        """
         super().__init__(node)
         self.cookie = cookie
         self.session = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
@@ -100,6 +104,7 @@ class WCWClient(BaseClient):
         :raises: `litewax.exceptions.CookiesExpired` if session token is expired or invalid
 
         :return: wallet name
+        :rtype: str
         """
         try:
             return self.session.get(
@@ -114,8 +119,10 @@ class WCWClient(BaseClient):
         Sign transaction with WCW session token
 
         :param trx: transaction to sign
+        :type trx: bytearray
 
         :return: signatures (length: 2)
+        :rtype: list
         """
         self.session.options(
             "https://public-wax-on.wax.io/wam/sign", 

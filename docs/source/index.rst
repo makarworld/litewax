@@ -9,6 +9,9 @@ Contents
 --------
 
 .. toctree::
+    :maxdepth: 2
+    :caption: Contents:
+    
     install
     clients/index
     examples/index

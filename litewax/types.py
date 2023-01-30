@@ -6,11 +6,12 @@ class WAXPayer:
     """
     WAXPayer is a class for storing supported payers
     
-    :key `NEFTYBLOCKS`: neftyblocks payer
-
-    :key `ATOMICHUB`: atomichub payer
-
+    :key NEFTYBLOCKS: neftyblocks payer
+    :type NEFTYBLOCKS: str
     
+    :key ATOMICHUB: atomichub payer
+    :type ATOMICHUB: str
+
     """
     NEFTYBLOCKS: str = "neftyblocks"
     ATOMICHUB: str = "atomichub"

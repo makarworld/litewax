@@ -13,12 +13,16 @@ class AtomicHub:
     - atomicmarket
 
     :param client: MultiClient instance
+    :type client: :obj:`litewax.clients.MultiClient`
     :param trx: MultiTransaction instance
+    :type trx: :obj:`litewax.clients.MultiTransaction`
     :param network: network name (default: mainnet)
+    :type network: `str`
 
     :raise NotImplementedError: if network is not mainnet
 
     :return: :obj:`AtomicHub` instance
+    :rtype: :obj:`AtomicHub`
     """
     # client - MultiClient instance
     # trx - MulltiTransaction instance
@@ -55,6 +59,7 @@ class AtomicHub:
         :raise AtomicHubPushError: if transaction is not signed
 
         :return: :obj:`dict` with transaction data
+        :rtype: dict
         """
         if not signed:
             signed = self.trx.prepare_trx(expiration = expiration)
@@ -93,13 +98,17 @@ class NeftyBlocks:
     """
     Pay for transaction with NeftyBlocks
 
-    :param client: `litewax.MultiClient` instance
-    :param trx: `litewax.MultiTransaction` instance
+    :param client: `litewax.clients.MultiClient` instance
+    :type client: litewax.clients.MultiClient
+    :param trx: `litewax.clients.MultiTransaction` instance
+    :type trx: litewax.clients.MultiTransaction
     :param network: network name (default: mainnet)
+    :type network: `str`
 
     :raise ValueError: if network is not mainnet or testnet
 
     :return: :obj:`NeftyBlocks` instance
+    :rtype: NeftyBlocks
     """
     # client - MultiClient instance
     # trx - MulltiTransaction instance
@@ -152,6 +161,7 @@ class NeftyBlocks:
         :raise NeftyBlocksPushError: if transaction is not signed
 
         :return: :obj:`dict` with transaction data
+        :rtype: dict
         """
         if not signed:
             signed = self.trx.prepare_trx(expiration = expiration)
