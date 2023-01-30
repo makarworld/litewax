@@ -1,10 +1,8 @@
 from litewax import Client, WAXPayer
-from dotenv import dotenv_values
 
-ENV = dotenv_values(".env")
 
 # try to get free cpu from neftyblocks
-client = Client(private_key=ENV["PVT_KEY_TESTNET"], node=ENV["NODE"])
+client = Client(private_key="5K...", node="https://testnet.waxsweden.org")
 
 neftyblocksd = client.Contract("neftyblocksd")
 

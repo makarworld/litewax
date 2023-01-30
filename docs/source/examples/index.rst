@@ -10,3 +10,4 @@ Examples
     sell_nft
     transfer_nft
     transfer_token
+    use_contract_directly

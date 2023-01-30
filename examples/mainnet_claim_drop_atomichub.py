@@ -1,13 +1,10 @@
 from litewax import Client
 from litewax import WAXPayer
 
-from dotenv import dotenv_values
-
-ENV = dotenv_values(".env")
 
 # try to get free cpu from atomichub
 client = Client(
-    private_key=ENV["PVT_KEY"],
+    private_key="5K...",
     node="https://wax.pink.gg"
 )
 

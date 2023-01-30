@@ -206,7 +206,7 @@ class Transaction:
         :param permission: payer permission (optional): default `active`
         :type permission: str
 
-        :raise NotImplementedError: if payer is not `litewax.clients.Client`, `litewax.payers.AtomicHub` or `litewax.payers.NeftyBlocks`.
+        :raise NotImplementedError: if payer is not :ref:`litewax.clients.Client`, :ref:`litewax.payers.AtomicHub` or :ref:`litewax.payers.NeftyBlocks`.
 
         :return: :class:`litewax.clients.MultiTransaction` object or :class:`litewax.payers.AtomicHub` object or :class:`litewax.payers.NeftyBlocks` object
         :rtype: litewax.clients.MultiTransaction or litewax.payers.AtomicHub or litewax.payers.NeftyBlocks
