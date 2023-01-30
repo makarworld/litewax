@@ -8,7 +8,7 @@ import pytz
 from .baseclients import AnchorClient, WCWClient
 from .types import TransactionInfo, WAXPayer
 from .payers import AtomicHub, NeftyBlocks
-from .contract import Contract
+from .contract import Contract, Action
 from .exceptions import (
     CPUlimit, AuthNotFound,
     ExpiredTransaction, UnknownError
@@ -44,7 +44,7 @@ class Client:
     """
     __slots__ = ("root", "node", "wax", "name", "change_node", "sign")
 
-    def __init__(self, private_key: str = "", cookie: str = "", node: str = "https://wax.greymass.com") -> None:
+    def __init__(self, private_key: typing.Optional[str] = "", cookie: typing.Optional[str] = "", node: typing.Optional[str] = "https://wax.greymass.com") -> None:
         """
         Init a client for interacting with the blockchain
         
@@ -75,7 +75,7 @@ class Client:
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
 
-    def Contract(self, name: str, actor: typing.Union[str, None] = None, force_recreate: bool = False, node: str = None):
+    def Contract(self, name: str, actor: typing.Optional[typing.Union[str, None]] = None, force_recreate: typing.Optional[bool] = False, node: typing.Optional[str] = None):
         """
         Create a :obj:`litewax.Contract` object
 
@@ -110,7 +110,7 @@ class Client:
         """
         return Contract(name, self, actor=actor, force_recreate=force_recreate, node=node)
 
-    def Transaction(self, *actions: tuple[object]):
+    def Transaction(self, *actions: tuple[Action, ...]):
         """
         Create a :class:`litewax.Client.Transaction` object
 
@@ -198,7 +198,7 @@ class Transaction:
     """
     __slots__ = ("client", "actions")
 
-    def __init__(self, client: Client, *actions: typing.List):
+    def __init__(self, client: Client, *actions: tuple[Action, ...]):
         """
         Init transaction object
 
@@ -225,7 +225,7 @@ class Transaction:
     ]
 )"""
 
-    def payer(self, payer: typing.Union[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS, str], permission: str = "active") -> typing.Union[MultiTransaction, AtomicHub, NeftyBlocks]:
+    def payer(self, payer: typing.Union[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS, str], permission: typing.Optional[str] = "active") -> typing.Union[MultiTransaction, AtomicHub, NeftyBlocks]:
         """
         Set payer for all actions
 
@@ -265,7 +265,7 @@ class Transaction:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
-    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration: int = 180) -> TransactionInfo:
+    def prepare_trx(self, chain_info: typing.Optional[dict] = {}, lib_info: typing.Optional[dict] = {}, expiration: typing.Optional[int] = 180) -> TransactionInfo:
         """
         Sign transaction with client and return :obj:`litewax.types.TransactionInfo`.
 
@@ -300,7 +300,7 @@ class Transaction:
             serealized = [x for x in trx.encode()]
         )
 
-    def push(self, data: TransactionInfo = {}, expiration: int = 180) -> dict:
+    def push(self, data: typing.Optional[TransactionInfo] = {}, expiration: typing.Optional[int] = 180) -> dict:
         """
         Push transaction to blockchain
 
@@ -395,10 +395,10 @@ class MultiClient:
     __slots__ = ("clients")
 
     def __init__(self, 
-            private_keys: typing.List[str] = [], 
-            cookies: typing.List[str] = [],  
-            clients: typing.List[Client] = [], 
-            node: str = 'https://wax.greymass.com'):
+            private_keys: typing.Optional[typing.List[str]] = [], 
+            cookies: typing.Optional[typing.List[str]] = [],  
+            clients: typing.Optional[typing.List[Client]] = [], 
+            node: typing.Optional[str] = 'https://wax.greymass.com'):
         """Initialize MultiClient class"""
         self.clients = clients
         if clients:
@@ -452,8 +452,8 @@ class MultiClient:
 
     def sign(self, 
                 trx: bytearray, 
-                whitelist: typing.List[str] = [], 
-                chain_id: str = "") -> typing.List[str]:
+                whitelist: typing.Optional[typing.List[str]] = [], 
+                chain_id: typing.Optional[str] = None) -> typing.List[str]:
         """
         Sign a transaction with all whitelisted clients
         
@@ -480,7 +480,7 @@ class MultiClient:
 
         return signatures
 
-    def Transaction(self, *actions: tuple[object]):
+    def Transaction(self, *actions: tuple[Action, ...]):
         """
         Create a :obj:`litewax.MultiClient.MultiTransaction` object
 
@@ -550,7 +550,7 @@ class MultiTransaction:
     """
     __slots__ = ("client", "actions")
 
-    def __init__(self, client: MultiClient, *actions: tuple[object]):
+    def __init__(self, client: MultiClient, *actions: tuple[Action, ...]):
         """Init MultiTransaction class"""
         self.client = client
 
@@ -567,7 +567,7 @@ class MultiTransaction:
     ]
 )"""
 
-    def payer(self, payer: typing.Union[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS, str], permission: str = "active") -> typing.Union[MultiTransaction, AtomicHub, NeftyBlocks]:
+    def payer(self, payer: typing.Union[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS, str], permission: typing.Optional[str] = "active") -> typing.Union[MultiTransaction, AtomicHub, NeftyBlocks]:
         """
         Set payer
 
@@ -604,7 +604,7 @@ class MultiTransaction:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
-    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration: int = 180) -> TransactionInfo:
+    def prepare_trx(self, chain_info: typing.Optional[dict] = {}, lib_info: typing.Optional[dict] = {}, expiration: typing.Optional[int] = 180) -> TransactionInfo:
         """
         Sign transaction with clients and return signatures, packed and serialized transaction
 
@@ -635,7 +635,7 @@ class MultiTransaction:
             serealized = [x for x in trx.encode()]
         )
 
-    def push(self, data: TransactionInfo = {}, expiration: int = 180) -> dict:
+    def push(self, data: typing.Optional[TransactionInfo] = {}, expiration: typing.Optional[int] = 180) -> dict:
         """
         Push transaction to blockchain
 

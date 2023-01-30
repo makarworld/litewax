@@ -2,7 +2,7 @@ import typing
 import os
 from .abigen import abigen
 
-def Contract(name: str, client: typing.Any = None, actor: str = None, permission: str = "active", force_recreate: bool = False, node: str = None):
+def Contract(name: str, client: typing.Optional[typing.Any] = None, actor: typing.Optional[str] = None, permission: typing.Optional[str] = "active", force_recreate: typing.Optional[bool] = False, node: typing.Optional[str] = None):
     """
     Function for creating a contract object using wax abigen. 
     Contract objects will be saved in the contracts folder. 
@@ -43,3 +43,22 @@ def Contract(name: str, client: typing.Any = None, actor: str = None, permission
 #    c = Contract("res.pink")
 #    c.set_actor("zknmi.wam")
 #    print(c.noop())
+
+
+class Action:
+    """Example Action object for calling actions on a contract"""
+    def __init__(self, contract: object, action: str, args: dict):
+        self.contract = contract
+        self.action = action
+        self.args = args
+
+        self.result = self()
+    
+    def __str__(self):
+        return f"[{self.contract.permission}] {self.contract.actor} > {object}::{self.action}({self.args})"
+    
+    def __repr__(self):
+        return self.__str__()
+
+    def __call__(self):
+        return self.contract.call(self.action, self.args)
