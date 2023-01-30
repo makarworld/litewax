@@ -1,4 +1,4 @@
-from .contract import Contract
+from .contract import Contract, Action
 from .abigen import abigen
 from .clients import Client, MultiClient, Transaction, MultiTransaction
 from .payers import AtomicHub, NeftyBlocks
@@ -6,6 +6,7 @@ from .types import WAXPayer
 
 __all__ = [
     'Contract', 
+    'Action',
     'Client',
     'MultiClient',
     'Transaction',

@@ -25,22 +25,17 @@ class Client:
     :return:
 
     :Example:
-    ```python
-    from litewax import Client
 
-    # init client with private key
-    client = Client(private_key=private_key)
-
-    # or init client with WCW session token
-    client = Client(cookie=cookie)
-
-    client.Transaction(
-        client.Contract("eosio.token").transfer(
-            "from", "to", "1.00000000 WAX", "memo"
-        )
-    ).push()
-
-    ```
+    >>> from litewax import Client
+    >>> # init client with private key
+    >>> client = Client(private_key=private_key)
+    >>> # or init client with WCW session token
+    >>> client = Client(cookie=cookie)
+    >>> client.Transaction(
+    >>>     client.Contract("eosio.token").transfer(
+    >>>         "from", "to", "1.00000000 WAX", "memo"
+    >>>     )
+    >>> ).push()
     """
     __slots__ = ("root", "node", "wax", "name", "change_node", "sign")
 
@@ -88,25 +83,19 @@ class Client:
 
         :Example:
 
-        ```python
-        from litewax import Client
 
-        # init client with private key
-        client = Client(private_key=private_key)
+        >>> from litewax import Client
+        >>> # init client with private key
+        >>> client = Client(private_key=private_key)
+        >>> # create contract object
+        >>> contract = client.Contract("eosio.token")
+        >>> # create action object
+        >>> action = contract.transfer("from", "to", "1.00000000 WAX", "memo")
+        >>> # create transaction object
+        >>> trx = client.Transaction(action)
+        >>> # push transaction
+        >>> trx.push()
 
-        # create contract object
-        contract = client.Contract("eosio.token")
-
-        # create action object
-        action = contract.transfer("from", "to", "1.00000000 WAX", "memo")
-
-        # create transaction object
-        trx = client.Transaction(action)
-
-        # push transaction
-        trx.push()
-
-        ```
         """
         return Contract(name, self, actor=actor, force_recreate=force_recreate, node=node)
 
@@ -119,23 +108,18 @@ class Client:
         :return: :class:`litewax.Client.Transaction` object
 
         :Example:
-        ```python
-        from litewax import Client
 
-        # init client with private key
-        client = Client(private_key=private_key)
-
-        # create transaction object
-        trx = client.Transaction(
-            client.Contract("eosio.token").transfer(
-                "from", "to", "1.00000000 WAX", "memo"
-            )
-        )
-
-        # push transaction
-        trx.push()
-
-        ```
+        >>> from litewax import Client
+        >>> # init client with private key
+        >>> client = Client(private_key=private_key)
+        >>> # create transaction object
+        >>> trx = client.Transaction(
+        >>>     client.Contract("eosio.token").transfer(
+        >>>         "from", "to", "1.00000000 WAX", "memo"
+        >>>     )
+        >>> )
+        >>> # push transaction
+        >>> trx.push()
         """
         return Transaction(self, *actions)
 
@@ -148,52 +132,42 @@ class Transaction:
     :param actions: actions of contracts
 
     :Example:
-    ```python
-    from litewax import Client
 
-    # init client with private key
-    client = Client(private_key=private_key)
-
-    # create transaction object
-    trx = client.Transaction(
-        client.Contract("eosio.token").transfer(
-            "account1", "account2", "1.00000000 WAX", "memo"
-        )
+    >>> from litewax import Client
+    >>> # init client with private key
+    >>> client = Client(private_key=private_key)
+    >>> # create transaction object
+    >>> trx = client.Transaction(
+    >>>     client.Contract("eosio.token").transfer(
+    >>>         "account1", "account2", "1.00000000 WAX", "memo"
+    >>>     )
+    >>> )
+    >>> print(trx)
+    litewax.Client.Transaction(
+        node=https://wax.greymass.com,
+        sender=account1,
+        actions=[
+            [active] account1 > eosio.token::transfer({"from": "account1", "to": "account2", "quantity": "1.00000000 WAX", "memo": "memo"})
+        ]
     )
-
-    print(trx)
-    # litewax.Client.Transaction(
-    #     node=https://wax.greymass.com,
-    #     sender=account1,
-    #     actions=[
-    #         [active] account1 > eosio.token::transfer({"from": "account1", "to": "account2", "quantity": "1.00000000 WAX", "memo": "memo"})
-    #     ]
-    # )
-
-    # Add payer for CPU
-
-    # init payer client with private key
-    payer = Client(private_key=private_key2)
-
-    # add payer to transaction
-    trx = trx.payer(payer)
-
-    print(trx)
-    # litewax.MultiClient.MultiTransaction(
-    #     node=ttps://wax.greymass.com,
-    #     accounts=[account1, account2],
-    #     actions=[
-    #         [active] account1 > eosio.token::transfer({"from": "account1", "to": "account2", "quantity": "1.00000000 WAX", "memo": "memo"}),
-    #         [active] account2 > litewaxpayer::noop({})
-    #     ]
-    # )
-
-
-    # push transaction
-    push_resp = trx.push()
-
-    print(push_resp)
-    # {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
+    >>> # Add payer for CPU
+    >>> # init payer client with private key
+    >>> payer = Client(private_key=private_key2)
+    >>> # add payer to transaction
+    >>> trx = trx.payer(payer)
+    >>> print(trx)
+    litewax.MultiClient.MultiTransaction(
+        node=ttps://wax.greymass.com,
+        accounts=[account1, account2],
+        actions=[
+            [active] account1 > eosio.token::transfer({"from": "account1", "to": "account2", "quantity": "1.00000000 WAX", "memo": "memo"}),
+            [active] account2 > litewaxpayer::noop({})
+        ]
+    )
+    >>> # push transaction
+    >>> push_resp = trx.push()
+    >>> print(push_resp)
+    {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
     ```
     """
     __slots__ = ("client", "actions")
@@ -360,37 +334,30 @@ class MultiClient:
 
 
     :Example:
-    ```python
-    from litewax import MultiClient
 
-    client = MultiClient(
-        private_keys = [
-            "EOS7...1",
-            "EOS7...2",
-            "EOS7...3"
-        ],
-        node = "https://wax.greymass.com"
-    )
-
-    # Change node
-    client.change_node("https://wax.eosn.io")
-
-    # Append client
-    client.append(Client(private_key="EOS7...4"))
-
-    # Create transaction
-    trx = client.Transaction(
-        Contract("eosio.token").transfer(
-            "account1", "account2", "1.0000 WAX", "memo"
-        )
-    )
-
-    # Add payer
-    trx = trx.payer(client[2])
-
-    # Push transaction
-    trx.push()
-    ```
+    >>> from litewax import MultiClient
+    >>> client = MultiClient(
+    >>>     private_keys = [
+    >>>         "EOS7...1",
+    >>>         "EOS7...2",
+    >>>         "EOS7...3"
+    >>>     ],
+    >>>     node = "https://wax.greymass.com"
+    >>> )
+    >>> # Change node
+    >>> client.change_node("https://wax.eosn.io")
+    >>> # Append client
+    >>> client.append(Client(private_key="EOS7...4"))
+    >>> # Create transaction
+    >>> trx = client.Transaction(
+    >>>     Contract("eosio.token").transfer(
+    >>>         "account1", "account2", "1.0000 WAX", "memo"
+    >>>     )
+    >>> )
+    >>> # Add payer
+    >>> trx = trx.payer(client[2])
+    >>> # Push transaction
+    >>> trx.push()
     """
     __slots__ = ("clients")
 
@@ -489,27 +456,21 @@ class MultiClient:
         :return: `litewax.MultiClient.MultiTransaction` object
 
         :Example:
-        ```python
-        from litewax import Client, MultiClient
 
-        # init client with private key
-        client1 = Client(private_key=private_key1)
-        client2 = Client(private_key=private_key2)
-
-        multi_client = MultiClient(clients=[client1, client2])
-
-        # create transaction object
-        trx = multi_client.Transaction(
-            multi_client[1].Contract("eosio.token").transfer(
-                "from", "to", "1.00000000 WAX", "memo"
-            ),
-            multi_client[0].Contract("litewaxpayer").noop()
-        )
-
-        # push transaction
-        trx.push()
-
-        ```
+        >>> from litewax import Client, MultiClient
+        >>> # init client with private key
+        >>> client1 = Client(private_key=private_key1)
+        >>> client2 = Client(private_key=private_key2)
+        >>> multi_client = MultiClient(clients=[client1, client2])
+        >>> # create transaction object
+        >>> trx = multi_client.Transaction(
+        >>>     multi_client[1].Contract("eosio.token").transfer(
+        >>>         "from", "to", "1.00000000 WAX", "memo"
+        >>>     ),
+        >>>     multi_client[0].Contract("litewaxpayer").noop()
+        >>> )
+        >>> # push transaction
+        >>> trx.push()
         """
         return MultiTransaction(self, *actions)
 
@@ -521,32 +482,27 @@ class MultiTransaction:
     :param actions: list of actions
 
     :Example:
-    ```python
-    from litewax import MultiClient
 
-    # init client with private keys
-    client = MultiClient(
-        private_keys = [
-            "EOS7...1",
-            "EOS7...2"
-        ],
-        node = "https://wax.greymass.com"
-    )
+    >>> from litewax import MultiClient
+    >>> # init client with private keys
+    >>> client = MultiClient(
+    >>>     private_keys = [
+    >>>         "EOS7...1",
+    >>>         "EOS7...2"
+    >>>     ],
+    >>>     node = "https://wax.greymass.com"
+    >>> )
+    >>> # create transaction object
+    >>> trx = client.Transaction(
+    >>>     client[0].Contract("eosio.token").transfer(
+    >>>         "from", "to", "1.00000000 WAX", "memo"
+    >>>     )
+    >>> )
+    >>> # add payer
+    >>> trx = trx.payer(client[1])
+    >>> # push transaction
+    >>> trx.push()
 
-    # create transaction object
-    trx = client.Transaction(
-        client[0].Contract("eosio.token").transfer(
-            "from", "to", "1.00000000 WAX", "memo"
-        )
-    )
-
-    # add payer
-    trx = trx.payer(client[1])
-
-    # push transaction
-    trx.push()
-
-    ```
     """
     __slots__ = ("client", "actions")
 

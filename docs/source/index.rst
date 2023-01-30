@@ -10,6 +10,5 @@ Contents
 
 .. toctree::
     install
-    quick_start
-    client/index
+    clients/index
     examples/index
