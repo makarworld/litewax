@@ -12,8 +12,8 @@ class WAXPayer:
 
     
     """
-    NEFTYBLOCKS: typing.Literal["neftyblocks"] = "neftyblocks"
-    ATOMICHUB: typing.Literal["atomichub"] = "atomichub"
+    NEFTYBLOCKS: str = "neftyblocks"
+    ATOMICHUB: str = "atomichub"
 
     
 
