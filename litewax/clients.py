@@ -626,7 +626,7 @@ class MultiTransaction:
         """
         Push transaction to blockchain
 
-        :param data: `litewax.types.TransactionInfo` object (optional)
+        :param data: :class:`litewax.types.TransactionInfo` object (optional)
         :type data: litewax.types.TransactionInfo
         :param expiration: transaction expiration time in seconds (optional): default 180
         :type expiration: int
