@@ -169,12 +169,23 @@ def check_ban(text):
 
 class abigen():
     """
-    ## abigen class for generating python classes from abi to interact with contracts
+    abigen class for generating python classes from abi to interact with contracts
+
+    :param node: wax node url
+
+    :return: :class:`abigen` class
     """
     def __init__(self, node: str="https://wax.greymass.com"):
         self.node = node
 
-    def gen(self, name):
+    def gen(self, name: str) -> str:
+        """
+        Generate python class from abi
+
+        :param name: contract name
+
+        :return: content of generated file
+        """
         actions = self.get_abi(name)
         out = file_start
         for action in actions:
@@ -225,14 +236,29 @@ class abigen():
             f.write(out)
         return out
         
-    def get_abi(self, account_name: str):
+    def get_abi(self, account_name: str) -> dict:
+        """
+        Get contract abi from node
+
+        :param account_name: contract name
+
+        :return: abi
+        """
         r = requests.post(f"{self.node}/v1/chain/get_abi", json={"account_name": account_name}).json()
         return r['abi']['structs']
 
-    def get_tx_info(self, tx: str):
+    def get_tx_info(self, tx: str) -> dict:
+        """
+        # Depricated
+        Get transaction info from node
+        
+        :param tx: transaction id
+        
+        :return: transaction info
+        """
         return requests.post(f"{self.node}/v1/history/get_transaction",
                    json={"id": tx, "block_num_hint": 0}).json()
 
-if __name__ == "__main__":
-    app = abigen()
-    app.gen("res.pink")
+#if __name__ == "__main__":
+#    app = abigen()
+#    app.gen("res.pink")

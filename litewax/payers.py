@@ -6,10 +6,19 @@ from .types import CUSTOM_BROWSER
 # same interface as Transaction
 class AtomicHub:
     """
+    Pay for transaction with AtomicHub
+
     Allowed actions:
     - atomicassets
     - atomicmarket
 
+    :param client: MultiClient instance
+    :param trx: MultiTransaction instance
+    :param network: network name (default: mainnet)
+
+    :raise NotImplementedError: if network is not mainnet
+
+    :return: :obj:`AtomicHub` instance
     """
     # client - MultiClient instance
     # trx - MulltiTransaction instance
@@ -35,6 +44,18 @@ class AtomicHub:
         self.push_link = "chain.push_transaction"
 
     def push(self, signed = {}, expiration = 180) -> dict:
+        """
+        Push transaction to blockchain with AtomicHub
+
+        :param signed: signed transaction (default: {})
+        :type signed: `dict`
+        :param expiration: expiration time in seconds (default: 180)
+        :type expiration: `int`
+
+        :raise AtomicHubPushError: if transaction is not signed
+
+        :return: :obj:`dict` with transaction data
+        """
         if not signed:
             signed = self.trx.prepare_trx(expiration = expiration)
         signatures = signed.signatures
@@ -70,6 +91,15 @@ class AtomicHub:
 
 class NeftyBlocks:
     """
+    Pay for transaction with NeftyBlocks
+
+    :param client: `litewax.MultiClient` instance
+    :param trx: `litewax.MultiTransaction` instance
+    :param network: network name (default: mainnet)
+
+    :raise ValueError: if network is not mainnet or testnet
+
+    :return: :obj:`NeftyBlocks` instance
     """
     # client - MultiClient instance
     # trx - MulltiTransaction instance
@@ -111,6 +141,18 @@ class NeftyBlocks:
             raise ValueError("Unknown network. Must be 'testnet' or 'mainnet'")
 
     def push(self, signed = {}, expiration = 180) -> dict:
+        """
+        Push transaction to blockchain with NeftyBlocks
+
+        :param signed: signed transaction (default: {})
+        :type signed: `dict`
+        :param expiration: expiration time in seconds (default: 180)
+        :type expiration: `int`
+
+        :raise NeftyBlocksPushError: if transaction is not signed
+
+        :return: :obj:`dict` with transaction data
+        """
         if not signed:
             signed = self.trx.prepare_trx(expiration = expiration)
         signatures = signed.signatures

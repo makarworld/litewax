@@ -1,4 +1,5 @@
-from typing import List, Any
+from __future__ import annotations
+import typing
 from eospy.types import Transaction as EosTransaction
 from eospy.utils import sig_digest
 import datetime as dt
@@ -15,23 +16,16 @@ from .exceptions import (
 
 class Client:
     """
-    ## Client for interacting with the blockchain
+    Client for interacting with the blockchain
 
-    ### Methods:
-        - __init__( private_key: str, cookie: str, node: str )
-        - sign( trx: bytearray ) -> list
-        - change_node( node: str ) -> None
+    :param private_key: Private key string (if cookie is not provided)
+    :param cookie: WCW session token (if private_key is not provided)
+    :param node: Node URL
 
-    ### Variables:
-        - node (str): node url
-        - wax (Cleos): eospy.cleos.Cleos object
-        - name (str): wallet name
-    
-    ---
+    :return:
 
-    ## Examples:
+    :Example:
     ```python
-
     from litewax import Client
 
     # init client with private key
@@ -47,12 +41,19 @@ class Client:
     ).push()
 
     ```
-    
     """
     __slots__ = ("root", "node", "wax", "name", "change_node", "sign")
 
     def __init__(self, private_key: str = "", cookie: str = "", node: str = "https://wax.greymass.com") -> None:
-        """Init a client for interacting with the blockchain"""
+        """
+        Init a client for interacting with the blockchain
+        
+        :param private_key: Private key string (if cookie is not provided)
+        :param cookie: WCW session token (if private_key is not provided)
+        :param node: Node URL
+        
+        :return:
+        """
         if private_key:
             self.root = AnchorClient(private_key, node)
 
@@ -74,22 +75,19 @@ class Client:
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
 
-    def Contract(self, name: str, actor: str=None, force_recreate: bool=False, node: str=None):
+    def Contract(self, name: str, actor: typing.Union[str, None] = None, force_recreate: bool = False, node: str = None):
         """
-        ## Create a `litewax.Contract` object
+        Create a :obj:`litewax.Contract` object
 
-        ### Args:
-            - name (str): contract name
-            - actor (str): actor name
-            - force_recreate (bool): force recreate contract object
-            - node (str): node url
+        :param name: contract name
+        :param actor: actor name
+        :param force_recreate: force recreate contract object
+        :param node: node url
 
-        ### Returns:
-            - Contract: `litewax.Contract` object
-        
-        ---
+        :return: `litewax.Contract` object
 
-        ## Examples:
+        :Example:
+
         ```python
         from litewax import Client
 
@@ -108,23 +106,19 @@ class Client:
         # push transaction
         trx.push()
 
+        ```
         """
         return Contract(name, self, actor=actor, force_recreate=force_recreate, node=node)
 
-    def Transaction(self, *actions):
+    def Transaction(self, *actions: tuple[object]):
         """
-        ## Create a `litewax.Client.Transaction` object
+        Create a :class:`litewax.Client.Transaction` object
 
-        ### Args:
-            - actions (Action): actions
+        :param actions: actions of contracts
 
-        ### Returns:
-            - Transaction: `litewax.Client.Transaction` object
+        :return: :class:`litewax.Client.Transaction` object
 
-        ---
-
-        ## Examples:
-
+        :Example:
         ```python
         from litewax import Client
 
@@ -142,27 +136,18 @@ class Client:
         trx.push()
 
         ```
-        
         """
         return Transaction(self, *actions)
 
 class Transaction:
     """
-    ## Transaction object
+    :class:`litewax.clients.Transaction` object
     Create a transaction object for pushing to the blockchain
 
-    ### Methods:
-    - payer( payer: str | Client, permission: str = "active" ) -> `litewax.MultiClient.MultiTransaction`
-    - prepare_trx() -> `litewax.types.TransactionInfo`
-    - push() -> `dict`
+    :param client: `litewax.Client` object
+    :param actions: actions of contracts
 
-    ### Variables:
-    - client (Client): `litewax.Client` object
-    - actions (list): list of actions
-
-    ---
-
-    ## Examples:
+    :Example:
     ```python
     from litewax import Client
 
@@ -209,11 +194,19 @@ class Transaction:
 
     print(push_resp)
     # {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
-
+    ```
     """
     __slots__ = ("client", "actions")
 
-    def __init__(self, client: Client, *actions):
+    def __init__(self, client: Client, *actions: typing.List):
+        """
+        Init transaction object
+
+        :param client: `litewax.Client` object
+        :param actions: actions of contracts
+        
+        :return:
+        """
         self.client = client
 
         if not actions:
@@ -232,15 +225,16 @@ class Transaction:
     ]
 )"""
 
-    def payer(self, payer: Any, permission: str = "active"):
+    def payer(self, payer: typing.Union[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS, str], permission: str = "active") -> typing.Union[MultiTransaction, AtomicHub, NeftyBlocks]:
         """
-        ## Set payer for all actions
+        Set payer for all actions
 
-        ### Args:
-            - payer (str | Client): payer name or `litewax.Client` object
+        :param payer: payer name or `litewax.Client` object
+        :param permission: payer permission (optional): default `active`
 
-        ### Returns:
-            - Transaction: `litewax.Client.Transaction` object
+        :raise NotImplementedError: if payer is not `litewax.Client`, `litewax.payers.AtomicHub` or `litewax.payers.NeftyBlocks`.
+
+        :return: :class:`litewax.MultiTransaction` object or :class:`litewax.payers.AtomicHub` object or :class:`litewax.payers.NeftyBlocks` object
         """
         self.client = MultiClient(clients=[self.client], node=self.client.node)
 
@@ -271,19 +265,15 @@ class Transaction:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
-    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration = 180) -> TransactionInfo:
+    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration: int = 180) -> TransactionInfo:
         """
-        ## Sign transaction with client
+        Sign transaction with client and return :obj:`litewax.types.TransactionInfo`.
 
-        Sign transaction with client and return signatures, packed and serialized transaction
+        :param chain_info: chain info. Provide it if you not want to get it from blockchain (optional)
+        :param lib_info: lib info. Provide it if you not want to get it from blockchain (optional)
+        :param expiration: transaction expiration time in seconds (optional): default 180
 
-        ### Args:
-            - chain_info (dict): chain info. Provide it if you not want to get it from blockchain (optional)
-            - lib_info (dict): lib info. Provide it if you not want to get it from blockchain (optional)
-            - expiration (int): transaction expiration time in seconds (optional): default 180
-
-        ### Returns:
-            - TransactionInfo: `litewax.types.TransactionInfo` object
+        :return: :obj:`litewax.types.TransactionInfo`
         """
         transaction = {
             "actions": [a.result for a in self.actions]
@@ -310,17 +300,19 @@ class Transaction:
             serealized = [x for x in trx.encode()]
         )
 
-    def push(self, data: TransactionInfo = {}, expiration = 180) -> dict:
+    def push(self, data: TransactionInfo = {}, expiration: int = 180) -> dict:
         """
-        ## Push transaction
         Push transaction to blockchain
 
-        ### Args:
-            - data (TransactionInfo): `litewax.types.TransactionInfo` object
-            - expiration (int): transaction expiration time in seconds
+        :param data: :obj:`litewax.types.TransactionInfo` object (optional)
+        :param expiration: transaction expiration time in seconds (optional): default 180
 
-        ### Returns:
-        - dict: transaction info
+        :raises: `litewax.exceptions.CPUlimit` if transaction exceeded the current CPU usage limit imposed on the transaction
+        :raises: `litewax.exceptions.ExpiredTransaction` if transaction is expired
+        :raises: `litewax.exceptions.UnknownError` if unknown error
+
+        :return: transaction information
+        :rtype: dict
         """
         if not data or not isinstance(data, TransactionInfo):
             data = self.prepare_trx(expiration = expiration)
@@ -354,19 +346,20 @@ class Transaction:
 
 class MultiClient:
     """
-    ## MultiClient class for interacting with blockchain using many clients
+    MultiClient class for interacting with blockchain using many clients.
+    Bases: :class:`list`
 
-    ### Methods:
-        - __init__(private_keys: list, cookies: list, clients: list, node: str)
-        - change_node(node: str) -> None
-        - append(client: Client) -> None
-        - sign(trx: bytearray, whitelist: list, chain_id: str) -> list
-        - Transaction(*actions) -> MultiTransaction
+    :param private_keys: list of private keys (optional)
+    :param cookies: list of cookies (optional)
+    :param clients: list of `litewax.Client` objects (optional)
+    :param node: node url (optional): default https://wax.greymass.com
 
-    ### Variables:
-        - clients (list): list of `litewax.Client` objects
+    :raises: `litewax.exceptions.AuthNotFound` if you not provide a private key, a cookie or a clients
 
-    ### Example:
+    :return: :obj:`litewax.MultiClient` object
+
+
+    :Example:
     ```python
     from litewax import MultiClient
 
@@ -402,11 +395,11 @@ class MultiClient:
     __slots__ = ("clients")
 
     def __init__(self, 
-            private_keys: list = [], 
-            cookies: list = [],  
-            clients: List[Client] = [], 
-            node: str='https://wax.greymass.com'):
-
+            private_keys: typing.List[str] = [], 
+            cookies: typing.List[str] = [],  
+            clients: typing.List[Client] = [], 
+            node: str = 'https://wax.greymass.com'):
+        """Initialize MultiClient class"""
         self.clients = clients
         if clients:
             self.change_node(node)
@@ -424,6 +417,14 @@ class MultiClient:
         return f"MultiClient(clients={self.clients})"
 
     def change_node(self, node: str):
+        """
+        Change node url for all clients
+        
+        :param node: Node URL
+        :type node: str
+        
+        :return:
+        """
         for client in self.clients:
             client.change_node(node)
 
@@ -439,32 +440,28 @@ class MultiClient:
     def __next__(self):
         return next(self.clients)
     
-    def append(self, client: Client):
+    def append(self, client: Client) -> None:
         """
-        ## Append client to clients list
+        Append client to clients list
         
-        ### Args:
-        - client (Client): `litewax.Client` object
+        :param client: `litewax.Client` object
 
-        ### Returns:
-        - None
+        :return:
         """
         self.clients.append(client)
 
     def sign(self, 
                 trx: bytearray, 
-                whitelist: List[str] = [], 
-                chain_id: str = "") -> list:
+                whitelist: typing.List[str] = [], 
+                chain_id: str = "") -> typing.List[str]:
         """
-        ## Sign a transaction with all clients
+        Sign a transaction with all whitelisted clients
         
-        ### Args:
-        - trx (bytearray): bytearray of transaction
-        - whitelist (list): list of clients to sign with (optional)
-        - chain_id (str): chain id of the network (optional)
+        :param trx: bytearray of transaction
+        :param whitelist: list of clients to sign with (optional)
+        :param chain_id: chain id of the network (optional)
 
-        ### Returns:
-        - signatures (list): list of signatures
+        :return: list of signatures
         """
         if not chain_id:
             chain_id = self.clients[0].wax.get_info()['chain_id']
@@ -483,20 +480,15 @@ class MultiClient:
 
         return signatures
 
-    def Transaction(self, *actions):
+    def Transaction(self, *actions: tuple[object]):
         """
-        ## Create a `litewax.MultiClient.MultiTransaction` object
+        Create a :obj:`litewax.MultiClient.MultiTransaction` object
 
-        ### Args:
-            - actions (list): list of actions
+        :arg actions: list of actions
 
-        ### Returns:
-            - MultiTransaction: `litewax.MultiClient.MultiTransaction` object
+        :return: `litewax.MultiClient.MultiTransaction` object
 
-        ---
-
-        ## Examples:
-
+        :Example:
         ```python
         from litewax import Client, MultiClient
 
@@ -518,25 +510,17 @@ class MultiClient:
         trx.push()
 
         ```
-        
         """
         return MultiTransaction(self, *actions)
 
 class MultiTransaction:
     """
-    ## MultiTransaction class for creating and pushing transactions using many signatures
-    
-    ### Methods:
-        - __init__(client: MultiClient, *actions)
-        - payer(payer: str, permission: str = "active") -> MultiTransaction
-        - prepare_trx() -> TransactionInfo
-        - push() -> dict
-    
-    ### Variables:
-        - client (MultiClient): `litewax.MultiClient` object
-        - actions (list): list of actions
+    MultiTransaction class for creating and pushing transactions using many signatures
 
-    ### Example:
+    :param client: `litewax.MultiClient` object
+    :param actions: list of actions
+
+    :Example:
     ```python
     from litewax import MultiClient
 
@@ -561,18 +545,19 @@ class MultiTransaction:
 
     # push transaction
     trx.push()
-    ```
 
+    ```
     """
     __slots__ = ("client", "actions")
 
-    def __init__(self, client: MultiClient, *actions):
+    def __init__(self, client: MultiClient, *actions: tuple[object]):
+        """Init MultiTransaction class"""
         self.client = client
 
         self.actions = list(actions)
         self.actions.reverse()
 
-    def __str__(self):
+    def __str__(self) -> str:
         actions = ',\n        '.join([str(x) for x in self.actions])
         return f"""litewax.MultiClient.MultiTransaction(
     node={self.client[0].node},
@@ -582,15 +567,16 @@ class MultiTransaction:
     ]
 )"""
 
-    def payer(self, payer: Any, permission: str = "active"):
+    def payer(self, payer: typing.Union[Client, WAXPayer.ATOMICHUB, WAXPayer.NEFTYBLOCKS, str], permission: str = "active") -> typing.Union[MultiTransaction, AtomicHub, NeftyBlocks]:
         """
-        ## Set payer
+        Set payer
 
-        ### Args:
-            - payer (str): payer account name
+        :param payer: payer account name or `litewax.Client` object
+        :param permission: payer permission (optional): default `active`
 
-        ### Returns:
-            - Transaction: `litewax.MultiClient.MultiTransaction` object
+        :raise NotImplementedError: if payer is not `litewax.Client`, `litewax.payers.AtomicHub` or `litewax.payers.NeftyBlocks`
+
+        :return: `litewax.MultiTransaction` object or `litewax.payers.AtomicHub` or `litewax.payers.NeftyBlocks` object
         """
         if isinstance(payer, Client):
             if payer.name not in [x.name for x in self.client]:
@@ -618,19 +604,15 @@ class MultiTransaction:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
 
-    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration = 180) -> TransactionInfo:
+    def prepare_trx(self, chain_info: dict = {}, lib_info: dict = {}, expiration: int = 180) -> TransactionInfo:
         """
-        ## Sign transaction with all used clients
-
         Sign transaction with clients and return signatures, packed and serialized transaction
 
-        ### Args:
-            - chain_info (dict): chain info. Provide it if you not want to get it from blockchain (optional)
-            - lib_info (dict): lib info. Provide it if you not want to get it from blockchain (optional)
-            - expiration (int): transaction expiration time in seconds (optional): default 180
+        :param chain_info: chain info. Provide it if you not want to get it from blockchain (optional)
+        :param lib_info: lib info. Provide it if you not want to get it from blockchain (optional)
+        :param expiration: transaction expiration time in seconds (optional): default 180
 
-        ### Returns:
-            - TransactionInfo: `litewax.types.TransactionInfo` object
+        :return: :obj:`litewax.types.TransactionInfo` object
         """
         transaction = {
             "actions": [a.result for a in self.actions]
@@ -655,15 +637,16 @@ class MultiTransaction:
 
     def push(self, data: TransactionInfo = {}, expiration: int = 180) -> dict:
         """
-        ## Push transaction
         Push transaction to blockchain
 
-        ### Args:
-            - data (TransactionInfo): `litewax.MultiClient.TransactionInfo` object (optional)
-            - expiration (int): transaction expiration time in seconds (optional), default is 180 seconds
+        :param data: `litewax.types.TransactionInfo` object (optional)
+        :param expiration: transaction expiration time in seconds (optional): default 180
 
-        ### Returns:
-        - dict: transaction info
+        :raise CPUlimit: if transaction exceeded the current CPU usage limit imposed on the transaction
+        :raise ExpiredTransaction: if transaction is expired
+        :raise UnknownError: if unknown error
+
+        :return: transaction info
         """
         if not data or not isinstance(data, TransactionInfo):
             data = self.prepare_trx(expiration = expiration)
@@ -690,15 +673,3 @@ class MultiTransaction:
                     f'Error: {push_create_offer["error"]["details"][0]["message"]}')
 
         return push_create_offer
-
-if __name__ == "__main__":
-    client = MultiClient(
-        private_keys=["5JJYyiPpopRaQs1o7wQE6X7X1V5mc1pcE6iXGLKCQ8YpdVfv7hL"],
-        #cookies=["hY0u8DUYNXjucimdWDajkuX9cLGjNlNjukaV60JZ"]
-    )
-    print(client[0].__dict__)
-    trx = client.Transaction(
-        Contract("res.pink", client[0]).noop(),
-
-    )
-    print(trx.push())

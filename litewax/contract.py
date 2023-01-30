@@ -1,21 +1,25 @@
+import typing
 import os
 from .abigen import abigen
 
-def Contract(name: str, client=None, actor=None, permission="active", force_recreate=False, node=None):
+def Contract(name: str, client: typing.Any = None, actor: str = None, permission: str = "active", force_recreate: bool = False, node: str = None):
     """
-    ## Function for creating a contract object using wax abigen. 
+    Function for creating a contract object using wax abigen. 
     Contract objects will be saved in the contracts folder. 
 
-    ### Parameters
-    - `name`: The name of the contract (ex: res.pink)
-    - `client`: A Client object (if actor is not provided)
-    - `actor`: The actor name (if client is not provided)
-    - `permission`: The permission to use (default: active)
-    - `force_recreate`: Force the contract to be recreated (default: False)
-    - `node`: The node to use (default: https://wax.greymass.com)
+    .. note::
+    
+        If you will pack your application to executable, generate the contracts before packing.
 
-    ### Returns
-    - `Contract`: A contract object
+
+    :param name: The name of the contract (ex: res.pink)
+    :param client: A :class:`litewax.Client` object (if actor is not provided)
+    :param actor: The actor name (if client is not provided)
+    :param permission: The permission to use (default: active)
+    :param force_recreate: Force the contract to be recreated (default: False)
+    :param node: The node to use (default: https://wax.greymass.com)
+
+    :return: :obj:`Contract` object
     """
     if not node and client:
         node = client.node
@@ -35,7 +39,7 @@ def Contract(name: str, client=None, actor=None, permission="active", force_recr
 
     return klass(node=node, permission=permission)
 
-if __name__ == "__main__":
-    c = Contract("res.pink")
-    c.set_actor("zknmi.wam")
-    print(c.noop())
+#if __name__ == "__main__":
+#    c = Contract("res.pink")
+#    c.set_actor("zknmi.wam")
+#    print(c.noop())

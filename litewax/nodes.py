@@ -4,7 +4,13 @@ class Nodes:
     """Get nodes from antelope and ping them"""
     @staticmethod
     def get_nodes(network = "mainnet") -> list:
-        """Get producers nodes from antelope"""
+        """
+        Get producers nodes from antelope
+        
+        :param network: mainnet or testnet
+        
+        :return: list of nodes
+        """
         if network == "testnet":
             url = "https://graphql-wax-testnet.antelope.tools/v1/graphql"
         else:
@@ -44,7 +50,12 @@ class Nodes:
 
     @staticmethod
     def ping_nodes(network = "mainnet") -> dict:
-        """Ping nodes and return dict. key - URL, value - ping (ms)"""
+        """
+        Ping nodes and return dict. key - URL, value - ping (ms)
+        
+        :param network: mainnet or testnet
+        
+        :return: dict. key - URL, value - ping (ms)"""
         nodes = Nodes.get_nodes(network=network)
 
         result = {}
@@ -63,7 +74,13 @@ class Nodes:
 
     @staticmethod
     def best_nodes(network = "mainnet") -> dict:
-        """Returns sorted dict. key - URL, value - ping (ms). It may take a 20-50 sec. to get the result."""
+        """
+        Search best nodes for you. It may take a 20-50 sec. to get the result.
+        
+        :param network: mainnet or testnet
+        
+        :return: sorted dict. key - URL, value - ping (ms)
+        """
         nodes = Nodes.ping_nodes(network=network)
 
         return dict(sorted(nodes.items(), key=lambda item: item[1]))
@@ -71,7 +88,13 @@ class Nodes:
 
     @staticmethod
     def best_node(network = "mainnet") -> str:
-        """Returns the best node with the lowest ping. It may take a 20-50 sec. to get the result."""
+        """
+        Returns the best node with the lowest ping. It may take a 20-50 sec. to get the result.
+        
+        :param network: mainnet or testnet
+        
+        :return: URL
+        """
         nodes = Nodes.best_nodes(network=network)
 
         best_node = list(nodes.keys())[0]
@@ -80,5 +103,5 @@ class Nodes:
         return best_node
 
 
-if __name__ == '__main__':
-    Nodes.best_node()
+#if __name__ == '__main__':
+#    Nodes.best_node()

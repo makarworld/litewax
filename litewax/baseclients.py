@@ -2,6 +2,7 @@ import cloudscraper
 import eospy.cleos
 import eospy.keys
 import eospy.dynamic_url
+import typing 
 
 from .types import CUSTOM_BROWSER
 from .exceptions import (
@@ -13,12 +14,24 @@ class BaseClient:
     __slots__ = ("node", "wax")
 
     def __init__(self, node: str) -> None:
-        """Init a base client for interacting with the blockchain"""
+        """
+        Init a base client for interacting with the blockchain
+        
+        :param node: Node URL
+
+        :return:
+        """
         self.node = node
         self.wax = eospy.cleos.Cleos(url=node)
     
     def change_node(self, node: str) -> None:
-        """Change node for client by redeffining dynamic_url in `Cleos` instance"""
+        """
+        Change node for client by redeffining dynamic_url in `Cleos` instance
+        
+        :param node: Node URL
+
+        :return:
+        """
         self.node = node
         self.wax._prod_url = node
         self.wax._dynurl = eospy.dynamic_url.DynamicUrl(url=self.wax._prod_url, version=self.wax._version)
@@ -28,7 +41,15 @@ class AnchorClient(BaseClient):
     __slots__ = ("private_key", "public_key", "name")
 
     def __init__(self, private_key: str, node: str) -> None:
-        """Init a client for interacting with the blockchain using a private key"""
+        """
+        Init a client for interacting with the blockchain using a private key
+
+        :param private_key: Private key string
+
+        :param node: Node URL
+
+        :return:
+        """
         super().__init__(node)
         self.private_key = eospy.keys.EOSKey(private_key)
         self.public_key = self.private_key.to_public()
@@ -36,22 +57,21 @@ class AnchorClient(BaseClient):
     
     def get_name(self) -> str:
         """
-        ## Get wallet name by public key
-        
-        Returns:
-            - str: wallet name
+        Get wallet name by public key
+
+        :raises: `KeyError` if account not found
+
+        :return: wallet name
         """
         return self.wax.post('chain.get_accounts_by_authorizers', json={"keys": [self.public_key], "accounts": []})['accounts'][0]['account_name']
 
-    def sign(self, trx: bytearray) -> list:
+    def sign(self, trx: bytearray) -> typing.List[str]:
         """
-        ## Sign transaction with private key
+        Sign transaction with private key
 
-        Args:
-            - trx (bytearray): transaction to sign
+        :param trx: transaction to sign
 
-        Returns:
-            - list: signatures (length: 1)
+        :return: signatures (length: 1)
         """
         return [self.private_key.sign(trx)]
     
@@ -60,7 +80,14 @@ class WCWClient(BaseClient):
     __slots__ = ("cookie", "session", "name")
 
     def __init__(self, cookie: str, node: str) -> None:
-        """Init a client for interacting with the blockchain using a WCW session token"""
+        """
+        Init a client for interacting with the blockchain using a WCW session token
+        
+        :param cookie: WCW session token
+        :param node: Node URL
+        
+        :return:
+        """
         super().__init__(node)
         self.cookie = cookie
         self.session = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
@@ -68,10 +95,11 @@ class WCWClient(BaseClient):
 
     def get_name(self) -> str:
         """
-        ## Get wallet name by session_token
+        Get wallet name by session_token
 
-        Returns:
-            - str: wallet name
+        :raises: `litewax.exceptions.CookiesExpired` if session token is expired or invalid
+
+        :return: wallet name
         """
         try:
             return self.session.get(
@@ -81,15 +109,13 @@ class WCWClient(BaseClient):
         except KeyError:
             raise CookiesExpired("Session token is expired")
 
-    def sign(self, trx: bytearray) -> list:
+    def sign(self, trx: bytearray) -> typing.List[str]:
         """
-        ## Sign transaction with WCW session token
+        Sign transaction with WCW session token
 
-        Args:
-            - trx (bytearray): transaction to sign
+        :param trx: transaction to sign
 
-        Returns:
-            - list: signatures (length: 2)
+        :return: signatures (length: 2)
         """
         self.session.options(
             "https://public-wax-on.wax.io/wam/sign", 

@@ -11,12 +11,5 @@ Contents
 .. toctree::
     install
     quick_start
+    client/index
     examples/index
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
