@@ -1,4 +1,4 @@
-from litewax.client import Client
+from litewax import Client
 from litewax import WAXPayer
 
 from dotenv import dotenv_values
