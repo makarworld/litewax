@@ -18,6 +18,8 @@ Contents
     clients/index
     payers
     types
-    exceptions
     nodes
+    contract
+    abigen
+    exceptions
     examples/index

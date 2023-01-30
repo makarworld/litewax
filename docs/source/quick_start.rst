@@ -9,10 +9,14 @@ At first you have to import Client from litewax
 
 .. literalinclude:: ../../examples/transfer_tokens.py
     :language: python
-    :lines: 1-2
+    :lines: 1
 
 Then you have to initialize Client with private key or session_token from Wax Cloud Wallet.
-:ref:`how-to-get-session-token`
+
+.. note:: 
+    
+    :ref:`how-to-get-session-token`
+
 
 Initialize Client with private key:
 

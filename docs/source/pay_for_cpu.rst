@@ -8,10 +8,13 @@ See `CPU bandwidth <https://developers.eos.io/welcome/latest/glossary/index/#cpu
 
 .. seealso:: 
     
-    `How to set a payer <https://developers.eos.io/manuals/eosjs/latest/how-to-guides/how-to-set-a-payer>`_
-    `CPU bandwidth <https://developers.eos.io/welcome/latest/glossary/index/#cpu>`_ 
-    `Delegate CPU <https://developers.eos.io/manuals/eos/v2.0/cleos/how-to-guides/how-to-delegate-CPU-resource>`_
-    `Undelegate CPU <https://developers.eos.io/manuals/eos/v2.0/cleos/how-to-guides/how-to-undelegate-CPU>`_
+    * `How to set a payer <https://developers.eos.io/manuals/eosjs/latest/how-to-guides/how-to-set-a-payer>`_
+    
+    * `CPU bandwidth <https://developers.eos.io/welcome/latest/glossary/index/#cpu>`_ 
+    
+    * `Delegate CPU <https://developers.eos.io/manuals/eos/v2.0/cleos/how-to-guides/how-to-delegate-CPU-resource>`_
+    
+    * `Undelegate CPU <https://developers.eos.io/manuals/eos/v2.0/cleos/how-to-guides/how-to-undelegate-CPU>`_
 
 
 In litewax you can set the payer of the CPU for a transaction. 
@@ -111,4 +114,4 @@ Last step: Push transaction.
 
 .. seealso::
 
-    Contract usage examples: `Contract usage examples <https://litewax.readthedocs.io/en/latest/contract_usage_examples.html>`_
+    `Contract usage examples <https://litewax.readthedocs.io/en/latest/contract_usage_examples.html>`_

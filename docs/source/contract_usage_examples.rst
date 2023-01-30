@@ -16,7 +16,7 @@ Then we can use `eosio_token.py` to call `eosio.token` contract:
 
 .. code-block:: python
 
-    from eosio_token import eosio_token
+    from contracts.eosio_token import eosio_token
     contract = eosio_token(actor='alice', permission='active')
     single_action = contract.transfer('alice', 'bob', '1.00000000 WAX', 'memo')
 
@@ -24,7 +24,7 @@ You also can send transaction without any litewax Client. Only with generated co
 
 .. code-block:: python
 
-    from eosio_token import eosio_token
+    from contracts.eosio_token import eosio_token
     contract = eosio_token(actor='alice', permission='active')
     contract.push_actions(
         private_keys=['5K...'],
@@ -42,11 +42,11 @@ which create a .py contract file, dynamicly import it and return initialized con
     contract = Contract('eosio.token', actor='alice')
     single_action = contract.transfer('alice', 'bob', '1.00000000 WAX', 'memo')
 
-Also you can use :function:`Contract` function in :obj:`litewax.clients.Client` object:
+Also you can use `Contract` function in :obj:`litewax.clients.Client` object:
 
 .. note:: 
 
-    If you use :function:`Contract` function in :obj:`litewax.clients.Client` object, 
+    If you use `Contract` function in :obj:`litewax.clients.Client` object, 
     you don't need to specify `actor` in contract constructor, but may specify `permission` if need.
 
 
