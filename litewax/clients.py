@@ -8,7 +8,7 @@ import pytz
 from .baseclients import AnchorClient, WCWClient
 from .types import TransactionInfo, WAXPayer
 from .payers import AtomicHub, NeftyBlocks
-from .contract import Contract, Action
+from .contract import Contract, Action, ExampleContract
 from .exceptions import (
     CPUlimit, AuthNotFound,
     ExpiredTransaction, UnknownError
@@ -65,9 +65,9 @@ class Client:
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
 
-    def Contract(self, name: str, actor: typing.Optional[typing.Union[str, None]] = None, force_recreate: typing.Optional[bool] = False, node: typing.Optional[str] = None):
+    def Contract(self, name: str, actor: typing.Optional[typing.Union[str, None]] = None, force_recreate: typing.Optional[bool] = False, node: typing.Optional[str] = None) -> ExampleContract:
         """
-        Create a :obj:`litewax.Contract` object
+        Create a :obj:`litewax.contract.ExampleContract` object
 
         :param name: contract name
         :type name: str
@@ -78,8 +78,8 @@ class Client:
         :param node: node url
         :type node: str
 
-        :return: `litewax.Contract` object
-        :rtype: litewax.Contract
+        :return: `litewax.contract.ExampleContract` object
+        :rtype: litewax.contract.ExampleContract
 
         :Example:
 
@@ -472,7 +472,8 @@ class MultiClient:
         :arg actions: list of actions
         :type actions: tuple
 
-        :return: `litewax.clients.MultiTransaction` object
+        :return: :obj:`litewax.clients.MultiTransaction` object
+        :rtype: litewax.clients.MultiTransaction
 
         :Example:
 

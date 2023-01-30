@@ -46,12 +46,6 @@ def Contract(name: str, client: typing.Optional[typing.Any] = None, actor: typin
 
     return klass(node=node, permission=permission)
 
-#if __name__ == "__main__":
-#    c = Contract("res.pink")
-#    c.set_actor("zknmi.wam")
-#    print(c.noop())
-
-
 class Action:
     """Example Action object for calling actions on a contract"""
     def __init__(self, contract: object, action: str, args: dict):
@@ -69,3 +63,25 @@ class Action:
 
     def __call__(self):
         return self.contract.call(self.action, self.args)
+class ExampleContract:
+    """Example contract object"""
+    def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"): ...
+    def __str__(self): ...
+    def set_actor(self, actor: str): ...
+    def generatePayload(self, account: str, name: str) -> dict: ...
+    def return_payload(self, payload, args) -> dict: ...
+
+    def call(self, action: str, args: dict) -> dict:
+        base = self.generatePayload("contract", action)
+        return self.return_payload(base, args)
+
+    def action(self, arg1: str) -> dict:
+        action_args = {
+            "arg1": arg1
+        }
+        return Action(self, "action", action_args)
+
+    def push_actions(self, private_keys: list, *actions) -> tuple: ...
+    def create_trx(self, private_key: str, **actions) -> tuple: ...
+
+
