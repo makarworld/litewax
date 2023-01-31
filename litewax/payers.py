@@ -21,8 +21,6 @@ class AtomicHub:
 
     :raise NotImplementedError: if network is not mainnet
 
-    :return: :obj:`AtomicHub` instance
-    :rtype: :obj:`AtomicHub`
     """
     __slots__ = ("__trx", "__client", "__scraper", "__sign_link", "__push_link")
 
@@ -52,20 +50,14 @@ class AtomicHub:
     @property
     def trx(self):
         """
-        Transaction
-
-        :return:
-        :rtype: litewax.clients.MultiTransaction
+        :ref:`litewax.clients.MultiTransaction` instance
         """
         return self.__trx
 
     @property
     def client(self):
         """
-        Client
-
-        :return: 
-        :rtype: litewax.clients.MultiClient
+        :ref:`litewax.clients.MultiClient` instance
         """
         return self.__client
 
@@ -73,9 +65,6 @@ class AtomicHub:
     def scraper(self):
         """
         CloudScraper instance
-
-        :return:
-        :rtype: cloudscraper.CloudScraper
         """
         return self.__scraper
 
@@ -83,9 +72,6 @@ class AtomicHub:
     def sign_link(self):
         """
         Link to sign transaction
-
-        :return:
-        :rtype: str
         """
         return self.__sign_link
 
@@ -93,9 +79,6 @@ class AtomicHub:
     def push_link(self):
         """
         Link to push transaction
-
-        :return:
-        :rtype: str
         """
         return self.__push_link
 
@@ -104,9 +87,9 @@ class AtomicHub:
         Push transaction to blockchain with AtomicHub
 
         :param signed: signed transaction (default: {})
-        :type signed: `dict`
+        :type signed: dict
         :param expiration: expiration time in seconds (default: 180)
-        :type expiration: `int`
+        :type expiration: int
 
         :raise AtomicHubPushError: if transaction is not signed
 
@@ -150,17 +133,15 @@ class NeftyBlocks:
     """
     Pay for transaction with NeftyBlocks
 
-    :param client: `litewax.clients.MultiClient` instance
+    :param client: :class:`litewax.clients.MultiClient` instance
     :type client: litewax.clients.MultiClient
-    :param trx: `litewax.clients.MultiTransaction` instance
+    :param trx: :class:`litewax.clients.MultiTransaction` instance
     :type trx: litewax.clients.MultiTransaction
     :param network: network name (default: mainnet)
     :type network: `str`
 
     :raise ValueError: if network is not mainnet or testnet
 
-    :return: :obj:`NeftyBlocks` instance
-    :rtype: NeftyBlocks
     """
     __slots__ = ("__client", "__trx", "__scraper", "__sign_link", "__push_link")
     # client - MultiClient instance
@@ -205,20 +186,14 @@ class NeftyBlocks:
     @property
     def client(self):
         """
-        MultiClient instance
-
-        :return:
-        :rtype: litewax.clients.MultiClient
+        :ref:`litewax.clients.MultiClient` instance
         """
         return self.__client
 
     @property
     def trx(self):
         """
-        MultiTransaction instance
-
-        :return:
-        :rtype: litewax.clients.MultiTransaction
+        :ref:`litewax.clients.MultiTransaction` instance
         """
         return self.__trx
 
@@ -226,9 +201,6 @@ class NeftyBlocks:
     def scraper(self):
         """
         Cloudscraper instance
-
-        :return:
-        :rtype: cloudscraper.CloudScraper
         """
         return self.__scraper
 
@@ -236,9 +208,6 @@ class NeftyBlocks:
     def sign_link(self):
         """
         Sign link
-
-        :return:
-        :rtype: str
         """
         return self.__sign_link
 
@@ -246,9 +215,6 @@ class NeftyBlocks:
     def push_link(self):
         """
         Push link
-
-        :return:
-        :rtype: str
         """
         return self.__push_link
 

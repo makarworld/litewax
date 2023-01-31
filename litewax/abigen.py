@@ -286,8 +286,6 @@ class abigen():
     def node(self) -> str:
         """
         Node URL
-
-        :return: 
         """
         return self.__node
 

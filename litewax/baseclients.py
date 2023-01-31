@@ -28,8 +28,6 @@ class BaseClient:
     def node(self) -> str:
         """
         Node URL
-
-        :return:
         """
         return self.__node
     
@@ -40,8 +38,6 @@ class BaseClient:
 
         :param node: Node URL
         :type node: str
-
-        :return:
         """
         return self.change_node(node)
 
@@ -49,8 +45,6 @@ class BaseClient:
     def wax(self) -> eospy.cleos.Cleos:
         """
         Cleos instance
-
-        :return:
         """
         return self.__wax
 
@@ -90,8 +84,6 @@ class AnchorClient(BaseClient):
     def private_key(self) -> eospy.keys.EOSKey:
         """
         Private key
-
-        :return:
         """
         return self.__private_key
 
@@ -99,8 +91,6 @@ class AnchorClient(BaseClient):
     def public_key(self) -> eospy.keys.EOSKey:
         """
         Public key
-
-        :return:
         """
         return self.__public_key
 
@@ -108,8 +98,6 @@ class AnchorClient(BaseClient):
     def name(self) -> str:
         """
         Wallet name
-
-        :return:
         """
         return self.__name
 
@@ -158,8 +146,6 @@ class WCWClient(BaseClient):
     def cookie(self) -> str:
         """
         WCW session token
-
-        :return:
         """
         return self.__cookie
 
@@ -167,8 +153,6 @@ class WCWClient(BaseClient):
     def session(self) -> cloudscraper.CloudScraper:
         """
         CloudScraper instance
-
-        :return:
         """
         return self.__session
 
@@ -176,8 +160,6 @@ class WCWClient(BaseClient):
     def name(self) -> str:
         """
         Wallet name
-
-        :return:
         """
         return self.__name
 

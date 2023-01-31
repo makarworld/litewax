@@ -20,7 +20,7 @@ See `CPU bandwidth <https://developers.eos.io/welcome/latest/glossary/index/#cpu
     * `Undelegate CPU <https://developers.eos.io/manuals/eos/v2.0/cleos/how-to-guides/how-to-undelegate-CPU>`_
 
 
-In :ref:`litewax` you can set the payer of the CPU for a transaction. 
+In litewax you can set the payer of the CPU for a transaction. 
 Before, import and initialize 2 clients, one for the payer and one for the sender.
 
 .. code-block:: python

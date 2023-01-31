@@ -2,6 +2,8 @@
 BaseClients
 ========
 
+.. _litewax.baseclients.BaseClient:
+
 BaseClient object
 ==========
 The BaseClient object is the base class for all clients. It provides the basic functionality for all clients. 
@@ -13,6 +15,8 @@ BaseClient supports iteraction with node url and cleos.
     :undoc-members:
     :private-members:
 
+.. _litewax.baseclients.AnchorClient:
+
 AnchorClient object
 ==========
 Class for iteracting with private, public keys, signing transactions. Based on `eospy.cleos <https://github.com/eosnewyork/eospy/blob/master/eospy/cleos.py#L16>`_.
@@ -20,8 +24,8 @@ Class for iteracting with private, public keys, signing transactions. Based on `
 .. autoclass:: litewax.baseclients.AnchorClient
     :members:
     :undoc-members:
-    :private-members:
 
+.. _litewax.baseclients.WCWClient:
 
 WCWClient object
 ==========
@@ -31,9 +35,8 @@ Provide token session for authorization.
 .. note:: 
     
     :ref:`how-to-get-session-token`
-    
+
 
 .. autoclass:: litewax.baseclients.WCWClient
     :members:
     :undoc-members:
-    :private-members:

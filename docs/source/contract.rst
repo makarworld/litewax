@@ -1,7 +1,7 @@
 .. _litewax.Contract:
 
 =========
-Contracts
+Contract
 ========= 
 
 .. automodule:: litewax.contract

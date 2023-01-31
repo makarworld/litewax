@@ -5,7 +5,7 @@ Contract usage examples
 =======================
 
 All transaction in EOS-based blockchain are executed by smart contracts.
-:ref:`litewax` have :ref:`litewax.abigen` for generate .py files from contract abi which will got from node.
+litewax have :ref:`litewax.abigen` for generate .py files from contract abi which will got from node.
 
 
 For example, we can generate `eosio_token.py` contract:
