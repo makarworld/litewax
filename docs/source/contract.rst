@@ -1,3 +1,5 @@
+.. _litewax.Contract:
+
 =========
 Contracts
 ========= 

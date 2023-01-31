@@ -20,7 +20,7 @@ See `CPU bandwidth <https://developers.eos.io/welcome/latest/glossary/index/#cpu
     * `Undelegate CPU <https://developers.eos.io/manuals/eos/v2.0/cleos/how-to-guides/how-to-undelegate-CPU>`_
 
 
-In litewax you can set the payer of the CPU for a transaction. 
+In :ref:`litewax` you can set the payer of the CPU for a transaction. 
 Before, import and initialize 2 clients, one for the payer and one for the sender.
 
 .. code-block:: python
@@ -33,7 +33,7 @@ Before, import and initialize 2 clients, one for the payer and one for the sende
     # create payer Client instance
     payer = Client(private_key='5K2...') 
 
-Next: Create a transaction.
+Next: Create a :ref:`litewax.Transaction`.
 
 .. code-block:: python
 
@@ -47,28 +47,28 @@ Next: Create a transaction.
         )
     )
 
-Now, set the payer of the CPU for the transaction.
+Now, set the payer of the CPU for the :ref:`litewax.Transaction`.
 Payer can be set in different ways:
 
-* by other client 
+* by other :ref:`litewax.Client`.
 
 .. code-block:: python
 
     trx = trx.payer(payer)
 
-* by atomichub. If you don't have enough CPU, and actions in whitelist by atomichub like: atomicassets.transfer(). (Only WAX mainnet)
+* by :ref:`litewax.payers.AtomicHub`. If you don't have enough CPU, and actions in whitelist by atomichub like: atomicassets.transfer(). (Only WAX mainnet)
 
 .. code-block:: python
 
     trx = trx.payer(WAXPayer.ATOMICHUB)
 
-* by neftyblocks. If actions in whitelist by neftyblocks like: neftyblocksd.claim_drop(). (Only WAX mainnet and testnet)
+* by :ref:`litewax.payers.NeftyBlocks`. If actions in whitelist by neftyblocks like: neftyblocksd.claim_drop(). (Only WAX mainnet and testnet)
 
 .. code-block:: python
 
     trx = trx.payer(WAXPayer.NEFTYBLOCKS)
 
-* or if you use a MultiClient, you can set the payer when creating a transaction.
+* or if you use a :ref:`litewax.MultiClient`, you can set the payer when creating a :ref:`litewax.MultiTransaction`.
 
 .. code-block:: python
 

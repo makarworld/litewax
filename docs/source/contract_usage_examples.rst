@@ -1,9 +1,11 @@
+.. _contract_usage_examples:
+
 =======================
 Contract usage examples
 =======================
 
 All transaction in EOS-based blockchain are executed by smart contracts.
-`litewax` have abigen for generate .py files from contract abi which will got from node.
+:ref:`litewax` have :ref:`litewax.abigen` for generate .py files from contract abi which will got from node.
 
 
 For example, we can generate `eosio_token.py` contract:
@@ -20,7 +22,7 @@ Then we can use `eosio_token.py` to call `eosio.token` contract:
     contract = eosio_token(actor='alice', permission='active')
     single_action = contract.transfer('alice', 'bob', '1.00000000 WAX', 'memo')
 
-You also can send transaction without any litewax Client. Only with generated contract file:
+You also can send transaction without any litewax :ref:`litewax.Client`. Only with generated contract file:
 
 .. code-block:: python
 
@@ -33,7 +35,7 @@ You also can send transaction without any litewax Client. Only with generated co
 
 =======================
 
-For easy iteracting with any contract, litewax have `Contract` function, 
+For easy iteracting with any contract, litewax have :ref:`litewax.Contract` function, 
 which create a .py contract file, dynamicly import it and return initialized contract object:
 
 .. code-block:: python
@@ -42,11 +44,11 @@ which create a .py contract file, dynamicly import it and return initialized con
     contract = Contract('eosio.token', actor='alice')
     single_action = contract.transfer('alice', 'bob', '1.00000000 WAX', 'memo')
 
-Also you can use `Contract` function in :obj:`litewax.clients.Client` object:
+Also you can use :ref:`litewax.Contract` function in :ref:`litewax.clients.Client` object:
 
 .. note:: 
 
-    If you use `Contract` function in :obj:`litewax.clients.Client` object, 
+    If you use :ref:`litewax.Contract` function in :ref:`litewax.clients.Client` object, 
     you don't need to specify `actor` in contract constructor, but may specify `permission` if need.
 
 
