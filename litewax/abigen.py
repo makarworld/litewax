@@ -9,6 +9,21 @@ import datetime as dt
 from typing import Tuple, Any
 
 class Action:
+    \"\"\"
+    Action class for calling actions. 
+    In :meth:`result` contains the result of the action.
+
+    :param contract: Contract object
+    :type contract: object
+    :param action: Action name
+    :type action: str
+    :param args: Action arguments
+    :type args: dict
+
+    \"\"\"
+
+    __slots__ = ("contract", "action", "args", "result")
+
     def __init__(self, contract: {name}, action: str, args: dict):
         self.contract = contract
         self.action = action
@@ -16,6 +31,43 @@ class Action:
 
         self.result = self()
     
+    @property
+    def contract(self) -> {name}:
+        \"\"\"
+        Contract object
+
+        :return:
+        \"\"\"
+        return self.contract
+
+    @property
+    def action(self) -> str:
+        \"\"\"
+        Action name
+
+        :return:
+        \"\"\"
+        return self.action
+
+    @property
+    def args(self) -> dict:
+        \"\"\"
+        Action arguments
+
+        :return:
+        \"\"\"
+        return self.args
+
+    @property
+    def result(self) -> dict:
+        \"\"\"
+        Result of the action
+
+        :return: 
+        \"\"\"
+
+        return self.result
+
     def __str__(self):
         return f"[{self.contract.permission}] {self.contract.actor} > {name}::{self.action}({self.args})"
     
@@ -26,10 +78,60 @@ class Action:
         return self.contract.call(self.action, self.args)
 
 class {name}:
+    \"\"\"
+    {name} contract object
+
+    :param actor: Account name
+    :type actor: str
+    :param permission: Permission name
+    :type permission: str
+    :param node: The node to use (default: https://wax.greymass.com)
+    :type node: str
+
+    \"\"\"
+    __slots__ = ("wax", "actor", "permission")
+
     def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"):
         self.wax = eospy.cleos.Cleos(url=node, version='v1')
         self.actor = actor
         self.permission = permission
+
+    @property
+    def actor(self) -> str:
+        \"\"\"
+        Account name
+
+        :return:
+        \"\"\"
+        return self.actor
+    
+    @actor.setter
+    def actor(self, actor: str) -> None:
+        self.actor = actor
+
+    @property
+    def permission(self) -> str:
+        \"\"\"
+        Permission name
+
+        :return:
+        \"\"\"
+
+        return self.permission
+
+    @permission.setter
+    def permission(self, permission: str) -> None:
+        self.permission = permission
+
+    @property
+    def wax(self) -> eospy.cleos.Cleos:
+        \"\"\"
+        Cleos instance
+
+        :return:
+        \"\"\"
+
+        return self.wax
 
     def __str__(self):
         return f"{name}(actor={self.actor}, permission={self.permission}, node={self.wax.url})"
@@ -175,8 +277,19 @@ class abigen():
 
     :return: :class:`abigen` class
     """
+    __slots__ = ('node')
+
     def __init__(self, node: str="https://wax.greymass.com"):
         self.node = node
+
+    @property
+    def node(self) -> str:
+        """
+        Node URL
+
+        :return: 
+        """
+        return self.node
 
     def gen(self, name: str) -> str:
         """

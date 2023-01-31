@@ -7,11 +7,11 @@ Transaction object
 
 Transaction
 -------------
-Used by `litewax.clients.Client` class. 
+Used by :ref:`litewax.clients.Client` class. 
 
 This transaction may be signed with only one client.
 
-May transform to `litewax.clients.MultiTransaction` object if you use :meth:`litewax.clients.Transaction.payer` method with `litewax.clients.Client` as payer.
+May transform to :ref:`litewax.clients.MultiTransaction` object if you use :meth:`litewax.clients.Transaction.payer` method with :ref:`litewax.clients.Client` as payer.
 
 .. autoclass:: litewax.clients.Transaction
     :members:
@@ -23,7 +23,7 @@ May transform to `litewax.clients.MultiTransaction` object if you use :meth:`lit
 
 MultiTransaction
 -------------
-Used by `litewax.clients.Client` class. 
+Used by :ref:`litewax.clients.MultiClient` class. 
 
 This transaction may be signed with many clients.
 

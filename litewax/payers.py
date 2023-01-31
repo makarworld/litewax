@@ -24,6 +24,8 @@ class AtomicHub:
     :return: :obj:`AtomicHub` instance
     :rtype: :obj:`AtomicHub`
     """
+    __slots__ = ("trx", "client", "scraper", "sign_link", "push_link")
+
     # client - MultiClient instance
     # trx - MulltiTransaction instance
     def __init__(self, client, trx, network="mainnet"):
@@ -46,6 +48,56 @@ class AtomicHub:
 
         self.sign_link = "https://wax-mainnet-signer.api.atomichub.io/v1/sign"
         self.push_link = "chain.push_transaction"
+
+    @property
+    def trx(self):
+        """
+        Transaction
+
+        :return:
+        :rtype: litewax.clients.MultiTransaction
+        """
+        return self.trx
+
+    @property
+    def client(self):
+        """
+        Client
+
+        :return: 
+        :rtype: litewax.clients.MultiClient
+        """
+        return self.client
+
+    @property
+    def scraper(self):
+        """
+        CloudScraper instance
+
+        :return:
+        :rtype: cloudscraper.CloudScraper
+        """
+        return self.scraper
+
+    @property
+    def sign_link(self):
+        """
+        Link to sign transaction
+
+        :return:
+        :rtype: str
+        """
+        return self.sign_link
+
+    @property
+    def push_link(self):
+        """
+        Link to push transaction
+
+        :return:
+        :rtype: str
+        """
+        return self.push_link
 
     def push(self, signed = {}, expiration = 180) -> dict:
         """

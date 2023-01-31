@@ -2,6 +2,7 @@ from __future__ import annotations
 import typing
 from eospy.types import Transaction as EosTransaction
 from eospy.utils import sig_digest
+import eospy.cleos
 import datetime as dt
 import pytz
 
@@ -58,6 +59,64 @@ class Client:
         self.__setattr__("node", self.root.node)
         self.__setattr__("wax", self.root.wax)
         self.__setattr__("name", self.root.name)
+
+    @property
+    def root(self) -> typing.Union[AnchorClient, WCWClient]:
+        """
+        Root client object
+
+        :return: 
+        """
+        return self.root
+    
+    @property
+    def node(self) -> str:
+        """
+        Node URL
+
+        :return: 
+        """
+        return self.node
+    
+    @property
+    def wax(self) -> eospy.cleos.Cleos:
+        """
+        Eospy cleos object
+
+        :return: 
+        """
+        return self.wax
+    
+    @property
+    def name(self) -> str:
+        """
+        Account Name
+
+        :return: 
+        """
+        return self.name
+    
+    @property
+    def change_node(self) -> typing.Callable[[str], None]:
+        """
+        Change node URL.
+
+        Inherited from :ref:`litewax.baseclients.AnchorClient` or :ref:`litewax.baseclients.WCWClient`
+
+        :return: 
+        """
+        return self.change_node
+    
+    @property
+    def sign(self) -> typing.Callable[[EosTransaction], EosTransaction]:
+        """
+        Sign transaction.
+
+        Inherited from :ref:`litewax.baseclients.AnchorClient` or :ref:`litewax.baseclients.WCWClient`
+
+        :return: 
+        """
+        return self.sign
 
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
@@ -180,6 +239,24 @@ class Transaction:
 
         self.actions = list(actions)
         self.actions.reverse()
+
+    @property
+    def client(self) -> Client:
+        """
+        :ref:`litewax.Client` object
+
+        :return:
+        """
+        return self.client
+
+    @property
+    def actions(self) -> list[Action]:
+        """
+        List of actions
+
+        :return:
+        """
+        return self.actions
 
     def __str__(self):
         actions = ',\n        '.join([str(x) for x in self.actions])
@@ -385,6 +462,15 @@ class MultiClient:
     def __str__(self) -> str:
         return f"MultiClient(clients={self.clients})"
 
+    @property
+    def clients(self) -> typing.List[Client]:
+        """
+        Clients list
+        
+        :return: 
+        """
+        return self.clients
+
     def change_node(self, node: str):
         """
         Change node url for all clients
@@ -524,6 +610,25 @@ class MultiTransaction:
 
         self.actions = list(actions)
         self.actions.reverse()
+
+    @property
+    def client(self) -> MultiClient:
+        """
+        :ref:`client.MultiClient` object
+        
+        :return: 
+        """
+        return self.client
+
+    @property
+    def actions(self) -> typing.List[Action]:
+        """
+        Actions list
+        
+        :return: 
+        """
+        return self.actions
+
 
     def __str__(self) -> str:
         """return string representation of transaction"""

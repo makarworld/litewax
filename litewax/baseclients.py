@@ -24,6 +24,36 @@ class BaseClient:
         self.node = node
         self.wax = eospy.cleos.Cleos(url=node)
     
+    @property
+    def node(self) -> str:
+        """
+        Node URL
+
+        :return:
+        """
+        return self.node
+    
+    @node.setter
+    def node(self, node: str) -> None:
+        """
+        Node URL
+
+        :param node: Node URL
+        :type node: str
+
+        :return:
+        """
+        return self.change_node(node)
+
+    @property
+    def wax(self) -> eospy.cleos.Cleos:
+        """
+        Cleos instance
+
+        :return:
+        """
+        return self.wax
+
     def change_node(self, node: str) -> None:
         """
         Change node for client by redeffining dynamic_url in `Cleos` instance
@@ -56,6 +86,33 @@ class AnchorClient(BaseClient):
         self.public_key = self.private_key.to_public()
         self.name = self.get_name()
     
+    @property
+    def private_key(self) -> eospy.keys.EOSKey:
+        """
+        Private key
+
+        :return:
+        """
+        return self.private_key
+
+    @property
+    def public_key(self) -> eospy.keys.EOSKey:
+        """
+        Public key
+
+        :return:
+        """
+        return self.public_key
+
+    @property
+    def name(self) -> str:
+        """
+        Wallet name
+
+        :return:
+        """
+        return self.name
+
     def get_name(self) -> str:
         """
         Get wallet name by public key
@@ -96,6 +153,33 @@ class WCWClient(BaseClient):
         self.cookie = cookie
         self.session = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
         self.name = self.get_name()
+
+    @property
+    def cookie(self) -> str:
+        """
+        WCW session token
+
+        :return:
+        """
+        return self.cookie
+
+    @property
+    def session(self) -> cloudscraper.CloudScraper:
+        """
+        CloudScraper instance
+
+        :return:
+        """
+        return self.session
+
+    @property
+    def name(self) -> str:
+        """
+        Wallet name
+
+        :return:
+        """
+        return self.name
 
     def get_name(self) -> str:
         """
