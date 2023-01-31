@@ -25,9 +25,6 @@ class Client:
     :param node: Node URL
     :type node: str
 
-    :return: `litewax.clients.Client` object
-    :rtype: litewax.clients.Client
-
     :Example:
 
     >>> from litewax import Client
@@ -100,7 +97,7 @@ class Client:
 
     def Transaction(self, *actions: tuple[Action, ...]) -> Transaction:
         """
-        Create a :class:`litewax.clients.Transaction` object
+        Create a `litewax.Transaction` object
 
         :param actions: actions of contracts
         :type actions: tuple
@@ -126,16 +123,13 @@ class Client:
 
 class Transaction:
     """
-    :class:`litewax.clients.Transaction` object
+    :class:`litewax.Transaction` object
     Create a transaction object for pushing to the blockchain
 
-    :param client: `litewax.clients.Client` object
+    :param client: :obj:`litewax.Client` object
     :type client: litewax.clients.Client
     :param actions: actions of contracts
     :type actions: tuple[Action, ...]
-
-    :return: :class:`litewax.clients.Transaction` object
-    :rtype: litewax.clients.Transaction
 
     :Example:
 
@@ -201,12 +195,12 @@ class Transaction:
         """
         Set payer for all actions
 
-        :param payer: payer name or `litewax.clients.Client` object
+        :param payer: payer name or `litewax.Client` object
         :type payer: litewax.clients.Client or str
         :param permission: payer permission (optional): default `active`
         :type permission: str
 
-        :raise NotImplementedError: if payer is not :ref:`litewax.clients.Client`, :ref:`litewax.payers.AtomicHub` or :ref:`litewax.payers.NeftyBlocks`.
+        :raises: `NotImplementedError` if payer is not :ref:`litewax.clients.Client`, :ref:`litewax.payers.AtomicHub` or :ref:`litewax.payers.NeftyBlocks`.
 
         :return: :class:`litewax.clients.MultiTransaction` object or :class:`litewax.payers.AtomicHub` object or :class:`litewax.payers.NeftyBlocks` object
         :rtype: litewax.clients.MultiTransaction or litewax.payers.AtomicHub or litewax.payers.NeftyBlocks
@@ -327,8 +321,9 @@ class Transaction:
 
 class MultiClient:
     """
-    MultiClient class for interacting with blockchain using many clients.
     Bases: :class:`list`
+
+    MultiClient class for interacting with blockchain using many clients.
 
     :param private_keys: list of private keys (optional)
     :type private_keys: list
@@ -340,10 +335,6 @@ class MultiClient:
     :type node: str
 
     :raises: `litewax.exceptions.AuthNotFound` if you not provide a private key, a cookie or a clients
-
-    :return: :obj:`litewax.clients.MultiClient` object
-    :rtype: litewax.clients.MultiClient
-
 
     :Example:
 
@@ -423,7 +414,7 @@ class MultiClient:
         """
         Append client to clients list
         
-        :param client: `litewax.clients.Client` object
+        :param client: `litewax.Client` object
         :type client: litewax.clients.Client
 
         :return:
@@ -467,12 +458,12 @@ class MultiClient:
 
     def Transaction(self, *actions: tuple[Action, ...]):
         """
-        Create a :obj:`litewax.clients.MultiTransaction` object
+        Create a :obj:`litewax.MultiTransaction` object
 
         :arg actions: list of actions
         :type actions: tuple
 
-        :return: :obj:`litewax.clients.MultiTransaction` object
+        :return: :obj:`litewax.MultiTransaction` object
         :rtype: litewax.clients.MultiTransaction
 
         :Example:
@@ -498,13 +489,10 @@ class MultiTransaction:
     """
     MultiTransaction class for creating and pushing transactions using many signatures
 
-    :param client: `litewax.clients.MultiClient` object
+    :param client: `litewax.MultiClient` object
     :type client: litewax.clients.MultiClient
     :param actions: list of actions
     :type actions: tuple
-
-    :return: `litewax.clients.MultiTransaction` object
-    :rtype: litewax.clients.MultiTransaction
 
     :Example:
 
@@ -538,6 +526,7 @@ class MultiTransaction:
         self.actions.reverse()
 
     def __str__(self) -> str:
+        """return string representation of transaction"""
         actions = ',\n        '.join([str(x) for x in self.actions])
         return f"""litewax.MultiClient.MultiTransaction(
     node={self.client[0].node},
@@ -551,12 +540,12 @@ class MultiTransaction:
         """
         Set payer
 
-        :param payer: payer account name or `litewax.clients.Client` object
+        :param payer: payer account name or `litewax.Client` object
         :type payer: str or litewax.clients.Client
         :param permission: payer permission (optional): default `active`
         :type permission: str
 
-        :raise NotImplementedError: if payer is not `litewax.clients.Client`, `litewax.payers.AtomicHub` or `litewax.payers.NeftyBlocks`
+        :raise NotImplementedError: if payer is not :ref:`litewax.clients.Client`, :ref:`litewax.payers.AtomicHub` or :ref:`litewax.payers.NeftyBlocks`
 
         :return: `litewax.clients.MultiTransaction` object or `litewax.payers.AtomicHub` or `litewax.payers.NeftyBlocks` object
         :rtype: litewax.clients.MultiTransaction or litewax.payers.AtomicHub or litewax.payers.NeftyBlocks
@@ -626,16 +615,16 @@ class MultiTransaction:
         """
         Push transaction to blockchain
 
-        :param data: :class:`litewax.types.TransactionInfo` object (optional)
+        :param data: :obj:`litewax.types.TransactionInfo` object (optional)
         :type data: litewax.types.TransactionInfo
         :param expiration: transaction expiration time in seconds (optional): default 180
         :type expiration: int
 
-        :raise CPUlimit: if transaction exceeded the current CPU usage limit imposed on the transaction
-        :raise ExpiredTransaction: if transaction is expired
-        :raise UnknownError: if unknown error
+        :raises: `litewax.exceptions.CPUlimit` if transaction exceeded the current CPU usage limit imposed on the transaction
+        :raises: `litewax.exceptions.ExpiredTransaction` if transaction is expired
+        :raises: `litewax.exceptions.UnknownError` if unknown error
 
-        :return: transaction info
+        :return: transaction information
         :rtype: dict
         """
         if not data or not isinstance(data, TransactionInfo):

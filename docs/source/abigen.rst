@@ -3,4 +3,5 @@ abigen
 ======
 
 .. automodule:: litewax.abigen
-   :members:
+    :members:
+    :undoc-members:
