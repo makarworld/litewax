@@ -24,7 +24,7 @@ class AtomicHub:
     :return: :obj:`AtomicHub` instance
     :rtype: :obj:`AtomicHub`
     """
-    __slots__ = ("trx", "client", "scraper", "sign_link", "push_link")
+    __slots__ = ("__trx", "__client", "__scraper", "__sign_link", "__push_link")
 
     # client - MultiClient instance
     # trx - MulltiTransaction instance
@@ -32,22 +32,22 @@ class AtomicHub:
         if network != "mainnet":
             raise NotImplementedError("Only mainnet is supported by AtomicHub")
 
-        self.trx = trx
-        self.client = client
+        self.__trx = trx
+        self.__client = client
 
-        if self.trx.actions[0].result["account"] != "res.pink" or\
-           self.trx.actions[0].result["name"] != "noop" or\
-           self.trx.actions[0].result["authorization"][0]["actor"] != "res.pink" or\
-           self.trx.actions[0].result["authorization"][0]["permission"] != "paybw":
+        if self.__trx.actions[0].result["account"] != "res.pink" or\
+           self.__trx.actions[0].result["name"] != "noop" or\
+           self.__trx.actions[0].result["authorization"][0]["actor"] != "res.pink" or\
+           self.__trx.actions[0].result["authorization"][0]["permission"] != "paybw":
             
-            self.trx.actions = [
+            self.__trx.actions = [
                 Contract("res.pink", actor="res.pink", permission="paybw").noop()
-            ] + self.trx.actions
+            ] + self.__trx.actions
 
-        self.scraper = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
+        self.__scraper = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
 
-        self.sign_link = "https://wax-mainnet-signer.api.atomichub.io/v1/sign"
-        self.push_link = "chain.push_transaction"
+        self.__sign_link = "https://wax-mainnet-signer.api.atomichub.io/v1/sign"
+        self.__push_link = "chain.push_transaction"
 
     @property
     def trx(self):
@@ -57,7 +57,7 @@ class AtomicHub:
         :return:
         :rtype: litewax.clients.MultiTransaction
         """
-        return self.trx
+        return self.__trx
 
     @property
     def client(self):
@@ -67,7 +67,7 @@ class AtomicHub:
         :return: 
         :rtype: litewax.clients.MultiClient
         """
-        return self.client
+        return self.__client
 
     @property
     def scraper(self):
@@ -77,7 +77,7 @@ class AtomicHub:
         :return:
         :rtype: cloudscraper.CloudScraper
         """
-        return self.scraper
+        return self.__scraper
 
     @property
     def sign_link(self):
@@ -87,7 +87,7 @@ class AtomicHub:
         :return:
         :rtype: str
         """
-        return self.sign_link
+        return self.__sign_link
 
     @property
     def push_link(self):
@@ -97,7 +97,7 @@ class AtomicHub:
         :return:
         :rtype: str
         """
-        return self.push_link
+        return self.__push_link
 
     def push(self, signed = {}, expiration = 180) -> dict:
         """
@@ -162,23 +162,24 @@ class NeftyBlocks:
     :return: :obj:`NeftyBlocks` instance
     :rtype: NeftyBlocks
     """
+    __slots__ = ("__client", "__trx", "__scraper", "__sign_link", "__push_link")
     # client - MultiClient instance
     # trx - MulltiTransaction instance
     def __init__(self, client, trx, network="mainnet"):
-        self.client = client
-        self.trx = trx
+        self.__client = client
+        self.__trx = trx
 
-        if self.trx.actions[0].result["account"] != "neftyblocksd" or\
-           self.trx.actions[0].result["name"] != "paycpu" or\
-           self.trx.actions[0].result["authorization"][0]["actor"] != "neftybrespay" or\
-           self.trx.actions[0].result["authorization"][0]["permission"] != "active":
+        if self.__trx.actions[0].result["account"] != "neftyblocksd" or\
+           self.__trx.actions[0].result["name"] != "paycpu" or\
+           self.__trx.actions[0].result["authorization"][0]["actor"] != "neftybrespay" or\
+           self.__trx.actions[0].result["authorization"][0]["permission"] != "active":
             
-            self.trx.actions = [
+            self.__trx.actions = [
                 Contract("neftybrespay", actor="neftybrespay").paycpu()
-            ] + self.trx.actions
+            ] + self.__trx.actions
 
-        self.scraper = cloudscraper.create_scraper()
-        self.scraper.headers.update({
+        self.__scraper = cloudscraper.create_scraper()
+        self.__scraper.headers.update({
             'accept': '*/*',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -191,15 +192,65 @@ class NeftyBlocks:
             'sec-fetch-site': 'same-site'
         })
 
-        self.push_link = "chain.push_transaction"
+        self.__push_link = "chain.push_transaction"
         if network == "testnet":
-            self.sign_link = "https://cpu-test.neftyblocks.com/"
+            self.__sign_link = "https://cpu-test.neftyblocks.com/"
         
         elif network == "mainnet":
-            self.sign_link = "https://cpu.neftyblocks.com/"
+            self.__sign_link = "https://cpu.neftyblocks.com/"
         
         else:
             raise ValueError("Unknown network. Must be 'testnet' or 'mainnet'")
+
+    @property
+    def client(self):
+        """
+        MultiClient instance
+
+        :return:
+        :rtype: litewax.clients.MultiClient
+        """
+        return self.__client
+
+    @property
+    def trx(self):
+        """
+        MultiTransaction instance
+
+        :return:
+        :rtype: litewax.clients.MultiTransaction
+        """
+        return self.__trx
+
+    @property
+    def scraper(self):
+        """
+        Cloudscraper instance
+
+        :return:
+        :rtype: cloudscraper.CloudScraper
+        """
+        return self.__scraper
+
+    @property
+    def sign_link(self):
+        """
+        Sign link
+
+        :return:
+        :rtype: str
+        """
+        return self.__sign_link
+
+    @property
+    def push_link(self):
+        """
+        Push link
+
+        :return:
+        :rtype: str
+        """
+        return self.__push_link
 
     def push(self, signed = {}, expiration = 180) -> dict:
         """

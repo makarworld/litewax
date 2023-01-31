@@ -18,11 +18,11 @@ class BaseClient:
     
     :return:
     """
-    __slots__ = ("node", "wax")
+    __slots__ = ("__node", "__wax")
 
     def __init__(self, node: str) -> None:
-        self.node = node
-        self.wax = eospy.cleos.Cleos(url=node)
+        self.__node = node
+        self.__wax = eospy.cleos.Cleos(url=node)
     
     @property
     def node(self) -> str:
@@ -31,7 +31,7 @@ class BaseClient:
 
         :return:
         """
-        return self.node
+        return self.__node
     
     @node.setter
     def node(self, node: str) -> None:
@@ -52,7 +52,7 @@ class BaseClient:
 
         :return:
         """
-        return self.wax
+        return self.__wax
 
     def change_node(self, node: str) -> None:
         """
@@ -78,13 +78,13 @@ class AnchorClient(BaseClient):
     
     :return:
     """
-    __slots__ = ("private_key", "public_key", "name")
+    __slots__ = ("__private_key", "__public_key", "__name")
 
     def __init__(self, private_key: str, node: str) -> None:
         super().__init__(node)
-        self.private_key = eospy.keys.EOSKey(private_key)
-        self.public_key = self.private_key.to_public()
-        self.name = self.get_name()
+        self.__private_key = eospy.keys.EOSKey(private_key)
+        self.__public_key = self.private_key.to_public()
+        self.__name = self.get_name()
     
     @property
     def private_key(self) -> eospy.keys.EOSKey:
@@ -93,7 +93,7 @@ class AnchorClient(BaseClient):
 
         :return:
         """
-        return self.private_key
+        return self.__private_key
 
     @property
     def public_key(self) -> eospy.keys.EOSKey:
@@ -102,7 +102,7 @@ class AnchorClient(BaseClient):
 
         :return:
         """
-        return self.public_key
+        return self.__public_key
 
     @property
     def name(self) -> str:
@@ -111,7 +111,7 @@ class AnchorClient(BaseClient):
 
         :return:
         """
-        return self.name
+        return self.__name
 
     def get_name(self) -> str:
         """
@@ -146,13 +146,13 @@ class WCWClient(BaseClient):
     
     :return:
     """
-    __slots__ = ("cookie", "session", "name")
+    __slots__ = ("__cookie", "__session", "__name")
 
     def __init__(self, cookie: str, node: str) -> None:
         super().__init__(node)
-        self.cookie = cookie
-        self.session = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
-        self.name = self.get_name()
+        self.__cookie = cookie
+        self.__session = cloudscraper.create_scraper(browser={'custom': CUSTOM_BROWSER})
+        self.__name = self.get_name()
 
     @property
     def cookie(self) -> str:
@@ -161,7 +161,7 @@ class WCWClient(BaseClient):
 
         :return:
         """
-        return self.cookie
+        return self.__cookie
 
     @property
     def session(self) -> cloudscraper.CloudScraper:
@@ -170,7 +170,7 @@ class WCWClient(BaseClient):
 
         :return:
         """
-        return self.session
+        return self.__session
 
     @property
     def name(self) -> str:
@@ -179,7 +179,7 @@ class WCWClient(BaseClient):
 
         :return:
         """
-        return self.name
+        return self.__name
 
     def get_name(self) -> str:
         """

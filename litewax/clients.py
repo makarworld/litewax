@@ -39,26 +39,26 @@ class Client:
     >>>     )
     >>> ).push()
     """
-    __slots__ = ("root", "node", "wax", "name", "change_node", "sign")
+    __slots__ = ("__root", "__node", "__wax", "__name", "__change_node", "__sign")
 
     def __init__(self, private_key: typing.Optional[str] = "", cookie: typing.Optional[str] = "", node: typing.Optional[str] = "https://wax.greymass.com") -> None:
         if private_key:
-            self.root = AnchorClient(private_key, node)
+            self.__root = AnchorClient(private_key, node)
 
         elif cookie:
-            self.root = WCWClient(cookie, node)
+            self.__root = WCWClient(cookie, node)
             
         else:
             raise ValueError("You must provide a private key or a WCW session token")
 
         # set methods
-        self.__setattr__("change_node", self.root.change_node)
-        self.__setattr__("sign", self.root.sign)
+        self.__setattr__("__change_node", self.__root.change_node)
+        self.__setattr__("__sign", self.__root.sign)
 
         # set variables
-        self.__setattr__("node", self.root.node)
-        self.__setattr__("wax", self.root.wax)
-        self.__setattr__("name", self.root.name)
+        self.__setattr__("__node", self.__root.node)
+        self.__setattr__("__wax", self.__root.wax)
+        self.__setattr__("__name", self.__root.name)
 
     @property
     def root(self) -> typing.Union[AnchorClient, WCWClient]:
@@ -67,7 +67,7 @@ class Client:
 
         :return: 
         """
-        return self.root
+        return self.__root
     
     @property
     def node(self) -> str:
@@ -76,7 +76,7 @@ class Client:
 
         :return: 
         """
-        return self.node
+        return self.__node
     
     @property
     def wax(self) -> eospy.cleos.Cleos:
@@ -85,7 +85,7 @@ class Client:
 
         :return: 
         """
-        return self.wax
+        return self.__wax
     
     @property
     def name(self) -> str:
@@ -94,7 +94,7 @@ class Client:
 
         :return: 
         """
-        return self.name
+        return self.__name
     
     @property
     def change_node(self) -> typing.Callable[[str], None]:
@@ -105,7 +105,7 @@ class Client:
 
         :return: 
         """
-        return self.change_node
+        return self.__change_node
     
     @property
     def sign(self) -> typing.Callable[[EosTransaction], EosTransaction]:
@@ -116,7 +116,7 @@ class Client:
 
         :return: 
         """
-        return self.sign
+        return self.__sign
 
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
@@ -229,16 +229,16 @@ class Transaction:
     {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
     ```
     """
-    __slots__ = ("client", "actions")
+    __slots__ = ("__client", "__actions")
 
     def __init__(self, client: Client, *actions: tuple[Action, ...]):
-        self.client = client
+        self.__client = client
 
         if not actions:
             raise ValueError("Transaction must have at least one action")
 
-        self.actions = list(actions)
-        self.actions.reverse()
+        self.__actions = list(actions)
+        self.__actions.reverse()
 
     @property
     def client(self) -> Client:
@@ -247,7 +247,7 @@ class Transaction:
 
         :return:
         """
-        return self.client
+        return self.__client
 
     @property
     def actions(self) -> list[Action]:
@@ -256,7 +256,7 @@ class Transaction:
 
         :return:
         """
-        return self.actions
+        return self.__actions
 
     def __str__(self):
         actions = ',\n        '.join([str(x) for x in self.actions])
@@ -439,14 +439,14 @@ class MultiClient:
     >>> # Push transaction
     >>> trx.push()
     """
-    __slots__ = ("clients")
+    __slots__ = ("__clients")
 
     def __init__(self, 
             private_keys: typing.Optional[typing.List[str]] = [], 
             cookies: typing.Optional[typing.List[str]] = [],  
             clients: typing.Optional[typing.List[Client]] = [], 
             node: typing.Optional[str] = 'https://wax.greymass.com'):
-        self.clients = clients
+        self.__clients = clients
         if clients:
             self.change_node(node)
 
@@ -454,10 +454,10 @@ class MultiClient:
             raise AuthNotFound("You must provide a private key, a cookie or a clients")
 
         for private_key in private_keys:
-            self.clients.append(Client(private_key=private_key, node=node))
+            self.__clients.append(Client(private_key=private_key, node=node))
 
         for cookie in cookies:
-            self.clients.append(Client(cookie=cookie, node=node))
+            self.__clients.append(Client(cookie=cookie, node=node))
 
     def __str__(self) -> str:
         return f"MultiClient(clients={self.clients})"
@@ -469,7 +469,7 @@ class MultiClient:
         
         :return: 
         """
-        return self.clients
+        return self.__clients
 
     def change_node(self, node: str):
         """
@@ -603,13 +603,13 @@ class MultiTransaction:
     >>> trx.push()
 
     """
-    __slots__ = ("client", "actions")
+    __slots__ = ("__client", "__actions")
 
     def __init__(self, client: MultiClient, *actions: tuple[Action, ...]):
-        self.client = client
+        self.__client = client
 
-        self.actions = list(actions)
-        self.actions.reverse()
+        self.__actions = list(actions)
+        self.__actions.reverse()
 
     @property
     def client(self) -> MultiClient:
@@ -618,7 +618,7 @@ class MultiTransaction:
         
         :return: 
         """
-        return self.client
+        return self.__client
 
     @property
     def actions(self) -> typing.List[Action]:
@@ -627,7 +627,7 @@ class MultiTransaction:
         
         :return: 
         """
-        return self.actions
+        return self.__actions
 
 
     def __str__(self) -> str:

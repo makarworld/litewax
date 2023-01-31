@@ -277,10 +277,10 @@ class abigen():
 
     :return: :class:`abigen` class
     """
-    __slots__ = ('node')
+    __slots__ = ('__node')
 
     def __init__(self, node: str="https://wax.greymass.com"):
-        self.node = node
+        self.__node = node
 
     @property
     def node(self) -> str:
@@ -289,7 +289,7 @@ class abigen():
 
         :return: 
         """
-        return self.node
+        return self.__node
 
     def gen(self, name: str) -> str:
         """
