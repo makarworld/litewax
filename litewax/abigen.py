@@ -22,14 +22,14 @@ class Action:
 
     \"\"\"
 
-    __slots__ = ("contract", "action", "args", "result")
+    __slots__ = ("__contract", "__action", "__args", "__result")
 
     def __init__(self, contract: {name}, action: str, args: dict):
-        self.contract = contract
-        self.action = action
-        self.args = args
+        self.__contract = contract
+        self.__action = action
+        self.__args = args
 
-        self.result = self()
+        self.__result = self()
     
     @property
     def contract(self) -> {name}:
@@ -38,7 +38,7 @@ class Action:
 
         :return:
         \"\"\"
-        return self.contract
+        return self.__contract
 
     @property
     def action(self) -> str:
@@ -47,7 +47,7 @@ class Action:
 
         :return:
         \"\"\"
-        return self.action
+        return self.__action
 
     @property
     def args(self) -> dict:
@@ -56,7 +56,7 @@ class Action:
 
         :return:
         \"\"\"
-        return self.args
+        return self.__args
 
     @property
     def result(self) -> dict:
@@ -66,7 +66,7 @@ class Action:
         :return: 
         \"\"\"
 
-        return self.result
+        return self.__result
 
     def __str__(self):
         return f"[{self.contract.permission}] {self.contract.actor} > {name}::{self.action}({self.args})"
@@ -89,12 +89,12 @@ class {name}:
     :type node: str
 
     \"\"\"
-    __slots__ = ("wax", "actor", "permission")
+    __slots__ = ("__wax", "__actor", "__permission")
 
     def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"):
-        self.wax = eospy.cleos.Cleos(url=node, version='v1')
-        self.actor = actor
-        self.permission = permission
+        self.__wax = eospy.cleos.Cleos(url=node, version='v1')
+        self.__actor = actor
+        self.__permission = permission
 
     @property
     def actor(self) -> str:
@@ -103,11 +103,11 @@ class {name}:
 
         :return:
         \"\"\"
-        return self.actor
+        return self.__actor
     
     @actor.setter
     def actor(self, actor: str) -> None:
-        self.actor = actor
+        self.__actor = actor
 
     @property
     def permission(self) -> str:
@@ -117,11 +117,11 @@ class {name}:
         :return:
         \"\"\"
 
-        return self.permission
+        return self.__permission
 
     @permission.setter
     def permission(self, permission: str) -> None:
-        self.permission = permission
+        self.__permission = permission
 
     @property
     def wax(self) -> eospy.cleos.Cleos:
@@ -131,7 +131,7 @@ class {name}:
         :return:
         \"\"\"
 
-        return self.wax
+        return self.__wax
 
     def __str__(self):
         return f"{name}(actor={self.actor}, permission={self.permission}, node={self.wax.url})"

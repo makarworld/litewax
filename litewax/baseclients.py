@@ -30,16 +30,6 @@ class BaseClient:
         Node URL
         """
         return self.__node
-    
-    @node.setter
-    def node(self, node: str) -> None:
-        """
-        Node URL
-
-        :param node: Node URL
-        :type node: str
-        """
-        return self.change_node(node)
 
     @property
     def wax(self) -> eospy.cleos.Cleos:
@@ -57,7 +47,7 @@ class BaseClient:
 
         :return:
         """
-        self.node = node
+        self.__node = node
         self.wax._prod_url = node
         self.wax._dynurl = eospy.dynamic_url.DynamicUrl(url=self.wax._prod_url, version=self.wax._version)
 
@@ -211,6 +201,13 @@ class WCWClient(BaseClient):
             },
             timeout=120
         )
-
+        #print(signed.text)
         signatures = signed.json()["signatures"]
+        serealized = bytes(signed.json()["serializedTransaction"])
+        #print(trx)
+        #print(serealized)
+        print(trx == serealized)
+        if trx != serealized:
+            print(trx)
+            print(serealized)
         return signatures

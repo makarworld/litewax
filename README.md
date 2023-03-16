@@ -8,7 +8,7 @@
 # litewax
 Simply python library for interact with WAX blockchain
 
-See wiki for more info: [RU (under development)](https://github.com/makarworld/litewax/wiki) | EN (soon)
+See also: [litewax documentation](https://litewax.rtfd.io)
 
 # TODO
 - [x] Implement BaseClient
@@ -19,12 +19,10 @@ See wiki for more info: [RU (under development)](https://github.com/makarworld/l
 - [x] Add Nodes class for search best nodes for current ip; .best_node()
 - [x] Add docstrings for new classes and methods
 - [x] Update README.md
-- [ ] Create RU wiki
-- [ ] Create EN wiki
-- [ ] Write docs on readthedocs.io
+- [x] Write docs on readthedocs.io
 - [ ] Create tests for Client and MultiClient
-- [ ] Create examples for Client and MultiClient
-- [ ] Create docs
+- [x] Create examples for Client and MultiClient
+- [x] Create docs
 ---
 
 # Installation 

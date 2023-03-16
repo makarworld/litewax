@@ -52,13 +52,13 @@ class Client:
             raise ValueError("You must provide a private key or a WCW session token")
 
         # set methods
-        self.__setattr__("__change_node", self.__root.change_node)
-        self.__setattr__("__sign", self.__root.sign)
+        self.__change_node = self.__root.change_node
+        self.__sign = self.__root.sign
 
         # set variables
-        self.__setattr__("__node", self.__root.node)
-        self.__setattr__("__wax", self.__root.wax)
-        self.__setattr__("__name", self.__root.name)
+        self.__node = self.__root.node
+        self.__wax =self.__root.wax
+        self.__name = self.__root.name
 
     @property
     def root(self) -> typing.Union[AnchorClient, WCWClient]:
@@ -66,7 +66,7 @@ class Client:
         Root client object
         """
         return self.__root
-    
+
     @property
     def node(self) -> str:
         """
@@ -105,6 +105,24 @@ class Client:
         Inherited from :ref:`litewax.baseclients.AnchorClient` or :ref:`litewax.baseclients.WCWClient`
         """
         return self.__sign
+
+    @root.setter
+    def root(self, value: typing.Union[AnchorClient, WCWClient]): self.__root = value
+    
+    @node.setter
+    def node(self, value: str): self.__node = value
+
+    @wax.setter
+    def wax(self, value: eospy.cleos.Cleos): self.__wax = value
+
+    @name.setter
+    def name(self, value: str): self.__name = value
+
+    @change_node.setter
+    def change_node(self, value: typing.Callable[[str], None]): self.__change_node = value
+
+    @sign.setter
+    def sign(self, value: typing.Callable[[EosTransaction], EosTransaction]): self.__sign = value
 
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
@@ -235,6 +253,10 @@ class Transaction:
         :ref:`litewax.Client` object
         """
         return self.__client
+    
+    @client.setter
+    def client(self, client: Client):
+        self.__client = client
 
     @property
     def actions(self) -> list[Action]:
@@ -242,6 +264,10 @@ class Transaction:
         List of actions
         """
         return self.__actions
+
+    @actions.setter
+    def actions(self, actions: list[Action]):
+        self.__actions = actions
 
     def __str__(self):
         actions = ',\n        '.join([str(x) for x in self.actions])
@@ -269,31 +295,66 @@ class Transaction:
         """
         self.client = MultiClient(clients=[self.client], node=self.client.node)
 
+        new_trx = self.client.Transaction(*self.actions[::-1])
+
         if isinstance(payer, Client):
             # Client transform to MultiClient
             if payer.name != self.client[0].name:
                 self.client.append(payer)
 
-            self.actions.reverse()
-            self.actions.append(
+            new_trx.actions = [
                 Contract(
                     name       = "litewaxpayer", 
                     client     = payer, 
                     permission = permission,
                     node       = self.client[0].node
                 ).noop()
-            )
+            ] + new_trx.actions
 
-            return self.client.Transaction(*self.actions)
+            return new_trx
 
         elif payer.lower() == WAXPayer.ATOMICHUB:
-            return AtomicHub(self.client, self)
+            return AtomicHub(self.client, new_trx)
         
         elif payer.lower() == WAXPayer.NEFTYBLOCKS:
-            return NeftyBlocks(self.client, self)
+            return NeftyBlocks(self.client, new_trx)
 
         else:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
+
+
+    def pack(self, chain_info: typing.Optional[dict] = {}, lib_info: typing.Optional[dict] = {}, expiration: typing.Optional[int] = 180):
+        """
+        Pack transaction with client and return :class:`litewax.types.TransactionInfo`.
+
+        :param chain_info: chain info. Provide it if you not want to get it from blockchain (optional)
+        :type chain_info: dict
+        :param lib_info: lib info. Provide it if you not want to get it from blockchain (optional)
+        :type lib_info: dict
+        :param expiration: transaction expiration time in seconds (optional): default 180
+        :type expiration: int
+
+        :return: :class:`litewax.types.TransactionInfo`
+        :rtype: litewax.types.TransactionInfo
+        """
+        transaction = {
+            "actions": [a.result for a in self.actions]
+        }
+            
+        transaction['expiration'] = str(
+            (dt.datetime.utcnow() + dt.timedelta(seconds = expiration)).replace(tzinfo=pytz.UTC))
+
+        # Provide it if you not want to get it from blockchain
+        if not chain_info or not lib_info:
+            chain_info, lib_info = self.client.wax.get_chain_lib_info()
+
+        trx = EosTransaction(transaction, chain_info, lib_info)
+
+        return TransactionInfo(
+            signatures = [], 
+            packed     = trx.encode().hex(), 
+            serealized = [x for x in trx.encode()]
+        )
 
 
     def prepare_trx(self, chain_info: typing.Optional[dict] = {}, lib_info: typing.Optional[dict] = {}, expiration: typing.Optional[int] = 180) -> TransactionInfo:
@@ -584,13 +645,21 @@ class MultiTransaction:
     >>> trx.push()
 
     """
-    __slots__ = ("__client", "__actions")
+    __slots__ = ("__client", "__actions", "__wax")
 
     def __init__(self, client: MultiClient, *actions: tuple[Action, ...]):
         self.__client = client
+        self.__wax = client[0].wax
 
         self.__actions = list(actions)
         self.__actions.reverse()
+
+    @property
+    def wax(self) -> eospy.cleos.Cleos:
+        """
+        :class:`eospy.cleos.Cleos`
+        """
+        return self.__wax
 
     @property
     def client(self) -> MultiClient:
@@ -606,6 +675,14 @@ class MultiTransaction:
         """
         return self.__actions
 
+    @wax.setter
+    def wax(self, wax: eospy.cleos.Cleos): self.__wax = wax
+
+    @client.setter
+    def client(self, client: MultiClient): self.__client = client
+
+    @actions.setter
+    def actions(self, actions: typing.List[Action]): self.__actions = actions
 
     def __str__(self) -> str:
         """return string representation of transaction"""
@@ -657,6 +734,39 @@ class MultiTransaction:
         else:
             raise NotImplementedError("Only AtomicHub and NeftyBlocks are supported.")
 
+
+    def pack(self, chain_info: typing.Optional[dict] = {}, lib_info: typing.Optional[dict] = {}, expiration: typing.Optional[int] = 180):
+        """
+        Pack transaction with client and return :class:`litewax.types.TransactionInfo`.
+
+        :param chain_info: chain info. Provide it if you not want to get it from blockchain (optional)
+        :type chain_info: dict
+        :param lib_info: lib info. Provide it if you not want to get it from blockchain (optional)
+        :type lib_info: dict
+        :param expiration: transaction expiration time in seconds (optional): default 180
+        :type expiration: int
+
+        :return: :class:`litewax.types.TransactionInfo`
+        :rtype: litewax.types.TransactionInfo
+        """
+        transaction = {
+            "actions": [a.result for a in self.actions]
+        }
+            
+        transaction['expiration'] = str(
+            (dt.datetime.utcnow() + dt.timedelta(seconds = expiration)).replace(tzinfo=pytz.UTC))
+
+        # Provide it if you not want to get it from blockchain
+        if not chain_info or not lib_info:
+            chain_info, lib_info = self.client[0].wax.get_chain_lib_info()
+
+        trx = EosTransaction(transaction, chain_info, lib_info)
+
+        return TransactionInfo(
+            signatures = [], 
+            packed     = trx.encode().hex(), 
+            serealized = [x for x in trx.encode()]
+        )
 
     def prepare_trx(self, chain_info: typing.Optional[dict] = {}, lib_info: typing.Optional[dict] = {}, expiration: typing.Optional[int] = 180) -> TransactionInfo:
         """

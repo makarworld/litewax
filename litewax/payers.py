@@ -13,9 +13,9 @@ class AtomicHub:
     - atomicmarket
 
     :param client: MultiClient instance
-    :type client: :obj:`litewax.clients.MultiClient`
+    :type client: :class:`litewax.clients.MultiClient`
     :param trx: MultiTransaction instance
-    :type trx: :obj:`litewax.clients.MultiTransaction`
+    :type trx: :class:`litewax.clients.MultiTransaction`
     :param network: network name (default: mainnet)
     :type network: `str`
 
@@ -54,12 +54,20 @@ class AtomicHub:
         """
         return self.__trx
 
+    @trx.setter
+    def trx(self, value):
+        self.__trx = value
+
     @property
     def client(self):
         """
         :ref:`litewax.clients.MultiClient` instance
         """
         return self.__client
+
+    @client.setter
+    def client(self, value):
+        self.__client = value
 
     @property
     def scraper(self):
@@ -68,6 +76,10 @@ class AtomicHub:
         """
         return self.__scraper
 
+    @scraper.setter
+    def scraper(self, value):
+        self.__scraper = value
+
     @property
     def sign_link(self):
         """
@@ -75,12 +87,20 @@ class AtomicHub:
         """
         return self.__sign_link
 
+    @sign_link.setter
+    def sign_link(self, value):
+        self.__sign_link = value
+
     @property
     def push_link(self):
         """
         Link to push transaction
         """
         return self.__push_link
+
+    @push_link.setter
+    def push_link(self, value):
+        self.__push_link = value
 
     def push(self, signed = {}, expiration = 180) -> dict:
         """
@@ -97,6 +117,8 @@ class AtomicHub:
         :rtype: dict
         """
         if not signed:
+            print(self.client)
+            print(type(self.trx))
             signed = self.trx.prepare_trx(expiration = expiration)
         signatures = signed.signatures
 
@@ -112,7 +134,7 @@ class AtomicHub:
             "Upgrade-Insecure-Requests": "1"
         })
 
-        sign_packed = self.scraper.post(self.sign_link, json={"transaction": signed['packed']}).json()
+        sign_packed = self.scraper.post(self.sign_link, json={"transaction": signed.packed}).json()
 
         if sign_packed.get('success') is False:
             raise AtomicHubPushError(sign_packed.get('message'))
@@ -124,7 +146,7 @@ class AtomicHub:
             "signatures": signatures,
             "compression": 0,
             "packed_context_free_data": "",
-            "packed_trx": signed['packed']
+            "packed_trx": signed.packed
         })
         return push
 
