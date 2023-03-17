@@ -202,12 +202,12 @@ class WCWClient(BaseClient):
             timeout=120
         )
         #print(signed.text)
-        signatures = signed.json()["signatures"]
-        serealized = bytes(signed.json()["serializedTransaction"])
-        #print(trx)
-        #print(serealized)
-        print(trx == serealized)
-        if trx != serealized:
-            print(trx)
-            print(serealized)
-        return signatures
+        json_response = signed.json()
+        if json_response.get("signatures") and json_response.get("serializedTransaction"):
+            signatures = json_response["signatures"]
+            serealized = bytes(json_response["serializedTransaction"])
+
+            return signatures
+        else:
+            raise ValueError("Invalid response while sign transaction with WAX Cloud Wallet: {}".format(signed.text))
+

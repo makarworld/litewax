@@ -1,16 +1,19 @@
 from setuptools import setup, find_packages
-
+from litewax import __version__
 """
 :author: abuztrade
 :license: MIT License, see LICENSE file.
 :copyright: (c) 2022 by abuztrade.
 """
 
+version = __version__
 
-version = '0.1.7.dev0'
-
-with open("README.md", "r") as f:
-    long_description = f.read()
+try:
+    with open("README.md", "r") as f:
+        long_description = f.read()
+except FileNotFoundError:
+    with open("README.MD", "r") as f:
+        long_description = f.read()
 
 setup(
     name="litewax",
