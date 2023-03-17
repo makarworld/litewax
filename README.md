@@ -29,6 +29,11 @@ See also: [litewax documentation](https://litewax.rtfd.io)
 ```
 pip install litewax
 ```
+or install latest dev build:
+```
+pip install git+https://github.com/makarworld/litewax.git@refactoring
+```
+
 
 ---
 
