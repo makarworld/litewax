@@ -181,12 +181,12 @@ class WCWClient(BaseClient):
         :rtype: list
         """
         self.session.options(
-            "https://public-wax-on.wax.io/wam/sign", 
+            "https://wax-on-api.mycloudwallet.com/wam/sign", 
             headers={"origin":"https://all-access.wax.io"}, 
             cookies={'session_token': self.cookie})
 
         signed = self.session.post(
-            "https://public-wax-on.wax.io/wam/sign",
+            "https://wax-on-api.mycloudwallet.com/wam/sign",
             headers={
                 'origin': 'https://all-access.wax.io',
                 'referer': 'https://all-access.wax.io/',
