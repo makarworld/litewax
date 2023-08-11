@@ -164,9 +164,9 @@ class WCWClient(BaseClient):
         """
         try:
             return self.session.get(
-                "https://api-idm.wax.io/v1/accounts/auto-accept/login",
-                headers={"origin":"https://wallet.wax.io"}, 
-                cookies={'session_token': self.cookie}).json()["userAccount"]
+                "https://login-api.mycloudwallet.com/v1/wcw/session",
+                headers={"origin":"https://www.mycloudwallet.com"}, 
+                cookies={'session_token': self.cookie}).json()["account"]
         except KeyError:
             raise CookiesExpired("Session token is expired")
 
@@ -182,14 +182,14 @@ class WCWClient(BaseClient):
         """
         self.session.options(
             "https://wax-on-api.mycloudwallet.com/wam/sign", 
-            headers={"origin":"https://all-access.wax.io"}, 
+            headers={"origin":"https://www.mycloudwallet.com"}, 
             cookies={'session_token': self.cookie})
 
         signed = self.session.post(
             "https://wax-on-api.mycloudwallet.com/wam/sign",
             headers={
-                'origin': 'https://all-access.wax.io',
-                'referer': 'https://all-access.wax.io/',
+                'origin': 'https://www.mycloudwallet.com',
+                'referer': 'https://www.mycloudwallet.com',
                 'x-access-token': self.cookie,
                 'content-type': 'application/json;charset=UTF-8',
             },
@@ -202,7 +202,11 @@ class WCWClient(BaseClient):
             timeout=120
         )
         #print(signed.text)
-        json_response = signed.json()
+        try:
+            json_response = signed.json()
+        except Exception as e:
+            print(f"Error with signing transaction with WAX Cloud Wallet: {e}")
+
         if json_response.get("signatures") and json_response.get("serializedTransaction"):
             signatures = json_response["signatures"]
             serealized = bytes(json_response["serializedTransaction"])
