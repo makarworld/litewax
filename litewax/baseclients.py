@@ -209,7 +209,7 @@ class WCWClient(BaseClient):
 
         if json_response.get("signatures") and json_response.get("serializedTransaction"):
             signatures = json_response["signatures"]
-            serealized = bytes(json_response["serializedTransaction"])
+            _ = bytes(json_response["serializedTransaction"])
 
             return signatures
         else:

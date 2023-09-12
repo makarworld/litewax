@@ -73,7 +73,7 @@ class Nodes:
                 else:
                     ping = int(req.elapsed.total_seconds() * 1000)
                 result[node] = ping
-            except:
+            except Exception as _:
                 result[node] = 9999
         
         return result

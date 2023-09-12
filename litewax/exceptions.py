@@ -30,6 +30,10 @@ class CookiesExpired(Exception):
     """Raised when cookies are expired or invalid"""
     pass
 
+class PayerSignError(Exception):
+    """Raised when signing with payer fails"""
+    pass
+
 class AtomicHubPushError(Exception):
     """Raised when transaction is not signed by AtomicHub"""
     pass

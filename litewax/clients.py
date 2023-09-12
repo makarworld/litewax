@@ -7,9 +7,9 @@ import datetime as dt
 import pytz
 
 from .baseclients import AnchorClient, WCWClient
-from .types import TransactionInfo, WAXPayer
+from .types import TransactionInfo, WAXPayer, ContractInterface
 from .payers import AtomicHub, NeftyBlocks
-from .contract import Contract, Action, ExampleContract
+from .contract import Contract, Action
 from .exceptions import (
     CPUlimit, AuthNotFound,
     ExpiredTransaction, UnknownError
@@ -127,7 +127,7 @@ class Client:
     def __str__(self):
         return f"Client(name={self.name}, node={self.node})"
 
-    def Contract(self, name: str, actor: typing.Optional[typing.Union[str, None]] = None, force_recreate: typing.Optional[bool] = False, node: typing.Optional[str] = None) -> ExampleContract:
+    def Contract(self, name: str, actor: typing.Optional[typing.Union[str, None]] = None, force_recreate: typing.Optional[bool] = False, node: typing.Optional[str] = None) -> ContractInterface:
         """
         Create a :class:`litewax.contract.ExampleContract` object
 
@@ -574,7 +574,8 @@ class MultiClient:
         signatures = []
 
         for client in self.clients:
-            if client.name not in whitelist: continue
+            if client.name not in whitelist: 
+                continue 
 
             if isinstance(client.root, AnchorClient):
                 signatures += client.sign(digest)
