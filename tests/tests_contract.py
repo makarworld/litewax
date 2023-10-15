@@ -5,13 +5,13 @@ from litewax import Contract
 
 
 def test_create_contract_good():
-    contract = Contract("res.pink")
+    contract = Contract("litewaxpayer")
 
-    assert os.path.exists('./contracts/res_pink.py')
+    assert os.path.exists('./contracts/litewaxpayer.py'), "Contract file does not exist"
 
-    from contracts.res_pink import res_pink
+    from contracts.litewaxpayer import litewaxpayer
     
-    assert isinstance(contract, res_pink)
+    assert isinstance(contract, litewaxpayer), "Contract is not litewaxpayer"
 
     with pytest.raises(ValueError):
         contract.noop()
@@ -19,17 +19,17 @@ def test_create_contract_good():
     
     contract.set_actor("abuztradewax")
 
-    assert contract.actor == "abuztradewax"
+    assert contract.actor == "abuztradewax", "Actor does not match"
 
     noop = contract.noop()
 
-    assert noop == {'account': 'res.pink', 'authorization': [{'actor': 'abuztradewax', 'permission': 'active'}], 'data': '', 'name': 'noop'}
+    assert noop == {'account': 'litewaxpayer', 'authorization': [{'actor': 'abuztradewax', 'permission': 'active'}], 'data': '', 'name': 'noop'}, "Noop does not match"
 
 def test_create_contract_bad():
     with pytest.raises(KeyError):
         contract = Contract("badcontract")
 
-    assert not os.path.exists('./contracts/badcontract.py')
+    assert not os.path.exists('./contracts/badcontract.py'), "Contract file exist"
 
     with pytest.raises(ModuleNotFoundError):
         from contracts.badcontract import badcontract

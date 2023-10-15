@@ -34,6 +34,7 @@ trx = client.Transaction(
 r = trx.push()
 
 print(r)
+# {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
 
 # Edit nft listing price (https://wax.bloks.io/transaction/37efdd4da70f97807fbf56efae5b438ba1a22ac7cce6224a4e33a020200cac00)
 trx = client.Transaction(
@@ -60,6 +61,7 @@ trx = client.Transaction(
 r = trx.push()
 
 print(r)
+# {'transaction_id': '928802d253bffc29d6178e634052ec5f044b2fcce0c4c8bc5b44d978e22ec5d4', ...}
 
 # Cancel nft listing (https://wax.bloks.io/transaction/fec3677e2df0abc516d552d7fedfd9d9f1a0d702752843287904ec3c5dd59f3c)
 trx = client.Transaction(

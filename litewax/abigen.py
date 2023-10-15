@@ -9,15 +9,67 @@ import datetime as dt
 from typing import Tuple, Any
 
 class Action:
-    def __init__(self, contract: {name}, action: str, args: dict):
-        self.contract = contract
-        self.action = action
-        self.args = args
+    \"\"\"
+    Action class for calling actions. 
+    In :meth:`result` contains the result of the action.
 
-        self.result = self()
+    :param contract: Contract object
+    :type contract: object
+    :param action: Action name
+    :type action: str
+    :param args: Action arguments
+    :type args: dict
+
+    \"\"\"
+
+    __slots__ = ("__contract", "__action", "__args", "__result")
+
+    def __init__(self, contract: {name}, action: str, args: dict):
+        self.__contract = contract
+        self.__action = action
+        self.__args = args
+
+        self.__result = self()
     
+    @property
+    def contract(self) -> {name}:
+        \"\"\"
+        Contract object
+
+        :return:
+        \"\"\"
+        return self.__contract
+
+    @property
+    def action(self) -> str:
+        \"\"\"
+        Action name
+
+        :return:
+        \"\"\"
+        return self.__action
+
+    @property
+    def args(self) -> dict:
+        \"\"\"
+        Action arguments
+
+        :return:
+        \"\"\"
+        return self.__args
+
+    @property
+    def result(self) -> dict:
+        \"\"\"
+        Result of the action
+
+        :return: 
+        \"\"\"
+
+        return self.__result
+
     def __str__(self):
-        return f"{name}::{self.action}({self.args})"
+        return f"[{self.contract.permission}] {self.contract.actor} > {name}::{self.action}({self.args})"
     
     def __repr__(self):
         return self.__str__()
@@ -26,10 +78,60 @@ class Action:
         return self.contract.call(self.action, self.args)
 
 class {name}:
+    \"\"\"
+    {name} contract object
+
+    :param actor: Account name
+    :type actor: str
+    :param permission: Permission name
+    :type permission: str
+    :param node: The node to use (default: https://wax.greymass.com)
+    :type node: str
+
+    \"\"\"
+    __slots__ = ("__wax", "__actor", "__permission")
+
     def __init__(self, actor: str="", permission: str="active", node: str="https://wax.greymass.com"):
-        self.wax = eospy.cleos.Cleos(url=node, version='v1')
-        self.actor = actor
-        self.permission = permission
+        self.__wax = eospy.cleos.Cleos(url=node, version='v1')
+        self.__actor = actor
+        self.__permission = permission
+
+    @property
+    def actor(self) -> str:
+        \"\"\"
+        Account name
+
+        :return:
+        \"\"\"
+        return self.__actor
+    
+    @actor.setter
+    def actor(self, actor: str) -> None:
+        self.__actor = actor
+
+    @property
+    def permission(self) -> str:
+        \"\"\"
+        Permission name
+
+        :return:
+        \"\"\"
+
+        return self.__permission
+
+    @permission.setter
+    def permission(self, permission: str) -> None:
+        self.__permission = permission
+
+    @property
+    def wax(self) -> eospy.cleos.Cleos:
+        \"\"\"
+        Cleos instance
+
+        :return:
+        \"\"\"
+
+        return self.__wax
 
     def __str__(self):
         return f"{name}(actor={self.actor}, permission={self.permission}, node={self.wax.url})"
@@ -168,10 +270,35 @@ def check_ban(text):
         return banwords.get(text)
 
 class abigen():
-    def __init__(self, node: str="https://wax.greymass.com"):
-        self.node = node
+    """
+    abigen class for generating python classes from abi to interact with contracts
 
-    def gen(self, name):
+    :param node: wax node url
+
+    :return: :class:`abigen` class
+    """
+    __slots__ = ('__node')
+
+    def __init__(self, node: str="https://wax.greymass.com"):
+        self.__node = node
+
+    @property
+    def node(self) -> str:
+        """
+        Node URL
+        """
+        return self.__node
+
+    def gen(self, name: str) -> str:
+        """
+        Generate python class from abi
+
+        :param name: contract name
+        :type name: str
+
+        :return: content of generated file
+        :rtype: str
+        """
         actions = self.get_abi(name)
         out = file_start
         for action in actions:
@@ -222,14 +349,33 @@ class abigen():
             f.write(out)
         return out
         
-    def get_abi(self, account_name: str):
+    def get_abi(self, account_name: str) -> dict:
+        """
+        Get contract abi from node
+
+        :param account_name: contract name
+        :type account_name: str
+
+        :return: abi
+        :rtype: dict
+        """
         r = requests.post(f"{self.node}/v1/chain/get_abi", json={"account_name": account_name}).json()
         return r['abi']['structs']
 
-    def get_tx_info(self, tx: str):
+    def get_tx_info(self, tx: str) -> dict:
+        """
+        # Depricated
+        Get transaction info from node
+        
+        :param tx: transaction id
+        :type tx: str
+        
+        :return: transaction info
+        :rtype: dict
+        """
         return requests.post(f"{self.node}/v1/history/get_transaction",
                    json={"id": tx, "block_num_hint": 0}).json()
 
-if __name__ == "__main__":
-    app = abigen()
-    app.gen("res.pink")
+#if __name__ == "__main__":
+#    app = abigen()
+#    app.gen("res.pink")

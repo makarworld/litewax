@@ -1,7 +1,7 @@
 from litewax import Client
 
-# Create a client with a private key
-client = Client(private_key="5K...")
+# Create a client with a session token from https://wallet.wax.io/. Guide: https://litewax.readthedocs.io/en/latest/other/get_token_session.html
+client = Client(cookie="V5cS...vhF3")
 
 # to - the account send the tokens to
 to = "abuztradewax"

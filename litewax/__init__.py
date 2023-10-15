@@ -1,17 +1,22 @@
-from .contract import Contract
+from .contract import Contract, Action
 from .abigen import abigen
-from .client import Client
-from .multisigclient import MultiSigClient
-from .paywith import Payers
+from .clients import Client, MultiClient, Transaction, MultiTransaction
+from .payers import AtomicHub, NeftyBlocks
+from .types import WAXPayer
 
 __all__ = [
     'Contract', 
+    'Action',
     'Client',
-    'MultiSigClient',
-    'Payers',
+    'MultiClient',
+    'Transaction',
+    'MultiTransaction',
+    'WAXPayer',
+    'AtomicHub',
+    'NeftyBlocks',
     'abigen'
 ]
 
 __author__ = 'abuztrade'
-__version__ = '0.1.6'
+__version__ = '0.1.8.dev6'
 __email__ = 'abuztrade.work@gmail.com'
