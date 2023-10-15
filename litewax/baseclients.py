@@ -4,11 +4,11 @@ import eospy.keys
 import eospy.dynamic_url
 import typing 
 
-from .types import CUSTOM_BROWSER
 from .exceptions import (
     CookiesExpired, 
 )
 
+CUSTOM_BROWSER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.37"
 class BaseClient:
     """
     BaseClient is a base client for interacting with the blockchain

@@ -7,7 +7,6 @@ import eospy.cleos
 from dataclasses import dataclass
 import typing
 
-CUSTOM_BROWSER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.37"
 class WAXPayer:
     """
     WAXPayer is a class for storing supported payers

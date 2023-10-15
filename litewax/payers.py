@@ -2,7 +2,8 @@ import cloudscraper
 from typing import List
 from .contract import Contract
 from .exceptions import PayerSignError
-from .types import CUSTOM_BROWSER, ContractInterface, MultiClientInterface, MultiTransactionInterface
+from .baseclients import CUSTOM_BROWSER
+from .types import ContractInterface, MultiClientInterface, MultiTransactionInterface
 
 
 # same interface as Transaction
@@ -10,7 +11,7 @@ class CustomPayer:
     """
     Base for all payers
     """
-    __slots__ = ("__trx", "__client", "__scraper", "__sign_link", "__push_link", "support_networks", "payer_action", "sign_urls")
+    __slots__ = ("__trx", "__client", "__scraper", "__sign_link", "__push_link")#, "support_networks", "payer_action", "sign_urls")
     # example: ["mainnet", "testnet"]
     support_networks: List[str] = []
     # example: Contract("res.pink", actor="res.pink", permission="paybw").noop()
